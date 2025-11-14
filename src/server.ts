@@ -2,9 +2,8 @@ import type {Request, Response} from "express";
 import express from "express"
 import jwt from "jsonwebtoken";
 import type {Transaction} from "./types/transaction";
-import type {User} from "./types/user";
+import type {User, UserRole} from "./types/user";
 import {jwtDecode} from "jwt-decode";
-import type {FinancialAccount} from "./types/financialAccount";
 
 const app = express();
 const PORT = 3001;
@@ -12,7 +11,6 @@ const PORT = 3001;
 // Секретный ключ для подписи токенов
 const ACCESS_TOKEN_SECRET = "yourAccessTokenSecret"; // Никогда не используйте такую строчку в реальных проектах, храните секреты в .env.
 const REFRESH_TOKEN_SECRET = "yourRefreshTokenSecret";
-
 
 function generateAccessToken(payload: any) {
     return jwt.sign(payload, ACCESS_TOKEN_SECRET); // Токен действует 1 час
@@ -37,31 +35,40 @@ const users: User[] = [
     {
         id: 1,
         email: "andrushastus@gmail.com",
-        password: "gaguga",
+        password: "gugugugagaga",
         username: "Andrusha",
-        age: 38,
+        firstname: "Andrew",
+        lastname: "Stus",
+        address: {
+            city: "Los-Angeles",
+            street: "Jefferson",
+            houseNumber: 18
+        },
+        phone: "+38(097)123-45-67",
+        birthYear: 1987,
+        profession: "react-developer",
+        isMarried: true,
         role: "admin"
     },
     {
         id: 2,
         email: "john@gmail.com",
-        password: "gaguga",
-        username: "John",
-        age: 43,
+        password: "gugugugagaga",
+        username: "Johnny",
+        firstname: "John",
+        lastname: "Preastley",
+        address: {
+            city: "New York",
+            street: "Broadway",
+            houseNumber: 16
+        },
+        phone: "+38(063)765-43-21",
+        birthYear: 1985,
+        profession: "react-developer",
+        isMarried: true,
         role: "user"
     }
 ];
-
-const financialAccounts: FinancialAccount[] = [
-    {
-        id: 1,
-        balance: 0
-    },
-    {
-        id: 2,
-        balance: 0
-    }
-]
 
 const transactions: Transaction[] = [
     {
@@ -130,38 +137,46 @@ app.use((req: Request, res: Response, next) => {
 
 
 app.post("/users", (req: Request, res: Response) => {
-    const {email, password, username, age} = req.body;
+    const {email, password, username, firstname, lastname, address, phone, birthYear, profession, isMarried} = req.body;
 
     const newUser: User = {
         id: getLatestUserId() + 1,
         email: email,
         password: password,
         username: username,
-        age: age,
+        firstname: firstname,
+        lastname: lastname,
+        address: address,
+        phone: phone,
+        birthYear: birthYear,
+        profession: profession,
+        isMarried: isMarried,
         role: "user"
     }
 
-    const newFinancialAccount: FinancialAccount = {
-        id: newUser.id,
-        balance: 0
-    }
-
     users.push(newUser);
-    financialAccounts.push(newFinancialAccount);
 
     const resUser: Omit<User, "password"> = {
         id: newUser.id,
         email: newUser.email,
         username: newUser.username,
-        age: newUser.age,
+        firstname: newUser.firstname,
+        lastname: newUser.lastname,
+        address: newUser.address,
+        phone: newUser.phone,
+        birthYear: newUser.birthYear,
+        profession: newUser.profession,
+        isMarried: newUser.isMarried,
         role: newUser.role
     }
+
+    console.log(resUser.id, resUser.email, resUser.username, resUser.firstname, resUser.lastname, resUser.address, resUser.phone, resUser.birthYear, resUser.profession, resUser.isMarried, resUser.role);
 
     return res.status(200).json(resUser);
 })
 
 // Пример эндпоинта для генерации токена
-app.post("/auth/login", (req: Request, res: Response) => {
+app.post("/login", (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     const user: User | undefined = users.find((user) => user.email === email && user.password === password);
@@ -172,7 +187,7 @@ app.post("/auth/login", (req: Request, res: Response) => {
 
         const accessToken = generateAccessToken({...payload, iat: Date.now() / 1000, exp: Date.now() / 1000 + 60});
         console.log("Starting access token: ", accessToken);
-        const refreshToken = generateRefreshToken(payload);
+        const refreshToken = generateRefreshToken({...payload, iat: Date.now() / 1000, exp: (Date.now() / 1000) + 60 * 2});
 
         return res.json({ accessToken, refreshToken });
     }
@@ -180,12 +195,12 @@ app.post("/auth/login", (req: Request, res: Response) => {
     res.status(401).json({ message: "Invalid username or password" });
 });
 
-app.post("/refresh-token", (req: Request, res: Response) => {
+app.post("/refresh-all-tokens", (req: Request, res: Response) => {
     const {refreshToken} = req.body;
     console.log("refreshToken: ", refreshToken);
     if(!refreshToken) {
-        console.error("refresh token not exist on server");
-        return res.status(403).json({message: "refresh token not exist on server"});
+        console.error("refresh token is undefined");
+        return res.status(403).json({message: "refresh token is undefined"});
     }
 
     jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (error, payload) => {
@@ -194,10 +209,11 @@ app.post("/refresh-token", (req: Request, res: Response) => {
             return res.status(403).json({message: "Incorrect refresh token"});
         }
 
-        const newPayload = {...payload, iat: Date.now() / 1000, exp: Date.now() / 1000 + 60}
-        const newAccessToken = generateAccessToken(newPayload);
+
+        const newAccessToken = generateAccessToken({...payload, iat: Date.now() / 1000, exp: Date.now() / 1000 + 60});
+        const newRefreshToken = generateRefreshToken({...payload, iat: Date.now() / 1000, exp: (Date.now() / 1000) + 60 * 2});
         console.log("New access token: ", newAccessToken);
-        return res.json({accessToken: newAccessToken});
+        return res.json({accessToken: newAccessToken, refreshToken: newRefreshToken});
     });
 })
 
@@ -231,18 +247,37 @@ const authenticateToken = (req, res, next) => {
     }
 
 
-    //req.user = payload; // Записываем данные в запрос
     next();
-
 };
 
 app.get("/users", authenticateToken, (req: Request, res: Response) => {
+    const authHeader: string | undefined = req.headers["authorization"];
+    const accessToken: string | undefined = authHeader && authHeader.split(" ")[1];
+
+    if (!accessToken) {
+        return res.status(401).json({ message: "Access token is missing" });
+    }
+
+    const decode: any = jwtDecode(accessToken);
+    const id: number = decode.id;
+    const role: UserRole = decode.role;
+    const user: User | undefined = users.find((user) => user.id === id && user.role === "admin" && role === "admin");
+    if(!user) {
+        return res.status(403).json({message: `Undefined user with id ${id} or role \"admin\"`});
+    }
+
     const resUsers: Omit<User, "password">[] = users.map((user) => {
         const resUser: Omit<User, "password"> = {
             id: user.id,
             email: user.email,
             username: user.username,
-            age: user.age,
+            firstname: user.firstname,
+            lastname: user.lastname,
+            address: user.address,
+            phone: user.phone,
+            birthYear: user.birthYear,
+            profession: user.profession,
+            isMarried: user.isMarried,
             role: user.role
         }
 
@@ -271,7 +306,13 @@ app.get("/users/me", authenticateToken, (req: Request, res: Response) => {
         id: user.id,
         email: user.email,
         username: user.username,
-        age: user.age,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        address: user.address,
+        phone: user.phone,
+        birthYear: user.birthYear,
+        profession: user.profession,
+        isMarried: user.isMarried,
         role: user.role
     }
 
@@ -340,24 +381,6 @@ app.post("/transactions", authenticateToken, (req: Request, res: Response) => {
     }
 
     return res.json(newTransaction);
-});
-
-app.get("/financial-accounts/me", authenticateToken, (req: Request, res: Response) => {
-    const authHeader: string | undefined = req.headers["authorization"];
-    const accessToken: string | undefined = authHeader && authHeader.split(" ")[1];
-
-    if (!accessToken) {
-        return res.status(401).json({ message: "Access token is missing" });
-    }
-
-    const decode: any = jwtDecode(accessToken);
-    const id: number = decode.id;
-    const myFinancialAccount: FinancialAccount | undefined = financialAccounts.find((ac) => ac.id === id);
-    if(!myFinancialAccount) {
-        res.status(404).json({message: `Account with id ${id} not found`});
-    }
-
-    return res.status(200).json(myFinancialAccount);
 });
 
 

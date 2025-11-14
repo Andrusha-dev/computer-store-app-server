@@ -1,0 +1,21 @@
+import type {Category, PCComponent} from "./pcComponent.types";
+
+
+export type ProcessorProducer = "Intel" | "AMD";
+export type ProcessorSocket = "LGA1700" | "LGA1200" | "LGA1151" | "LGA1150" | "LGA1155" | "AM5" | "AM4" | "AM3" | "AM2";
+export type NumberOfCores = "2cores" | "4cores" | "6cores" | "8cores";
+export type NumberOfThreads = "2threads" | "4threads" | "6threads" | "8threads" | "12threads" | "16threads";
+
+export interface ProcessorOptions {
+    producer: ProcessorProducer;
+    processorSocket: ProcessorSocket;
+    processorFrequencyGHz: number;
+    numberOfCores: NumberOfCores;
+    numberOfThreads: NumberOfThreads;
+    l3cacheMB: number;
+}
+
+export interface Processor extends PCComponent {
+    category: Extract<Category, "processors">;
+    processorOptions: ProcessorOptions;
+}
