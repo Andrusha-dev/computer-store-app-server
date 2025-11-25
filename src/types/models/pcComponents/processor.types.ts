@@ -1,4 +1,4 @@
-import type {Category, PCComponent} from "./pcComponent.types";
+import type {Category, PCComponent, PCComponentFilters} from "./pcComponent.types";
 
 
 export type ProcessorProducer = "Intel" | "AMD";
@@ -19,3 +19,12 @@ export interface Processor extends PCComponent {
     category: Extract<Category, "processors">;
     processorOptions: ProcessorOptions;
 }
+
+//основний тип для фільтрів списку процесорів Processor[]
+export interface ProcessorFilters extends PCComponentFilters {
+    producer?: ProcessorProducer[];
+    processorSocket?: ProcessorSocket[];
+    numberOfCores?: NumberOfCores[];
+    numberOfThreads?: NumberOfThreads[];
+}
+

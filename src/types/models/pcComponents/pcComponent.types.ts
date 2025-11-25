@@ -8,5 +8,11 @@ export interface PCComponent {
     imgUrls: string[];
     price: number;
     description: string;
-    isExist: boolean;
+    quantity: number;
+    category: Category;
+}
+//Загальні фільтри для всіх компонентів
+export interface PCComponentFilters {
+    minPrice?: number;
+    maxPrice?: number;
 }
