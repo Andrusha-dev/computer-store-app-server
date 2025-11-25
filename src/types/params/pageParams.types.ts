@@ -7,5 +7,5 @@ export interface PageParams {
     pageNo?: number;
     pageSize?: number;
     sortType?: SortType;
-    SortOrder?: SortOrder;
+    sortOrder?: SortOrder;
 }

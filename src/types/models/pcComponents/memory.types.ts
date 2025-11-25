@@ -1,4 +1,4 @@
-import type {Category, PCComponent} from "./pcComponent.types";
+import type {Category, PCComponent} from "./pcComponent.types.ts";
 
 
 export type MemoryProducer = "samsung" | "Corsair" | "G.SKILL" | "Kingston" | "PNY" | "Transcend";

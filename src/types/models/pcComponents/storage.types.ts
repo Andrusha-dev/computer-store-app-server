@@ -1,4 +1,4 @@
-import type {Category, PCComponent} from "./pcComponent.types";
+import type {Category, PCComponent} from "./pcComponent.types.ts";
 
 
 export type storageProducer = "Seagate" | "Toshiba" | "Western Digital" | "Samsung" | "HP" | "ADATA";

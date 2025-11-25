@@ -1,4 +1,4 @@
-import type {Category, PCComponent, PCComponentFilters} from "./pcComponent.types";
+import type {Category, PCComponent, PCComponentFilters} from "./pcComponent.types.ts";
 
 
 export type ProcessorProducer = "Intel" | "AMD";

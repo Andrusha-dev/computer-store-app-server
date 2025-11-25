@@ -1,4 +1,4 @@
-import type {Category, PCComponent} from "./pcComponent.types";
+import type {Category, PCComponent} from "./pcComponent.types.ts";
 
 export type powerSupplyProducer = "Gigabyte" | "Seasonic" | "Chieftec" | "Cooler Master" | "DeepCool";
 export type PowerSupplyPlacing = "below" | "above";

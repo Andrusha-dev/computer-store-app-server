@@ -1,9 +1,20 @@
 import type {Request, Response} from "express";
 import express from "express"
 import jwt from "jsonwebtoken";
-import type {Transaction} from "./types/transaction";
-import type {User, UserRole} from "./types/user";
+import type {Transaction} from "./types/models/transaction.ts";
+import type {User, UserRole} from "./types/models/user.ts";
 import {jwtDecode} from "jwt-decode";
+import {processors} from "./data/pcComponents/processors.ts";
+import type {
+    NumberOfCores, NumberOfThreads,
+    Processor,
+    ProcessorFilters,
+    ProcessorProducer,
+    ProcessorSocket
+} from "./types/models/pcComponents/processor.types.ts";
+import {z} from "zod";
+import {type FetchProcessorsResponseDTO} from "./types/dto/processorDTO.types.ts";
+
 
 const app = express();
 const PORT = 3001;
@@ -203,7 +214,7 @@ app.post("/refresh-all-tokens", (req: Request, res: Response) => {
         return res.status(403).json({message: "refresh token is undefined"});
     }
 
-    jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (error, payload) => {
+    jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (error: any, payload: any) => {
         if (error) {
             console.error("Incorrect refresh token: ", error);
             return res.status(403).json({message: "Incorrect refresh token"});
@@ -229,7 +240,7 @@ app.post("/validate-token", (req: Request, res: Response) => {
 })
 
 
-const authenticateToken = (req, res, next) => {
+const authenticateToken = (req: any, res: any, next: any) => {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1]; // Bearer <token>
 
@@ -319,15 +330,242 @@ app.get("/users/me", authenticateToken, (req: Request, res: Response) => {
     return res.json(resUser);
 })
 
-app.get("/transactions/me", authenticateToken, (req: Request, res: Response) => {
-    const authHeader: string | undefined = req.headers["authorization"];
-    const accessToken: string | undefined = authHeader && authHeader.split(" ")[1]; // Bearer <token>
-    if (accessToken) {
-        const decode: any = jwtDecode(accessToken);
-        const userId: number = decode.id;
-        const userTransactions: Transaction[] = transactions.filter((ta) => ta.userId === userId);
-        return res.json(userTransactions);
+app.get("/processors", authenticateToken, (req: Request, res: Response) => {
+    const queryParams = req.query;
+    //Ось приклад виведення в консоль  { 'producer[]': [ 'AMD', 'Intel' ] }
+    console.log("Raw req.query:", queryParams); // Додано для перевірки
+
+    const ProcessorProducerSchema = z.enum(["Intel", "AMD"]);
+    const ProcessorSocketSchema = z.enum(["LGA1700", "LGA1200", "LGA1151", "LGA1150", "LGA1155", "AM5", "AM4", "AM3", "AM2"]);
+    const NumberOfCoresSchema = z.enum(["2cores", "4cores", "6cores", "8cores"]);
+    const NumberOfThreadsSchema = z.enum(["2threads", "4threads", "6threads", "8threads", "12threads", "16threads"]);
+
+// Допоміжна функція для перетворення одиночних значень в масив перед валідацією
+    const arrayPreprocess = (val: unknown) => {
+        if (val === undefined) return undefined;
+        if (Array.isArray(val)) return val;
+        return [val];
+    };
+
+    const ProcessorFiltersSchema = z.object({
+        minPrice: z.coerce.number().positive("min price should be a positive number").optional(),
+        maxPrice: z.coerce.number().positive("max price should be a positive number").optional(),
+        producer: z.preprocess(arrayPreprocess, z.array(ProcessorProducerSchema).optional()),
+        processorSocket: z.preprocess(arrayPreprocess, z.array(ProcessorSocketSchema).optional()),
+        numberOfCores: z.preprocess(arrayPreprocess, z.array(NumberOfCoresSchema).optional()),
+        numberOfThreads: z.preprocess(arrayPreprocess, z.array(NumberOfThreadsSchema).optional()),
+    });
+
+    const normalizedQueryParams: any = {};
+    Object.keys(queryParams).forEach((key) => {
+        normalizedQueryParams[key.replace('[]', '')] = queryParams[key];
+    });
+
+    // Валідація та парсинг
+    const validation = ProcessorFiltersSchema.safeParse(normalizedQueryParams);
+
+
+    if (!validation.success) {
+        return res.status(400).json({
+            message: "Invalid query parameters",
+            errors: validation.error.message
+        });
     }
+
+    // Отримуємо валідний об'єкт типу ProcessorFilters
+    const processorFilters: ProcessorFilters = validation.data;
+    let filteredProcessors: Processor[] = processors;
+
+    if(processorFilters.minPrice !== undefined) {
+        let filteredByMinPriceProcessors: Processor[] = [];
+
+        const minPrice: number = processorFilters.minPrice;
+        filteredByMinPriceProcessors = filteredProcessors.filter((processor) => minPrice <= processor.price);
+
+        filteredProcessors = filteredByMinPriceProcessors;
+    }
+
+    if (processorFilters.maxPrice !== undefined) {
+        let filteredByMaxPriceProcessors: Processor[] = [];
+
+        const maxPrice: number = processorFilters.maxPrice;
+        filteredByMaxPriceProcessors = filteredProcessors.filter((processor) => maxPrice >= processor.price);
+
+        filteredProcessors = filteredByMaxPriceProcessors;
+    }
+
+    if (processorFilters.producer !== undefined) {
+        let filteredByProducerProcessors: Processor[] = [];
+
+        if (processorFilters.producer.includes("AMD")) {
+            filteredByProducerProcessors = filteredProcessors.filter((processor) => processor.processorOptions.producer === "AMD");
+        }
+
+        if (processorFilters.producer.includes("Intel")) {
+            filteredByProducerProcessors = [
+                ...filteredByProducerProcessors,
+                ...filteredProcessors.filter((processor) => processor.processorOptions.producer === "Intel")
+            ]
+        }
+
+        filteredProcessors = filteredByProducerProcessors;
+    }
+
+    if (processorFilters.processorSocket !== undefined) {
+        let filteredBySocketProcessors: Processor[] = [];
+
+        if (processorFilters.processorSocket.includes("AM2")) {
+            filteredBySocketProcessors = filteredProcessors.filter((processor) => processor.processorOptions.processorSocket === "AM2");
+        }
+
+        if (processorFilters.processorSocket.includes("AM3")) {
+            filteredBySocketProcessors = [
+                ...filteredBySocketProcessors,
+                ...filteredProcessors.filter((processor) => processor.processorOptions.processorSocket === "AM3")
+            ]
+        }
+
+        if (processorFilters.processorSocket.includes("AM4")) {
+            filteredBySocketProcessors = [
+                ...filteredBySocketProcessors,
+                ...filteredProcessors.filter((processor) => processor.processorOptions.processorSocket === "AM4")
+            ]
+        }
+
+        if (processorFilters.processorSocket.includes("AM5")) {
+            filteredBySocketProcessors = [
+                ...filteredBySocketProcessors,
+                ...filteredProcessors.filter((processor) => processor.processorOptions.processorSocket === "AM5")
+            ]
+        }
+
+        if (processorFilters.processorSocket.includes("LGA1150")) {
+            filteredBySocketProcessors = [
+                ...filteredBySocketProcessors,
+                ...filteredProcessors.filter((processor) => processor.processorOptions.processorSocket === "LGA1150")
+            ]
+        }
+
+        if (processorFilters.processorSocket.includes("LGA1151")) {
+            filteredBySocketProcessors = [
+                ...filteredBySocketProcessors,
+                ...filteredProcessors.filter((processor) => processor.processorOptions.processorSocket === "LGA1151")
+            ]
+        }
+
+        if (processorFilters.processorSocket.includes("LGA1155")) {
+            filteredBySocketProcessors = [
+                ...filteredBySocketProcessors,
+                ...filteredProcessors.filter((processor) => processor.processorOptions.processorSocket === "LGA1155")
+            ]
+        }
+
+        if (processorFilters.processorSocket.includes("LGA1200")) {
+            filteredBySocketProcessors = [
+                ...filteredBySocketProcessors,
+                ...filteredProcessors.filter((processor) => processor.processorOptions.processorSocket === "LGA1200")
+            ]
+        }
+
+        if (processorFilters.processorSocket.includes("LGA1700")) {
+            filteredBySocketProcessors = [
+                ...filteredBySocketProcessors,
+                ...filteredProcessors.filter((processor) => processor.processorOptions.processorSocket === "LGA1700")
+            ]
+        }
+
+        filteredProcessors = filteredBySocketProcessors;
+    }
+
+    if (processorFilters.numberOfCores !== undefined) {
+        let filteredByNumberOfCoresProcessors: Processor[] = [];
+
+        if (processorFilters.numberOfCores.includes("2cores")) {
+            filteredByNumberOfCoresProcessors = filteredProcessors.filter((processor) =>
+                processor.processorOptions.numberOfCores === "2cores");
+        }
+
+        if (processorFilters.numberOfCores.includes("4cores")) {
+            filteredByNumberOfCoresProcessors = [
+                ...filteredByNumberOfCoresProcessors,
+                ...filteredProcessors.filter((processor) => processor.processorOptions.numberOfCores === "4cores")
+            ];
+        }
+
+        if (processorFilters.numberOfCores.includes("6cores")) {
+            filteredByNumberOfCoresProcessors = [
+                ...filteredByNumberOfCoresProcessors,
+                ...filteredProcessors.filter((processor) => processor.processorOptions.numberOfCores === "6cores")
+            ];
+        }
+
+        if (processorFilters.numberOfCores.includes("8cores")) {
+            filteredByNumberOfCoresProcessors = [
+                ...filteredByNumberOfCoresProcessors,
+                ...filteredProcessors.filter((processor) => processor.processorOptions.numberOfCores === "8cores")
+            ];
+        }
+
+        filteredProcessors = filteredByNumberOfCoresProcessors;
+    }
+
+    if (processorFilters.numberOfThreads !== undefined) {
+        let filteredByNumberOfThreadsProcessors: Processor[] = [];
+
+        if (processorFilters.numberOfThreads.includes("2threads")) {
+            filteredByNumberOfThreadsProcessors = filteredProcessors.filter((processor) =>
+                processor.processorOptions.numberOfThreads === "2threads");
+        }
+
+        if (processorFilters.numberOfThreads.includes("4threads")) {
+            filteredByNumberOfThreadsProcessors = [
+                ...filteredByNumberOfThreadsProcessors,
+                ...filteredProcessors.filter((processor) => processor.processorOptions.numberOfThreads === "4threads")
+            ];
+        }
+
+        if (processorFilters.numberOfThreads.includes("6threads")) {
+            filteredByNumberOfThreadsProcessors = [
+                ...filteredByNumberOfThreadsProcessors,
+                ...filteredProcessors.filter((processor) => processor.processorOptions.numberOfThreads === "6threads")
+            ];
+        }
+
+        if (processorFilters.numberOfThreads.includes("8threads")) {
+            filteredByNumberOfThreadsProcessors = [
+                ...filteredByNumberOfThreadsProcessors,
+                ...filteredProcessors.filter((processor) => processor.processorOptions.numberOfThreads === "8threads")
+            ];
+        }
+
+        if (processorFilters.numberOfThreads.includes("12threads")) {
+            filteredByNumberOfThreadsProcessors = [
+                ...filteredByNumberOfThreadsProcessors,
+                ...filteredProcessors.filter((processor) => processor.processorOptions.numberOfThreads === "12threads")
+            ];
+        }
+
+        if (processorFilters.numberOfThreads.includes("16threads")) {
+            filteredByNumberOfThreadsProcessors = [
+                ...filteredByNumberOfThreadsProcessors,
+                ...filteredProcessors.filter((processor) => processor.processorOptions.numberOfThreads === "16threads")
+            ];
+        }
+
+        filteredProcessors = filteredByNumberOfThreadsProcessors;
+    }
+
+    const fetchProcessorsResponseDTO: FetchProcessorsResponseDTO = {
+        content: filteredProcessors,
+        pageNo: 0,
+        pageSize: 8,
+        totalPages: filteredProcessors.length === 0 ? 0 : Math.ceil(filteredProcessors.length / 8),
+        totalElements: filteredProcessors.length,
+        last: false
+    }
+
+    return res.json(fetchProcessorsResponseDTO);
+
 });
 
 app.get("/transactions/me/:id", authenticateToken, (req: Request, res: Response) => {
@@ -347,6 +585,7 @@ app.get("/transactions/me/:id", authenticateToken, (req: Request, res: Response)
     return res.status(404).json({message: "Transaction with id ${id} not found"});
 })
 
+/*
 app.post("/transactions", authenticateToken, (req: Request, res: Response) => {
     const transaction: Omit<Transaction, "id"> = req.body;
 
@@ -382,7 +621,7 @@ app.post("/transactions", authenticateToken, (req: Request, res: Response) => {
 
     return res.json(newTransaction);
 });
-
+*/
 
 // Запуск сервера
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

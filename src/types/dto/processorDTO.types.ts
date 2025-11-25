@@ -1,4 +1,4 @@
-import type {Processor} from "../entity/pcComponents/processor.types.ts";
+import {type Processor} from "../models/pcComponents/processor.types.ts";
 
 export interface FetchProcessorsRequestDTO {
 

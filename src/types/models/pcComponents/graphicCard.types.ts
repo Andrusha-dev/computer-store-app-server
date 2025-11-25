@@ -1,4 +1,4 @@
-import type {Category, PCComponent} from "./pcComponent.types";
+import type {Category, PCComponent} from "./pcComponent.types.ts";
 
 export type GraphicCardProducer = "Nvidia" | "AMD" | "Intel";
 export type PcieType = "2.0" | "3.0" | "4.0" | "5.0";

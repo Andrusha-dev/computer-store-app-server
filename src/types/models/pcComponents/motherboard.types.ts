@@ -1,7 +1,7 @@
-import type {Category, PCComponent} from "./pcComponent.types";
-import type {MemoryType} from "./memory.types";
-import type {PcieType} from "./graphicCard.types";
-import type {ProcessorSocket} from "./processor.types";
+import type {Category, PCComponent} from "./pcComponent.types.ts";
+import type {MemoryType} from "./memory.types.ts";
+import type {PcieType} from "./graphicCard.types.ts";
+import type {ProcessorSocket} from "./processor.types.ts";
 
 export type motherboardProducer = "Asus" | "Gigabyte" | "MSI" | "Asrock";
 export type MotherBoardType = "ATX" | "microATX" | "miniATX";
