@@ -14,111 +14,26 @@ import type {
 } from "./types/models/pcComponents/processor.types.ts";
 import {z} from "zod";
 import {type FetchProcessorsResponseDTO} from "./types/dto/processorDTO.types.ts";
+import {FetchProcessorsParamsSchema} from "./utils/validation/processorValidation.ts";
+import {type FetchProcessorsParams} from "./types/params/processorParams.types.ts";
+import {fetchProcessors, paginateProcessors} from "./services/processorService.ts";
+import {type QueryParams} from "./types/common/request.types.ts";
+import {normalizeQueryParams} from "./utils/request/index.ts";
+import {users} from "./data/users.ts";
+import {transactions} from "./data/transactions.ts";
+import {
+    generateAccessToken,
+    generateRefreshToken, validateAccessToken,
+    validateRefreshToken,
+} from "./services/authService.ts";
+import {PORT, REFRESH_TOKEN_SECRET} from "./config/index.ts";
+import { setTimeout } from 'timers/promises';
+
 
 
 const app = express();
-const PORT = 3001;
-
-// Секретный ключ для подписи токенов
-const ACCESS_TOKEN_SECRET = "yourAccessTokenSecret"; // Никогда не используйте такую строчку в реальных проектах, храните секреты в .env.
-const REFRESH_TOKEN_SECRET = "yourRefreshTokenSecret";
-
-function generateAccessToken(payload: any) {
-    return jwt.sign(payload, ACCESS_TOKEN_SECRET); // Токен действует 1 час
-}
-
-function generateRefreshToken(payload: any) {
-    const refreshToken = jwt.sign(payload, REFRESH_TOKEN_SECRET);
-    return refreshToken;
-}
-
-// Пример валидации JWT
-function validateToken(token: string) {
-    try {
-        return jwt.verify(token, ACCESS_TOKEN_SECRET);
-    } catch (error) {
-        return null; // Если токен неверен или истек
-    }
-}
 
 
-const users: User[] = [
-    {
-        id: 1,
-        email: "andrushastus@gmail.com",
-        password: "gugugugagaga",
-        username: "Andrusha",
-        firstname: "Andrew",
-        lastname: "Stus",
-        address: {
-            city: "Los-Angeles",
-            street: "Jefferson",
-            houseNumber: 18
-        },
-        phone: "+38(097)123-45-67",
-        birthYear: 1987,
-        profession: "react-developer",
-        isMarried: true,
-        role: "admin"
-    },
-    {
-        id: 2,
-        email: "john@gmail.com",
-        password: "gugugugagaga",
-        username: "Johnny",
-        firstname: "John",
-        lastname: "Preastley",
-        address: {
-            city: "New York",
-            street: "Broadway",
-            houseNumber: 16
-        },
-        phone: "+38(063)765-43-21",
-        birthYear: 1985,
-        profession: "react-developer",
-        isMarried: true,
-        role: "user"
-    }
-];
-
-const transactions: Transaction[] = [
-    {
-        id: 1,
-        userId: 1,
-        type: "income",
-        category: "Devidends",
-        amount: 32000,
-        date: "2025-09-06T09:32:29.529Z",
-        note: "Отримання щомісячних девідендів"
-    },
-    {
-        id: 2,
-        userId: 2,
-        type: "expense",
-        category: "Products",
-        amount: 2800,
-        date: "2025-09-07T12:48:29.529Z",
-        note: "Купівля харчових продуктів"
-    },
-    {
-        id: 3,
-        userId: 1,
-        type: "expense",
-        category: "Products",
-        amount: 2500,
-        date: "2025-09-07T18:24:29.529Z",
-        note: "Купівля продуктів"
-    },
-    {
-        id: 4,
-        userId: 1,
-        type: "income",
-        category: "Cellary",
-        amount: 124000,
-        date: "2025-09-08T12:18:29.529Z",
-        note: "Зарплата"
-    },
-];
 
 const getLatestUserId = (): number => {
     let latestId: number = 0;
@@ -214,24 +129,25 @@ app.post("/refresh-all-tokens", (req: Request, res: Response) => {
         return res.status(403).json({message: "refresh token is undefined"});
     }
 
-    jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (error: any, payload: any) => {
-        if (error) {
-            console.error("Incorrect refresh token: ", error);
-            return res.status(403).json({message: "Incorrect refresh token"});
-        }
 
+    const payload: any = validateRefreshToken(refreshToken);
 
-        const newAccessToken = generateAccessToken({...payload, iat: Date.now() / 1000, exp: Date.now() / 1000 + 60});
-        const newRefreshToken = generateRefreshToken({...payload, iat: Date.now() / 1000, exp: (Date.now() / 1000) + 60 * 2});
-        console.log("New access token: ", newAccessToken);
-        return res.json({accessToken: newAccessToken, refreshToken: newRefreshToken});
-    });
+    if(!payload) {
+        console.error("Invalid refresh token");
+        return res.status(403).json({message: "Invalid refresh token"});
+    }
+
+    const newAccessToken = generateAccessToken({...payload, iat: Date.now() / 1000, exp: Date.now() / 1000 + 60});
+    const newRefreshToken = generateRefreshToken({...payload, iat: Date.now() / 1000, exp: (Date.now() / 1000) + 60 * 2});
+    console.log("New access token: ", newAccessToken);
+
+    return res.json({accessToken: newAccessToken, refreshToken: newRefreshToken});
 })
 
 app.post("/validate-token", (req: Request, res: Response) => {
     const {accessToken} = req.body;
 
-    const payload = validateToken(accessToken);
+    const payload = validateAccessToken(accessToken);
     if (payload) {
         return res.json({valid: true});
     }
@@ -242,14 +158,14 @@ app.post("/validate-token", (req: Request, res: Response) => {
 
 const authenticateToken = (req: any, res: any, next: any) => {
     const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1]; // Bearer <token>
+    const accessToken = authHeader && authHeader.split(" ")[1]; // Bearer <token>
 
-    if (!token) {
+    if (!accessToken) {
         return res.status(401).json({ message: "Access token is missing" });
     }
 
 
-    const payload = validateToken(token);
+    const payload = validateAccessToken(accessToken);
     console.log(payload);
 
 
@@ -327,42 +243,24 @@ app.get("/users/me", authenticateToken, (req: Request, res: Response) => {
         role: user.role
     }
 
+
     return res.json(resUser);
 })
 
 app.get("/processors", authenticateToken, (req: Request, res: Response) => {
+    console.log("Starting fetch processors");
     const queryParams = req.query;
+
     //Ось приклад виведення в консоль  { 'producer[]': [ 'AMD', 'Intel' ] }
-    console.log("Raw req.query:", queryParams); // Додано для перевірки
+    console.log("Raw req.query.minPrice:", queryParams.minPrice); // Додано для перевірки
 
-    const ProcessorProducerSchema = z.enum(["Intel", "AMD"]);
-    const ProcessorSocketSchema = z.enum(["LGA1700", "LGA1200", "LGA1151", "LGA1150", "LGA1155", "AM5", "AM4", "AM3", "AM2"]);
-    const NumberOfCoresSchema = z.enum(["2cores", "4cores", "6cores", "8cores"]);
-    const NumberOfThreadsSchema = z.enum(["2threads", "4threads", "6threads", "8threads", "12threads", "16threads"]);
 
-// Допоміжна функція для перетворення одиночних значень в масив перед валідацією
-    const arrayPreprocess = (val: unknown) => {
-        if (val === undefined) return undefined;
-        if (Array.isArray(val)) return val;
-        return [val];
-    };
+    const normalizedQueryParams: QueryParams = normalizeQueryParams(queryParams);
 
-    const ProcessorFiltersSchema = z.object({
-        minPrice: z.coerce.number().positive("min price should be a positive number").optional(),
-        maxPrice: z.coerce.number().positive("max price should be a positive number").optional(),
-        producer: z.preprocess(arrayPreprocess, z.array(ProcessorProducerSchema).optional()),
-        processorSocket: z.preprocess(arrayPreprocess, z.array(ProcessorSocketSchema).optional()),
-        numberOfCores: z.preprocess(arrayPreprocess, z.array(NumberOfCoresSchema).optional()),
-        numberOfThreads: z.preprocess(arrayPreprocess, z.array(NumberOfThreadsSchema).optional()),
-    });
-
-    const normalizedQueryParams: any = {};
-    Object.keys(queryParams).forEach((key) => {
-        normalizedQueryParams[key.replace('[]', '')] = queryParams[key];
-    });
+    console.log(normalizedQueryParams);
 
     // Валідація та парсинг
-    const validation = ProcessorFiltersSchema.safeParse(normalizedQueryParams);
+    const validation = FetchProcessorsParamsSchema.safeParse(normalizedQueryParams);
 
 
     if (!validation.success) {
@@ -373,199 +271,74 @@ app.get("/processors", authenticateToken, (req: Request, res: Response) => {
     }
 
     // Отримуємо валідний об'єкт типу ProcessorFilters
-    const processorFilters: ProcessorFilters = validation.data;
-    let filteredProcessors: Processor[] = processors;
+    const fetchProcessorsParams: FetchProcessorsParams = validation.data;
 
-    if(processorFilters.minPrice !== undefined) {
-        let filteredByMinPriceProcessors: Processor[] = [];
+    const filteredProcessors: Processor[] = fetchProcessors(fetchProcessorsParams);
 
-        const minPrice: number = processorFilters.minPrice;
-        filteredByMinPriceProcessors = filteredProcessors.filter((processor) => minPrice <= processor.price);
 
-        filteredProcessors = filteredByMinPriceProcessors;
-    }
+    console.log("filteredProcessors length: ", filteredProcessors.length);
 
-    if (processorFilters.maxPrice !== undefined) {
-        let filteredByMaxPriceProcessors: Processor[] = [];
-
-        const maxPrice: number = processorFilters.maxPrice;
-        filteredByMaxPriceProcessors = filteredProcessors.filter((processor) => maxPrice >= processor.price);
-
-        filteredProcessors = filteredByMaxPriceProcessors;
-    }
-
-    if (processorFilters.producer !== undefined) {
-        let filteredByProducerProcessors: Processor[] = [];
-
-        if (processorFilters.producer.includes("AMD")) {
-            filteredByProducerProcessors = filteredProcessors.filter((processor) => processor.processorOptions.producer === "AMD");
+    //Отримуємо список процессорів paginatedProcessors після пагінації filteredProcessors
+    const paginatedProcessors: Processor[] = paginateProcessors(
+        filteredProcessors,
+        {
+            pageNo: fetchProcessorsParams.pageNo,
+            pageSize: fetchProcessorsParams.pageSize,
+            sortType: fetchProcessorsParams.sortType,
+            sortOrder: fetchProcessorsParams.sortOrder
         }
+    );
 
-        if (processorFilters.producer.includes("Intel")) {
-            filteredByProducerProcessors = [
-                ...filteredByProducerProcessors,
-                ...filteredProcessors.filter((processor) => processor.processorOptions.producer === "Intel")
-            ]
-        }
+    //Отримуємо максимальну ціну відфільтрованих обєктів в списку filteredProcessors
+    const maxPrice: number = filteredProcessors.reduce((acc, p) => Math.max(acc, p.price), 0);
 
-        filteredProcessors = filteredByProducerProcessors;
-    }
+    //Отримуємо мінімальну ціну відфільтрованих обєктів в списку filteredProcessors
+    const minPrice: number = filteredProcessors.reduce((acc, p) => Math.min(acc, p.price), maxPrice);
 
-    if (processorFilters.processorSocket !== undefined) {
-        let filteredBySocketProcessors: Processor[] = [];
+    //Отримуємо список унікальних обєктів ProcessorProducer[] серед обєктів в списку filteredProcessors
+    const uniqueProducers: ProcessorProducer[] = Array.from(new Set(filteredProcessors.map((p: Processor) =>
+        p.processorOptions.producer)));
 
-        if (processorFilters.processorSocket.includes("AM2")) {
-            filteredBySocketProcessors = filteredProcessors.filter((processor) => processor.processorOptions.processorSocket === "AM2");
-        }
+    //Отримуємо список унікальних обєктів ProcessorSocket[] серед обєктів в списку filteredProcessors
+    const uniqueProcessorSockets: ProcessorSocket[] = Array.from(new Set(filteredProcessors.map((p: Processor) =>
+        p.processorOptions.processorSocket)));
 
-        if (processorFilters.processorSocket.includes("AM3")) {
-            filteredBySocketProcessors = [
-                ...filteredBySocketProcessors,
-                ...filteredProcessors.filter((processor) => processor.processorOptions.processorSocket === "AM3")
-            ]
-        }
+    //Отримуємо список унікальних обєктів NumberOfCores[] серед обєктів в списку filteredProcessors
+    const uniqueNumberOfCores: NumberOfCores[] = Array.from(new Set(filteredProcessors.map((p: Processor) =>
+        p.processorOptions.numberOfCores)));
 
-        if (processorFilters.processorSocket.includes("AM4")) {
-            filteredBySocketProcessors = [
-                ...filteredBySocketProcessors,
-                ...filteredProcessors.filter((processor) => processor.processorOptions.processorSocket === "AM4")
-            ]
-        }
+    //Отримуємо список унікальних обєктів NumberOfThreads[] серед обєктів в списку filteredProcessors
+    const uniqueNumberOfThreads: NumberOfThreads[] = Array.from(new Set(filteredProcessors.map((p: Processor) =>
+        p.processorOptions.numberOfThreads)));
 
-        if (processorFilters.processorSocket.includes("AM5")) {
-            filteredBySocketProcessors = [
-                ...filteredBySocketProcessors,
-                ...filteredProcessors.filter((processor) => processor.processorOptions.processorSocket === "AM5")
-            ]
-        }
 
-        if (processorFilters.processorSocket.includes("LGA1150")) {
-            filteredBySocketProcessors = [
-                ...filteredBySocketProcessors,
-                ...filteredProcessors.filter((processor) => processor.processorOptions.processorSocket === "LGA1150")
-            ]
-        }
+    const pageNo: number = fetchProcessorsParams.pageNo ?? 0;
+    const pageSize: number = fetchProcessorsParams.pageSize ?? 10;
+    const totalElements: number = filteredProcessors.length;
+    const totalPages: number = Math.ceil(totalElements / pageSize);
 
-        if (processorFilters.processorSocket.includes("LGA1151")) {
-            filteredBySocketProcessors = [
-                ...filteredBySocketProcessors,
-                ...filteredProcessors.filter((processor) => processor.processorOptions.processorSocket === "LGA1151")
-            ]
-        }
 
-        if (processorFilters.processorSocket.includes("LGA1155")) {
-            filteredBySocketProcessors = [
-                ...filteredBySocketProcessors,
-                ...filteredProcessors.filter((processor) => processor.processorOptions.processorSocket === "LGA1155")
-            ]
-        }
-
-        if (processorFilters.processorSocket.includes("LGA1200")) {
-            filteredBySocketProcessors = [
-                ...filteredBySocketProcessors,
-                ...filteredProcessors.filter((processor) => processor.processorOptions.processorSocket === "LGA1200")
-            ]
-        }
-
-        if (processorFilters.processorSocket.includes("LGA1700")) {
-            filteredBySocketProcessors = [
-                ...filteredBySocketProcessors,
-                ...filteredProcessors.filter((processor) => processor.processorOptions.processorSocket === "LGA1700")
-            ]
-        }
-
-        filteredProcessors = filteredBySocketProcessors;
-    }
-
-    if (processorFilters.numberOfCores !== undefined) {
-        let filteredByNumberOfCoresProcessors: Processor[] = [];
-
-        if (processorFilters.numberOfCores.includes("2cores")) {
-            filteredByNumberOfCoresProcessors = filteredProcessors.filter((processor) =>
-                processor.processorOptions.numberOfCores === "2cores");
-        }
-
-        if (processorFilters.numberOfCores.includes("4cores")) {
-            filteredByNumberOfCoresProcessors = [
-                ...filteredByNumberOfCoresProcessors,
-                ...filteredProcessors.filter((processor) => processor.processorOptions.numberOfCores === "4cores")
-            ];
-        }
-
-        if (processorFilters.numberOfCores.includes("6cores")) {
-            filteredByNumberOfCoresProcessors = [
-                ...filteredByNumberOfCoresProcessors,
-                ...filteredProcessors.filter((processor) => processor.processorOptions.numberOfCores === "6cores")
-            ];
-        }
-
-        if (processorFilters.numberOfCores.includes("8cores")) {
-            filteredByNumberOfCoresProcessors = [
-                ...filteredByNumberOfCoresProcessors,
-                ...filteredProcessors.filter((processor) => processor.processorOptions.numberOfCores === "8cores")
-            ];
-        }
-
-        filteredProcessors = filteredByNumberOfCoresProcessors;
-    }
-
-    if (processorFilters.numberOfThreads !== undefined) {
-        let filteredByNumberOfThreadsProcessors: Processor[] = [];
-
-        if (processorFilters.numberOfThreads.includes("2threads")) {
-            filteredByNumberOfThreadsProcessors = filteredProcessors.filter((processor) =>
-                processor.processorOptions.numberOfThreads === "2threads");
-        }
-
-        if (processorFilters.numberOfThreads.includes("4threads")) {
-            filteredByNumberOfThreadsProcessors = [
-                ...filteredByNumberOfThreadsProcessors,
-                ...filteredProcessors.filter((processor) => processor.processorOptions.numberOfThreads === "4threads")
-            ];
-        }
-
-        if (processorFilters.numberOfThreads.includes("6threads")) {
-            filteredByNumberOfThreadsProcessors = [
-                ...filteredByNumberOfThreadsProcessors,
-                ...filteredProcessors.filter((processor) => processor.processorOptions.numberOfThreads === "6threads")
-            ];
-        }
-
-        if (processorFilters.numberOfThreads.includes("8threads")) {
-            filteredByNumberOfThreadsProcessors = [
-                ...filteredByNumberOfThreadsProcessors,
-                ...filteredProcessors.filter((processor) => processor.processorOptions.numberOfThreads === "8threads")
-            ];
-        }
-
-        if (processorFilters.numberOfThreads.includes("12threads")) {
-            filteredByNumberOfThreadsProcessors = [
-                ...filteredByNumberOfThreadsProcessors,
-                ...filteredProcessors.filter((processor) => processor.processorOptions.numberOfThreads === "12threads")
-            ];
-        }
-
-        if (processorFilters.numberOfThreads.includes("16threads")) {
-            filteredByNumberOfThreadsProcessors = [
-                ...filteredByNumberOfThreadsProcessors,
-                ...filteredProcessors.filter((processor) => processor.processorOptions.numberOfThreads === "16threads")
-            ];
-        }
-
-        filteredProcessors = filteredByNumberOfThreadsProcessors;
-    }
 
     const fetchProcessorsResponseDTO: FetchProcessorsResponseDTO = {
-        content: filteredProcessors,
-        pageNo: 0,
-        pageSize: 8,
-        totalPages: filteredProcessors.length === 0 ? 0 : Math.ceil(filteredProcessors.length / 8),
-        totalElements: filteredProcessors.length,
+        content: paginatedProcessors,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+        producers: uniqueProducers,
+        processorSockets: uniqueProcessorSockets,
+        numberOfCores: uniqueNumberOfCores,
+        numberOfThreads: uniqueNumberOfThreads,
+        pageNo: pageNo,
+        pageSize: pageSize,
+        totalPages: totalPages,
+        totalElements: totalElements,
         last: false
     }
 
-    return res.json(fetchProcessorsResponseDTO);
+    
+    console.log("minPrice: ", fetchProcessorsResponseDTO.minPrice);
+    console.log("maxPrice: ", fetchProcessorsResponseDTO.maxPrice);
 
+    return res.json(fetchProcessorsResponseDTO);
 });
 
 app.get("/transactions/me/:id", authenticateToken, (req: Request, res: Response) => {

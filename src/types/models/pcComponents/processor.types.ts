@@ -28,3 +28,6 @@ export interface ProcessorFilters extends PCComponentFilters {
     numberOfThreads?: NumberOfThreads[];
 }
 
+//Обєднаний тип, на основі ключів інтерфейса ProcessorFilters
+export type ProcessorFiltersKeys = keyof ProcessorFilters;
+
