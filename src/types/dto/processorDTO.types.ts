@@ -1,10 +1,14 @@
 import {
-    type NumberOfCores, type NumberOfThreads,
+    type NumberOfCores, numberOfCoresSchema, type NumberOfThreads, numberOfThreadsSchema,
     type Processor,
-    type ProcessorProducer,
-    type ProcessorSocket
+    type ProcessorProducer, processorProducerSchema, processorSchema,
+    type ProcessorSocket, processorSocketSchema
 } from "../models/pcComponents/processor.types.ts";
-import {type PaginationResponseDTO} from "./paginationDTO.types.ts";
+import {
+    type PaginationResponseDTO,
+    paginationResponseDTOSchema
+} from "./paginationDTO.types.ts";
+import {z} from "zod";
 
 
 export interface FetchProcessorsResponseDTO extends PaginationResponseDTO {
@@ -16,3 +20,12 @@ export interface FetchProcessorsResponseDTO extends PaginationResponseDTO {
     numberOfCores: NumberOfCores[]; // Перейменовано з numberOfCores
     numberOfThreads: NumberOfThreads[]; // Перейменовано з numberOfThreads
 }
+export const fetchProcessorsResponseDTOSchema = paginationResponseDTOSchema.extend({
+    content: z.array(processorSchema),
+    minPrice: z.number(),
+    maxPrice: z.number(),
+    producers: z.array(processorProducerSchema),
+    processorSockets: z.array(processorSocketSchema),
+    numberOfCores: z.array(numberOfCoresSchema),
+    numberOfThreads: z.array(numberOfThreadsSchema),
+});

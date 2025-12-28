@@ -1,5 +1,8 @@
 import jwt from "jsonwebtoken";
-import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../config/index.ts"; // Імпортуємо секрети з конфігурації
+import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../config/index.ts";
+import {type LoginRequestDTO, type LoginResponseDTO, LoginResponseDTOSchema} from "../types/dto/authDTO.types.ts";
+import type {User} from "../types/models/user.ts";
+import {users} from "../data/users.ts"; // Імпортуємо секрети з конфігурації
 
 
 
@@ -26,4 +29,37 @@ export const validateRefreshToken = (refreshToken: string) => {
     } catch (error) {
         return null;
     }
+}
+
+export const login = (loginRequestDTO: LoginRequestDTO) => {
+    const {email, password} = loginRequestDTO;
+
+    const user: User | undefined = users.find((user) => user.email === email && user.password === password);
+
+    if (!user) {
+        return null;
+    }
+
+    const payload = { id: user.id, email: user.email, role: user.role };
+
+    const accessToken = generateAccessToken({
+        ...payload,
+        iat: Date.now() / 1000,
+        exp: Date.now() / 1000 + 60
+    });
+    console.log("Starting access token: ", accessToken);
+    const refreshToken = generateRefreshToken({
+        ...payload,
+        iat: Date.now() / 1000,
+        exp: (Date.now() / 1000) + 60 * 2
+    });
+
+    const loginResponseDTO: LoginResponseDTO = {
+        accessToken,
+        refreshToken,
+    }
+
+    const validatedLoginResponseDTO: LoginResponseDTO = LoginResponseDTOSchema.parse(loginResponseDTO);
+
+    return validatedLoginResponseDTO;
 }

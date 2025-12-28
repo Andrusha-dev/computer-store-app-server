@@ -1,21 +1,19 @@
-import type {Request, Response} from "express";
+import type {NextFunction, Request, Response} from "express";
 import express from "express"
 import jwt from "jsonwebtoken";
 import type {Transaction} from "./types/models/transaction.ts";
-import type {User, UserRole} from "./types/models/user.ts";
+import type {User, UserRole, UserWithoutPassword} from "./types/models/user.ts";
 import {jwtDecode} from "jwt-decode";
 import {processors} from "./data/pcComponents/processors.ts";
 import type {
     NumberOfCores, NumberOfThreads,
     Processor,
-    ProcessorFilters,
     ProcessorProducer,
     ProcessorSocket
 } from "./types/models/pcComponents/processor.types.ts";
 import {z} from "zod";
 import {type FetchProcessorsResponseDTO} from "./types/dto/processorDTO.types.ts";
-import {FetchProcessorsParamsSchema} from "./utils/validation/processorValidation.ts";
-import {type FetchProcessorsParams} from "./types/params/processorParams.types.ts";
+import {type FetchProcessorsParams, fetchProcessorsParamsSchema} from "./types/params/processorParams.types.ts";
 import {fetchProcessors, paginateProcessors} from "./services/processorService.ts";
 import {type QueryParams} from "./types/common/request.types.ts";
 import {normalizeQueryParams} from "./utils/request/index.ts";
@@ -23,11 +21,19 @@ import {users} from "./data/users.ts";
 import {transactions} from "./data/transactions.ts";
 import {
     generateAccessToken,
-    generateRefreshToken, validateAccessToken,
+    generateRefreshToken, login, validateAccessToken,
     validateRefreshToken,
 } from "./services/authService.ts";
 import {PORT, REFRESH_TOKEN_SECRET} from "./config/index.ts";
 import { setTimeout } from 'timers/promises';
+import {
+    type LoginRequestDTO,
+    LoginRequestDTOSchema,
+    type LoginResponseDTO,
+    LoginResponseDTOSchema
+} from "./types/dto/authDTO.types.ts";
+import {authenticateToken} from "./middleware/auth.middleware.ts";
+import {validate} from "./middleware/validation.middleware.ts";
 
 
 
@@ -102,20 +108,10 @@ app.post("/users", (req: Request, res: Response) => {
 })
 
 // Пример эндпоинта для генерации токена
-app.post("/login", (req: Request, res: Response) => {
-    const { email, password } = req.body;
-
-    const user: User | undefined = users.find((user) => user.email === email && user.password === password);
-
-    if (user) {
-
-        const payload = { id: user.id, email: user.email, role: user.role };
-
-        const accessToken = generateAccessToken({...payload, iat: Date.now() / 1000, exp: Date.now() / 1000 + 60});
-        console.log("Starting access token: ", accessToken);
-        const refreshToken = generateRefreshToken({...payload, iat: Date.now() / 1000, exp: (Date.now() / 1000) + 60 * 2});
-
-        return res.json({ accessToken, refreshToken });
+app.post("/login", validate(z.object({body: LoginRequestDTOSchema})), (req: Request, res: Response) => {
+    const loginResponseDTO: LoginResponseDTO | null = login(req.body);
+    if(loginResponseDTO) {
+        return res.json(loginResponseDTO);
     }
 
     res.status(401).json({ message: "Invalid username or password" });
@@ -155,28 +151,6 @@ app.post("/validate-token", (req: Request, res: Response) => {
     return res.json({valid: false});
 })
 
-
-const authenticateToken = (req: any, res: any, next: any) => {
-    const authHeader = req.headers["authorization"];
-    const accessToken = authHeader && authHeader.split(" ")[1]; // Bearer <token>
-
-    if (!accessToken) {
-        return res.status(401).json({ message: "Access token is missing" });
-    }
-
-
-    const payload = validateAccessToken(accessToken);
-    console.log(payload);
-
-
-    if (!payload) {
-        return res.status(403).json({ message: "Invalid token" });
-    }
-
-
-    next();
-};
-
 app.get("/users", authenticateToken, (req: Request, res: Response) => {
     const authHeader: string | undefined = req.headers["authorization"];
     const accessToken: string | undefined = authHeader && authHeader.split(" ")[1];
@@ -188,12 +162,12 @@ app.get("/users", authenticateToken, (req: Request, res: Response) => {
     const decode: any = jwtDecode(accessToken);
     const id: number = decode.id;
     const role: UserRole = decode.role;
-    const user: User | undefined = users.find((user) => user.id === id && user.role === "admin" && role === "admin");
+    const user: User | undefined = users.find((user) => user.id === id && user.role === role && role === "admin");
     if(!user) {
         return res.status(403).json({message: `Undefined user with id ${id} or role \"admin\"`});
     }
 
-    const resUsers: Omit<User, "password">[] = users.map((user) => {
+    const resUsers: UserWithoutPassword[] = users.map((user) => {
         const resUser: Omit<User, "password"> = {
             id: user.id,
             email: user.email,
@@ -229,7 +203,7 @@ app.get("/users/me", authenticateToken, (req: Request, res: Response) => {
         return res.status(401).json({message: `Undefined user with id ${id}`});
     }
 
-    const resUser: Omit<User, "password"> = {
+    const resUser: UserWithoutPassword = {
         id: user.id,
         email: user.email,
         username: user.username,
@@ -251,7 +225,7 @@ app.get("/processors", authenticateToken, (req: Request, res: Response) => {
     console.log("Starting fetch processors");
     const queryParams = req.query;
 
-    //Ось приклад виведення в консоль  { 'producer[]': [ 'AMD', 'Intel' ] }
+    //Ось приклад виведення в консоль  { 'minPrice': '88' }
     console.log("Raw req.query.minPrice:", queryParams.minPrice); // Додано для перевірки
 
 
@@ -260,7 +234,7 @@ app.get("/processors", authenticateToken, (req: Request, res: Response) => {
     console.log(normalizedQueryParams);
 
     // Валідація та парсинг
-    const validation = FetchProcessorsParamsSchema.safeParse(normalizedQueryParams);
+    const validation = fetchProcessorsParamsSchema.safeParse(normalizedQueryParams);
 
 
     if (!validation.success) {
@@ -395,6 +369,25 @@ app.post("/transactions", authenticateToken, (req: Request, res: Response) => {
     return res.json(newTransaction);
 });
 */
+
+
+/*Для express js версії 4 потрібно встановити залежність express-async-errors, для автоматичної обробки асинхронних помилок.
+В express js версії 5 обробник вже працює з коробки*/
+//Глобальний обробник для необроблених помилок
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    // Якщо це помилка валідації нашої відповіді
+    if (err instanceof z.ZodError) {
+        console.error("RESPONSE VALIDATION ERROR:", err.issues);
+        return res.status(500).json({
+            message: "Server produced invalid response data",
+            details: err.issues
+        });
+    }
+
+    // Будь-яка інша непередбачувана помилка
+    res.status(500).json({ message: "Something went wrong on the server" });
+});
+
 
 // Запуск сервера
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

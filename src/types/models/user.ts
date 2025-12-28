@@ -20,3 +20,8 @@ export interface User {
     isMarried: boolean;
     role: UserRole;
 }
+
+
+export type LoginFormValues = Pick<User, "email" | "password">; //Тип, який використовується клієнтом під час автентифікації користувача
+
+export type UserWithoutPassword = Omit<User, "password">; //Тип, який використовує сервер після реєстрації нового користувача і може повертати клієнту

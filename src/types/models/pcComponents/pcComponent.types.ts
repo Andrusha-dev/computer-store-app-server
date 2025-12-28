@@ -1,6 +1,8 @@
+import {z} from "zod";
 
 
-export type Category = "processors" | "memory" | "storage" | "graphicCards" | "motherboards" | "powerSupplies"
+export type Category = "processors" | "memory" | "storage" | "graphicCards" | "motherboards" | "powerSupplies";
+export const categorySchema = z.enum(["processors", "memory", "storage", "graphicCards", "motherboards", "powerSupplies"]); // додайте свої категорії
 
 export interface PCComponent {
     id: number;
@@ -11,8 +13,12 @@ export interface PCComponent {
     quantity: number;
     category: Category;
 }
-//Загальні фільтри для всіх компонентів
-export interface PCComponentFilters {
-    minPrice?: number;
-    maxPrice?: number;
-}
+export const pcComponentSchema = z.object({
+    id: z.number(),
+    componentName: z.string(),
+    imgUrls: z.array(z.string()),
+    price: z.number(),
+    description: z.string(),
+    quantity: z.number(),
+    category: categorySchema,
+});

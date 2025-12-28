@@ -5,7 +5,7 @@ import {type PageParams} from "../types/params/pageParams.types.ts";
 import {type FetchProcessorsResponseDTO} from "../types/dto/processorDTO.types.ts";
 
 export const fetchProcessors = (fetchProcessorsParams: FetchProcessorsParams): Processor[] => {
-    let filteredProcessors: Processor[] = processors;
+    let filteredProcessors: Processor[] = [...processors];
 
     if(fetchProcessorsParams.minPrice !== undefined) {
         let filteredByMinPriceProcessors: Processor[] = [];
