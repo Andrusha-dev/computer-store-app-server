@@ -1,17 +1,21 @@
 import jwt from "jsonwebtoken";
 import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../config/index.ts";
-import {type LoginRequestDTO, type LoginResponseDTO, LoginResponseDTOSchema} from "../types/dto/authDTO.types.ts";
+import {
+    type LoginRequest, type LoginResponse, LoginResponseSchema,
+    type TokenPayload
+} from "../types/dto/authDTO.types.ts";
 import type {User} from "../types/models/user.ts";
 import {users} from "../data/users.ts"; // Імпортуємо секрети з конфігурації
 
 
 
-export function generateAccessToken(payload: any) {
-    return jwt.sign(payload, ACCESS_TOKEN_SECRET); // Токен действует 1 час
+export function generateAccessToken(payload: TokenPayload) {
+    const accessToken: string =  jwt.sign(payload, ACCESS_TOKEN_SECRET); // Токен действует 1 час
+    return accessToken;
 }
 
-export function generateRefreshToken(payload: any) {
-    const refreshToken = jwt.sign(payload, REFRESH_TOKEN_SECRET);
+export function generateRefreshToken(payload: TokenPayload) {
+    const refreshToken: string = jwt.sign(payload, REFRESH_TOKEN_SECRET);
     return refreshToken;
 }
 
@@ -31,8 +35,8 @@ export const validateRefreshToken = (refreshToken: string) => {
     }
 }
 
-export const login = (loginRequestDTO: LoginRequestDTO) => {
-    const {email, password} = loginRequestDTO;
+export const login = (loginRequest: LoginRequest) => {
+    const {email, password} = loginRequest;
 
     const user: User | undefined = users.find((user) => user.email === email && user.password === password);
 
@@ -40,7 +44,7 @@ export const login = (loginRequestDTO: LoginRequestDTO) => {
         return null;
     }
 
-    const payload = { id: user.id, email: user.email, role: user.role };
+    const payload: TokenPayload = { id: user.id, email: user.email, role: user.role };
 
     const accessToken = generateAccessToken({
         ...payload,
@@ -54,12 +58,12 @@ export const login = (loginRequestDTO: LoginRequestDTO) => {
         exp: (Date.now() / 1000) + 60 * 2
     });
 
-    const loginResponseDTO: LoginResponseDTO = {
+    const loginResponse: LoginResponse = {
         accessToken,
         refreshToken,
     }
 
-    const validatedLoginResponseDTO: LoginResponseDTO = LoginResponseDTOSchema.parse(loginResponseDTO);
+    const validatedLoginResponse: LoginResponse = LoginResponseSchema.parse(loginResponse);
 
-    return validatedLoginResponseDTO;
+    return validatedLoginResponse;
 }

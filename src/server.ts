@@ -12,9 +12,13 @@ import type {
     ProcessorSocket
 } from "./types/models/pcComponents/processor.types.ts";
 import {z} from "zod";
-import {type FetchProcessorsResponseDTO} from "./types/dto/processorDTO.types.ts";
-import {type FetchProcessorsParams, fetchProcessorsParamsSchema} from "./types/params/processorParams.types.ts";
-import {fetchProcessors, paginateProcessors} from "./services/processorService.ts";
+import {type GetProcessorsCatalogResponse} from "./types/dto/processorDTO.types.ts";
+import {
+    type FetchProcessorsParams,
+    fetchProcessorsParamsSchema,
+    type ProcessorFilters
+} from "./types/params/processorParams.types.ts";
+import {fetchProcessors, getProcessorsCatalog, paginateProcessors} from "./services/processorService.ts";
 import {type QueryParams} from "./types/common/request.types.ts";
 import {normalizeQueryParams} from "./utils/request/index.ts";
 import {users} from "./data/users.ts";
@@ -27,13 +31,16 @@ import {
 import {PORT, REFRESH_TOKEN_SECRET} from "./config/index.ts";
 import { setTimeout } from 'timers/promises';
 import {
-    type LoginRequestDTO,
-    LoginRequestDTOSchema,
-    type LoginResponseDTO,
-    LoginResponseDTOSchema
+    type LoginRequest,
+    loginRequestSchema, type LoginResponse,
+    type TokenPayload
 } from "./types/dto/authDTO.types.ts";
-import {authenticateToken} from "./middleware/auth.middleware.ts";
+import {authenticateToken, authorizeRole} from "./middleware/auth.middleware.ts";
 import {validate} from "./middleware/validation.middleware.ts";
+import type {PageParams} from "./types/params/pageParams.types.ts";
+import {fetchAuthUser, getUsersList} from "./services/userService.ts";
+import type {FetchAuthUserResponse, GetUsersListResponse} from "./types/dto/userDTO.types.ts";
+import {type FetchUsersParams, fetchUsersParamsSchema} from "./types/params/userParams.types.ts";
 
 
 
@@ -108,13 +115,16 @@ app.post("/users", (req: Request, res: Response) => {
 })
 
 // Пример эндпоинта для генерации токена
-app.post("/login", validate(z.object({body: LoginRequestDTOSchema})), (req: Request, res: Response) => {
-    const loginResponseDTO: LoginResponseDTO | null = login(req.body);
-    if(loginResponseDTO) {
-        return res.json(loginResponseDTO);
+app.post("/login", validate(z.object({body: loginRequestSchema})), (req: Request, res: Response) => {
+    //після валідації даних req.body за допомогою validate(z.object({body: LoginRequestDTOSchema})) можна
+    //сміливо стверджувати, що вони відповідають типу LoginRequestDTO
+    const loginRequest: LoginRequest = req.body;
+    const loginResponse: LoginResponse | null = login(loginRequest);
+    if(!loginResponse) {
+        return res.status(401).json({ message: "Invalid username or password" });
     }
 
-    res.status(401).json({ message: "Invalid username or password" });
+    return res.json(loginResponse);
 });
 
 app.post("/refresh-all-tokens", (req: Request, res: Response) => {
@@ -151,170 +161,42 @@ app.post("/validate-token", (req: Request, res: Response) => {
     return res.json({valid: false});
 })
 
-app.get("/users", authenticateToken, (req: Request, res: Response) => {
-    const authHeader: string | undefined = req.headers["authorization"];
-    const accessToken: string | undefined = authHeader && authHeader.split(" ")[1];
+app.get("/users", authenticateToken, authorizeRole(["admin"]), validate(z.object({query: fetchUsersParamsSchema})), (req: Request, res: Response) => {
+    //Після валідації за допомогою middleware validate() звалідовані параметри запиту FetchUsersParams передаються в res.locals
+    const fetchUsersParams: FetchUsersParams = res.locals.validation.query as FetchUsersParams;
 
-    if (!accessToken) {
-        return res.status(401).json({ message: "Access token is missing" });
-    }
+    const getUsersListResponse: GetUsersListResponse = getUsersList(fetchUsersParams);
 
-    const decode: any = jwtDecode(accessToken);
-    const id: number = decode.id;
-    const role: UserRole = decode.role;
-    const user: User | undefined = users.find((user) => user.id === id && user.role === role && role === "admin");
-    if(!user) {
-        return res.status(403).json({message: `Undefined user with id ${id} or role \"admin\"`});
-    }
-
-    const resUsers: UserWithoutPassword[] = users.map((user) => {
-        const resUser: Omit<User, "password"> = {
-            id: user.id,
-            email: user.email,
-            username: user.username,
-            firstname: user.firstname,
-            lastname: user.lastname,
-            address: user.address,
-            phone: user.phone,
-            birthYear: user.birthYear,
-            profession: user.profession,
-            isMarried: user.isMarried,
-            role: user.role
-        }
-
-        return resUser;
-    });
-
-    return res.status(200).json(resUsers)
+    return res.json(getUsersListResponse);
 })
 
 app.get("/users/me", authenticateToken, (req: Request, res: Response) => {
-    const authHeader: string | undefined = req.headers["authorization"];
-    const accessToken: string | undefined = authHeader && authHeader.split(" ")[1];
+    //після успішної автентифікації через middleware authenticateToken payload вхідного jwt-токена передається в res.locals.payload
+    const {id} = res.locals.payload as TokenPayload;
 
-    if (!accessToken) {
-        return res.status(401).json({ message: "Access token is missing" });
-    }
-
-    const decode: any = jwtDecode(accessToken);
-    const id: number = decode.id;
-    const user: User | undefined = users.find((user) => user.id === id);
-    if(!user) {
+    const fetchAuthUserResponse: FetchAuthUserResponse | null = fetchAuthUser(id);
+    if(!fetchAuthUserResponse) {
         return res.status(401).json({message: `Undefined user with id ${id}`});
     }
 
-    const resUser: UserWithoutPassword = {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        firstname: user.firstname,
-        lastname: user.lastname,
-        address: user.address,
-        phone: user.phone,
-        birthYear: user.birthYear,
-        profession: user.profession,
-        isMarried: user.isMarried,
-        role: user.role
-    }
-
-
-    return res.json(resUser);
+    return res.json(fetchAuthUserResponse);
 })
 
-app.get("/processors", authenticateToken, (req: Request, res: Response) => {
+app.get("/processors", authenticateToken, validate(z.object({query: fetchProcessorsParamsSchema})), (req: Request, res: Response) => {
     console.log("Starting fetch processors");
-    const queryParams = req.query;
+    //після валідації даних req.query за допомогою validate(z.object({query: fetchProcessorsParamsSchema})) вони
+    // точно відповідають типу FetchProcessorsParams і були передані в res.locals.validatedQuery.query
+    const fetchProcessorsParams: FetchProcessorsParams = res.locals.validatedQuery.query;
 
-    //Ось приклад виведення в консоль  { 'minPrice': '88' }
-    console.log("Raw req.query.minPrice:", queryParams.minPrice); // Додано для перевірки
-
-
-    const normalizedQueryParams: QueryParams = normalizeQueryParams(queryParams);
-
-    console.log(normalizedQueryParams);
-
-    // Валідація та парсинг
-    const validation = fetchProcessorsParamsSchema.safeParse(normalizedQueryParams);
-
-
-    if (!validation.success) {
-        return res.status(400).json({
-            message: "Invalid query parameters",
-            errors: validation.error.message
-        });
-    }
-
-    // Отримуємо валідний об'єкт типу ProcessorFilters
-    const fetchProcessorsParams: FetchProcessorsParams = validation.data;
-
-    const filteredProcessors: Processor[] = fetchProcessors(fetchProcessorsParams);
-
-
-    console.log("filteredProcessors length: ", filteredProcessors.length);
-
-    //Отримуємо список процессорів paginatedProcessors після пагінації filteredProcessors
-    const paginatedProcessors: Processor[] = paginateProcessors(
-        filteredProcessors,
-        {
-            pageNo: fetchProcessorsParams.pageNo,
-            pageSize: fetchProcessorsParams.pageSize,
-            sortType: fetchProcessorsParams.sortType,
-            sortOrder: fetchProcessorsParams.sortOrder
-        }
-    );
-
-    //Отримуємо максимальну ціну відфільтрованих обєктів в списку filteredProcessors
-    const maxPrice: number = filteredProcessors.reduce((acc, p) => Math.max(acc, p.price), 0);
-
-    //Отримуємо мінімальну ціну відфільтрованих обєктів в списку filteredProcessors
-    const minPrice: number = filteredProcessors.reduce((acc, p) => Math.min(acc, p.price), maxPrice);
-
-    //Отримуємо список унікальних обєктів ProcessorProducer[] серед обєктів в списку filteredProcessors
-    const uniqueProducers: ProcessorProducer[] = Array.from(new Set(filteredProcessors.map((p: Processor) =>
-        p.processorOptions.producer)));
-
-    //Отримуємо список унікальних обєктів ProcessorSocket[] серед обєктів в списку filteredProcessors
-    const uniqueProcessorSockets: ProcessorSocket[] = Array.from(new Set(filteredProcessors.map((p: Processor) =>
-        p.processorOptions.processorSocket)));
-
-    //Отримуємо список унікальних обєктів NumberOfCores[] серед обєктів в списку filteredProcessors
-    const uniqueNumberOfCores: NumberOfCores[] = Array.from(new Set(filteredProcessors.map((p: Processor) =>
-        p.processorOptions.numberOfCores)));
-
-    //Отримуємо список унікальних обєктів NumberOfThreads[] серед обєктів в списку filteredProcessors
-    const uniqueNumberOfThreads: NumberOfThreads[] = Array.from(new Set(filteredProcessors.map((p: Processor) =>
-        p.processorOptions.numberOfThreads)));
-
-
-    const pageNo: number = fetchProcessorsParams.pageNo ?? 0;
-    const pageSize: number = fetchProcessorsParams.pageSize ?? 10;
-    const totalElements: number = filteredProcessors.length;
-    const totalPages: number = Math.ceil(totalElements / pageSize);
-
-
-
-    const fetchProcessorsResponseDTO: FetchProcessorsResponseDTO = {
-        content: paginatedProcessors,
-        minPrice: minPrice,
-        maxPrice: maxPrice,
-        producers: uniqueProducers,
-        processorSockets: uniqueProcessorSockets,
-        numberOfCores: uniqueNumberOfCores,
-        numberOfThreads: uniqueNumberOfThreads,
-        pageNo: pageNo,
-        pageSize: pageSize,
-        totalPages: totalPages,
-        totalElements: totalElements,
-        last: false
-    }
-
+    const getProcessorsCatalogResponse: GetProcessorsCatalogResponse = getProcessorsCatalog(fetchProcessorsParams);
     
-    console.log("minPrice: ", fetchProcessorsResponseDTO.minPrice);
-    console.log("maxPrice: ", fetchProcessorsResponseDTO.maxPrice);
+    console.log("minPrice: ", getProcessorsCatalogResponse.minPrice);
+    console.log("maxPrice: ", getProcessorsCatalogResponse.maxPrice);
 
-    return res.json(fetchProcessorsResponseDTO);
+    return res.json(getProcessorsCatalogResponse);
 });
 
+/*
 app.get("/transactions/me/:id", authenticateToken, (req: Request, res: Response) => {
     const {id} = req.params;
     const authHeader: string | undefined = req.headers["authorization"];
@@ -332,7 +214,7 @@ app.get("/transactions/me/:id", authenticateToken, (req: Request, res: Response)
     return res.status(404).json({message: "Transaction with id ${id} not found"});
 })
 
-/*
+
 app.post("/transactions", authenticateToken, (req: Request, res: Response) => {
     const transaction: Omit<Transaction, "id"> = req.body;
 

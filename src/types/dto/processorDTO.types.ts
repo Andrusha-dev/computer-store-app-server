@@ -5,13 +5,13 @@ import {
     type ProcessorSocket, processorSocketSchema
 } from "../models/pcComponents/processor.types.ts";
 import {
-    type PaginationResponseDTO,
-    paginationResponseDTOSchema
+    type PaginationResponse, paginationResponseSchema
+
 } from "./paginationDTO.types.ts";
 import {z} from "zod";
 
 
-export interface FetchProcessorsResponseDTO extends PaginationResponseDTO {
+export interface GetProcessorsCatalogResponse extends PaginationResponse {
     content: Processor[];
     minPrice: number;
     maxPrice: number;
@@ -20,7 +20,7 @@ export interface FetchProcessorsResponseDTO extends PaginationResponseDTO {
     numberOfCores: NumberOfCores[]; // Перейменовано з numberOfCores
     numberOfThreads: NumberOfThreads[]; // Перейменовано з numberOfThreads
 }
-export const fetchProcessorsResponseDTOSchema = paginationResponseDTOSchema.extend({
+export const getProcessorsCatalogResponseSchema = paginationResponseSchema.extend({
     content: z.array(processorSchema),
     minPrice: z.number(),
     maxPrice: z.number(),

@@ -1,6 +1,6 @@
 import {z} from "zod";
 
-export interface PaginationResponseDTO {
+export interface PaginationResponse {
     pageNo: number;          // Відповідає PageParams.page
     pageSize: number;          // Відповідає PageParams.size
     totalElements: number; // Необхідно для розрахунку кількості сторінок на фронтенді
@@ -8,7 +8,7 @@ export interface PaginationResponseDTO {
     last?: boolean;
 }
 
-export const paginationResponseDTOSchema = z.object({
+export const paginationResponseSchema = z.object({
     pageNo: z.number().nonnegative(),
     pageSize: z.number().positive(),
     totalElements: z.number().nonnegative(),

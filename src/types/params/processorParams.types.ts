@@ -1,4 +1,4 @@
-import {type PageParams, pageParamsSchema} from "./pageParams.types.ts";
+import {type PageParams, type QueryPageParams, queryPageParamsSchema, type SortType} from "./pageParams.types.ts";
 import {type PCComponentFilters, pcComponentFiltersSchema} from "./pcComponentParams.types.ts";
 import {
     type NumberOfCores, numberOfCoresSchema,
@@ -10,7 +10,8 @@ import {z} from "zod";
 import {arrayPreprocess} from "../../utils/validation/processorValidation.ts";
 
 
-//основний тип для фільтрів списку процесорів Processor[]
+
+//основний тип для фільтрів списку процесорів Processor[] в параметрах запиту
 export interface ProcessorFilters extends PCComponentFilters {
     producer?: ProcessorProducer[];
     processorSocket?: ProcessorSocket[];
@@ -32,6 +33,14 @@ export const processorFiltersSchema = pcComponentFiltersSchema.extend({
 export type ProcessorFiltersKeys = keyof ProcessorFilters;
 
 
+//Тип, в якому параметри запиту FetchProcessorsParams, розділені на групи. При чому цей
+//тип передбачає властивість типу PageParams, а не QueryPageParams. Тобто наявність пагінації - обовязкова.
+// Використовується в методі parseProcessorParams для парсинга параметрів FetchProcessorsParams до ProcessorFilters та PageParams
+export interface ParsedProcessorsParams {
+    processorFilters: ProcessorFilters;
+    pageParams: PageParams;
+}
+
 //Тип для параметрів запиту в методі fetchProcessors
-export interface FetchProcessorsParams extends ProcessorFilters, PageParams {}
-export const fetchProcessorsParamsSchema = processorFiltersSchema.extend(pageParamsSchema.shape);
+export interface FetchProcessorsParams extends ProcessorFilters, QueryPageParams {}
+export const fetchProcessorsParamsSchema = processorFiltersSchema.extend(queryPageParamsSchema.shape);

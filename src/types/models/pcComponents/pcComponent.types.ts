@@ -22,3 +22,8 @@ export const pcComponentSchema = z.object({
     quantity: z.number(),
     category: categorySchema,
 });
+
+
+//Тип для способу сортування всіх обєктів PCComponent
+export type PCComponentSortType = keyof Pick<PCComponent, "price" | "quantity">;
+export const pcComponentSortTypeSchema = z.enum(["price", "quantity"]);

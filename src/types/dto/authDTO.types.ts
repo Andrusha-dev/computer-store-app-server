@@ -1,19 +1,24 @@
 import {z, type ZodObject} from "zod";
+import {type LoginFormValues, loginFormValuesSchema, type UserRole} from "../models/user.ts";
 
-export interface LoginRequestDTO {
+
+//Тип для payload в jwt-токені
+export interface TokenPayload {
+    id: number;
     email: string;
-    password: string;
+    role: UserRole;
+    iat?: number; // Issued At (timestamp)
+    exp?: number; //Expiration Time (timestamp)
 }
-export const LoginRequestDTOSchema = z.object({
-    email: z.email(),
-    password: z.string().min(8)
-});
 
-export interface LoginResponseDTO {
+export type LoginRequest = LoginFormValues;
+export const loginRequestSchema = loginFormValuesSchema;
+
+export interface LoginResponse {
     accessToken: string;
     refreshToken: string;
 }
-export const LoginResponseDTOSchema = z.object({
+export const LoginResponseSchema = z.object({
     accessToken: z.string(),
     refreshToken: z.string()
 });
