@@ -5,8 +5,8 @@ import {
     type GetUsersListResponse, getUsersListResponseSchema,
 
 } from "../types/dto/userDTO.types.ts";
-import type {FetchUsersParams, ParsedUsersParams, UserFilters} from "../types/params/userParams.types.ts";
-import type {PageParams, QueryPageParams} from "../types/params/pageParams.types.ts";
+import type {GetUsersListParams, ParsedUsersParams, UserFilters} from "../types/params/userParams/userParams.types.ts";
+import type {PageParams, QueryPageParams} from "../types/params/pageParams/pageParams.types.ts";
 
 //сервісний метод для отримання даних поточного автентифікованого користувача типу FetchAuthUserResponse
 export const fetchAuthUser = (id: number): FetchAuthUserResponse | null => {
@@ -23,14 +23,14 @@ export const fetchAuthUser = (id: number): FetchAuthUserResponse | null => {
 }
 
 
-export const parseUsersParams = (fetchUsersParams: FetchUsersParams): ParsedUsersParams => {
+export const parseUsersParams = (getUsersListParams: GetUsersListParams): ParsedUsersParams => {
     const {
         pageNo = 0,
         pageSize = 10,
         sortType = "lastname",
         sortOrder = "asc",
         ...userFilters
-    } = fetchUsersParams
+    } = getUsersListParams
 
     const pageParams: PageParams = {
         pageNo,
@@ -117,8 +117,8 @@ export const paginateUsers = (
 }
 
 
-export const getUsersList = (fetchUsersParams: FetchUsersParams): GetUsersListResponse => {
-    const {userFilters, pageParams} = parseUsersParams(fetchUsersParams);
+export const getUsersList = (getUsersListParams: GetUsersListParams): GetUsersListResponse => {
+    const {userFilters, pageParams} = parseUsersParams(getUsersListParams);
 
     const filteredUsersWithoutPassword: UserWithoutPassword[] = fetchUsers(userFilters);
 

@@ -14,10 +14,10 @@ import type {
 import {z} from "zod";
 import {type GetProcessorsCatalogResponse} from "./types/dto/processorDTO.types.ts";
 import {
-    type FetchProcessorsParams,
-    fetchProcessorsParamsSchema,
+    type GetProcessorsCatalogParams,
+    getProcessorsCatalogParamsSchema,
     type ProcessorFilters
-} from "./types/params/processorParams.types.ts";
+} from "./types/params/pcComponentParams/processorParams.types.ts";
 import {fetchProcessors, getProcessorsCatalog, paginateProcessors} from "./services/processorService.ts";
 import {type QueryParams} from "./types/common/request.types.ts";
 import {normalizeQueryParams} from "./utils/request/index.ts";
@@ -37,10 +37,10 @@ import {
 } from "./types/dto/authDTO.types.ts";
 import {authenticateToken, authorizeRole} from "./middleware/auth.middleware.ts";
 import {validate} from "./middleware/validation.middleware.ts";
-import type {PageParams} from "./types/params/pageParams.types.ts";
+import type {PageParams} from "./types/params/pageParams/pageParams.types.ts";
 import {fetchAuthUser, getUsersList} from "./services/userService.ts";
 import type {FetchAuthUserResponse, GetUsersListResponse} from "./types/dto/userDTO.types.ts";
-import {type FetchUsersParams, fetchUsersParamsSchema} from "./types/params/userParams.types.ts";
+import {type GetUsersListParams, getUsersListParamsSchema} from "./types/params/userParams/userParams.types.ts";
 
 
 
@@ -161,11 +161,11 @@ app.post("/validate-token", (req: Request, res: Response) => {
     return res.json({valid: false});
 })
 
-app.get("/users", authenticateToken, authorizeRole(["admin"]), validate(z.object({query: fetchUsersParamsSchema})), (req: Request, res: Response) => {
+app.get("/users", authenticateToken, authorizeRole(["admin"]), validate(z.object({query: getUsersListParamsSchema})), (req: Request, res: Response) => {
     //Після валідації за допомогою middleware validate() звалідовані параметри запиту FetchUsersParams передаються в res.locals
-    const fetchUsersParams: FetchUsersParams = res.locals.validation.query as FetchUsersParams;
+    const getUsersListParams: GetUsersListParams = res.locals.validatedRequest.query as GetUsersListParams;
 
-    const getUsersListResponse: GetUsersListResponse = getUsersList(fetchUsersParams);
+    const getUsersListResponse: GetUsersListResponse = getUsersList(getUsersListParams);
 
     return res.json(getUsersListResponse);
 })
@@ -182,13 +182,13 @@ app.get("/users/me", authenticateToken, (req: Request, res: Response) => {
     return res.json(fetchAuthUserResponse);
 })
 
-app.get("/processors", authenticateToken, validate(z.object({query: fetchProcessorsParamsSchema})), (req: Request, res: Response) => {
+app.get("/processors", authenticateToken, validate(z.object({query: getProcessorsCatalogParamsSchema})), (req: Request, res: Response) => {
     console.log("Starting fetch processors");
     //після валідації даних req.query за допомогою validate(z.object({query: fetchProcessorsParamsSchema})) вони
     // точно відповідають типу FetchProcessorsParams і були передані в res.locals.validatedQuery.query
-    const fetchProcessorsParams: FetchProcessorsParams = res.locals.validatedQuery.query;
+    const getProcessorsCatalogParams: GetProcessorsCatalogParams = res.locals.validatedRequest.query as GetProcessorsCatalogParams;
 
-    const getProcessorsCatalogResponse: GetProcessorsCatalogResponse = getProcessorsCatalog(fetchProcessorsParams);
+    const getProcessorsCatalogResponse: GetProcessorsCatalogResponse = getProcessorsCatalog(getProcessorsCatalogParams);
     
     console.log("minPrice: ", getProcessorsCatalogResponse.minPrice);
     console.log("maxPrice: ", getProcessorsCatalogResponse.maxPrice);

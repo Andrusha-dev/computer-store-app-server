@@ -1,7 +1,8 @@
 import {
-    type FetchProcessorsParams, type ParsedProcessorsParams,
+    type GetProcessorsCatalogParams,
+    type ParsedProcessorsParams,
     type ProcessorFilters
-} from "../types/params/processorParams.types.ts";
+} from "../types/params/pcComponentParams/processorParams.types.ts";
 import {
     type NumberOfCores, type NumberOfThreads,
     type Processor,
@@ -9,7 +10,7 @@ import {
     type ProcessorSocket
 } from "../types/models/pcComponents/processor.types.ts";
 import {processors} from "../data/pcComponents/processors.ts";
-import {type PageParams} from "../types/params/pageParams.types.ts";
+import {type PageParams} from "../types/params/pageParams/pageParams.types.ts";
 import {
     type GetProcessorsCatalogResponse,
     getProcessorsCatalogResponseSchema
@@ -17,14 +18,14 @@ import {
 
 
 //метод для обєлнання параметрів запиту FetchProcessorsParams по групах processorFilters: ProcessorFilters та pageParams: PageParams
-const parseProcessorsParams = (fetchProcessorsParams: FetchProcessorsParams): ParsedProcessorsParams => {
+const parseProcessorsParams = (getProcessorsCatalogParams: GetProcessorsCatalogParams): ParsedProcessorsParams => {
     const {
         pageNo = 0,
         pageSize = 10,
         sortType = "price",
         sortOrder = "asc",
         ...processorFilters
-    } = fetchProcessorsParams;
+    } = getProcessorsCatalogParams;
 
     const pageParams: PageParams = {
         pageNo,
@@ -264,9 +265,9 @@ export const paginateProcessors = (
 
 
 //метод, що повертає FetchProcessorsResponse (список відфільтрованих та пагінованих процесорів та додаткові метадані)
-export const getProcessorsCatalog = (fetchProcessorsParams: FetchProcessorsParams): GetProcessorsCatalogResponse => {
+export const getProcessorsCatalog = (getProcessorsCatalogParams: GetProcessorsCatalogParams): GetProcessorsCatalogResponse => {
     // Використовуємо метод для парсингу
-    const { processorFilters, pageParams } = parseProcessorsParams(fetchProcessorsParams);
+    const { processorFilters, pageParams } = parseProcessorsParams(getProcessorsCatalogParams);
 
     // Отримуємо відфільтровані дані (для агрегацій)
     const filteredProcessors: Processor[] = fetchProcessors(processorFilters);

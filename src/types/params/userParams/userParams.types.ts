@@ -1,5 +1,5 @@
-import {type PageParams, type QueryPageParams, queryPageParamsSchema, type SortType} from "./pageParams.types.ts";
-import {type UserRole, userRoleSchema} from "../models/user.ts";
+import {type PageParams, type QueryPageParams, queryPageParamsSchema, type SortType} from "../pageParams/pageParams.types.ts";
+import {type UserRole, userRoleSchema} from "../../models/user.ts";
 import {z} from "zod";
 
 //основний тип для фільтрів списку процесорів Processor[] в параметрах запиту
@@ -31,5 +31,5 @@ export interface ParsedUsersParams {
     pageParams: PageParams;
 }
 
-export interface FetchUsersParams extends UserFilters, QueryPageParams {}
-export const fetchUsersParamsSchema = userFiltersSchema.extend(queryPageParamsSchema.shape);
+export interface GetUsersListParams extends UserFilters, QueryPageParams {}
+export const getUsersListParamsSchema = userFiltersSchema.extend(queryPageParamsSchema.shape);

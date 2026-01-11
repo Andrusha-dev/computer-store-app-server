@@ -1,13 +1,13 @@
-import {type PageParams, type QueryPageParams, queryPageParamsSchema, type SortType} from "./pageParams.types.ts";
+import {type PageParams, type QueryPageParams, queryPageParamsSchema} from "../pageParams/pageParams.types.ts";
 import {type PCComponentFilters, pcComponentFiltersSchema} from "./pcComponentParams.types.ts";
 import {
     type NumberOfCores, numberOfCoresSchema,
     type NumberOfThreads, numberOfThreadsSchema,
     type ProcessorProducer, processorProducerSchema,
     type ProcessorSocket, processorSocketSchema
-} from "../models/pcComponents/processor.types.ts";
+} from "../../models/pcComponents/processor.types.ts";
 import {z} from "zod";
-import {arrayPreprocess} from "../../utils/validation/processorValidation.ts";
+import {arrayPreprocess} from "../../../utils/validation/validation.ts";
 
 
 
@@ -41,6 +41,6 @@ export interface ParsedProcessorsParams {
     pageParams: PageParams;
 }
 
-//Тип для параметрів запиту в методі fetchProcessors
-export interface FetchProcessorsParams extends ProcessorFilters, QueryPageParams {}
-export const fetchProcessorsParamsSchema = processorFiltersSchema.extend(queryPageParamsSchema.shape);
+//Тип для параметрів запиту в методі getProcessorsCatalog
+export interface GetProcessorsCatalogParams extends ProcessorFilters, QueryPageParams {}
+export const getProcessorsCatalogParamsSchema = processorFiltersSchema.extend(queryPageParamsSchema.shape);
