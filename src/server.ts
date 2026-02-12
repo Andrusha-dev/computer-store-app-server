@@ -25,131 +25,93 @@ import {users} from "./data/users.ts";
 import {transactions} from "./data/transactions.ts";
 import {
     generateAccessToken,
-    generateRefreshToken, login, validateAccessToken,
+    generateRefreshToken, login, refreshAllTokens, validateAccessToken,
     validateRefreshToken,
 } from "./services/authService.ts";
 import {PORT, REFRESH_TOKEN_SECRET} from "./config/index.ts";
 import { setTimeout } from 'timers/promises';
 import {
     type LoginRequest,
-    loginRequestSchema, type LoginResponse,
+    loginRequestSchema, type LoginResponse, loginResponseSchema,
+    type RefreshAllTokensRequest, refreshAllTokensRequestSchema,
+    type RefreshAllTokensResponse, refreshAllTokensResponseSchema,
     type TokenPayload
 } from "./types/dto/authDTO.types.ts";
 import {authenticateToken, authorizeRole} from "./middleware/auth.middleware.ts";
 import {validate} from "./middleware/validation.middleware.ts";
-import type {PageParams} from "./types/params/pageParams/pageParams.types.ts";
-import {fetchAuthUser, getUsersList} from "./services/userService.ts";
-import type {FetchAuthUserResponse, GetUsersListResponse} from "./types/dto/userDTO.types.ts";
-import {type GetUsersListParams, getUsersListParamsSchema} from "./types/params/userParams/userParams.types.ts";
+//import type {PageParams} from "./types/params/pageParams/pageParams.types.ts";
+import {createUser, fetchAuthUser, getUsersList} from "./services/userService.ts";
+import {
+    type CreateUserRequest, createUserRequestSchema,
+    type CreateUserResponse, createUserResponseSchema,
+    type FetchAuthUserResponse, fetchAuthUserResponseSchema,
+    type GetUsersListResponse, getUsersListResponseSchema
+} from "./types/dto/userDTO.types.ts";
+import {
+    type GetUsersListQueryParams,
+    getUsersListQueryParamsSchema
+} from "./types/params/userParams/userParams.types.ts";
+import type {} from "./types/models/custom/user.model.ts";
+import {Prisma} from "@prisma/client";
+import prisma from "./lib/prisma.ts";
+import {errorHandler} from "./middleware/error.middleware.ts";
+import type {UserWithRelations} from "./types/models/generated";
+import {toCreateUserResponse, toFetchAuthUserResponse, toGetUsersListResponse} from "./mappers/response/user.mapper.ts";
+import type {CreateUserResult, FetchAuthUserResult, GetUsersListResult} from "./types/services/results/user.results.ts";
+import {toLoginResponse, toRefreshAllTokensResponse} from "./mappers/response/auth.mapper.ts";
+import type {LoginResult, RefreshAllTokensResult} from "./types/services/results/auth.results.ts";
+import type {CreateUserArgs, FetchAuthUserArgs, GetUsersListArgs} from "./types/services/args/user.args.ts";
+import {toCreateUserArgs, toFetchAuthUserArgs, toGetUsersListArgs} from "./mappers/request/user.mapper.ts";
+import {toLoginArgs, toRefreshAllTokensArgs} from "./mappers/request/auth.mapper.ts";
+import type {LoginArgs, RefreshAllTokensArgs} from "./types/services/args/auth.args.ts";
+import {cors} from "./middleware/cors.middleware.ts";
 
 
 
 const app = express();
 
-
-
-const getLatestUserId = (): number => {
-    let latestId: number = 0;
-    users.forEach((user) => {
-        if(user.id > latestId) latestId = user.id;
-    });
-    return latestId;
-}
-
-const getLatestTransactionId = (): number => {
-    let latestId: number = 0;
-    transactions.forEach((ta) => {
-        if (ta.id > latestId) latestId = ta.id;
-    });
-    return latestId;
-}
-
 app.use(express.json());
 
-app.use((req: Request, res: Response, next) => {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    next();
+app.use(cors);
+
+
+
+app.post("/users", validate(z.object({body: createUserRequestSchema})), async (req: Request, res: Response) => {
+    const request: CreateUserRequest = req.body;
+    const args: CreateUserArgs = toCreateUserArgs(request);
+    const result: CreateUserResult = await createUser(args);
+    const response: CreateUserResponse = toCreateUserResponse(result);
+    const validatedResponse: CreateUserResponse = createUserResponseSchema.parse(response);
+
+    return res.json(validatedResponse);
 });
-
-
-
-app.post("/users", (req: Request, res: Response) => {
-    const {email, password, username, firstname, lastname, address, phone, birthYear, profession, isMarried} = req.body;
-
-    const newUser: User = {
-        id: getLatestUserId() + 1,
-        email: email,
-        password: password,
-        username: username,
-        firstname: firstname,
-        lastname: lastname,
-        address: address,
-        phone: phone,
-        birthYear: birthYear,
-        profession: profession,
-        isMarried: isMarried,
-        role: "user"
-    }
-
-    users.push(newUser);
-
-    const resUser: Omit<User, "password"> = {
-        id: newUser.id,
-        email: newUser.email,
-        username: newUser.username,
-        firstname: newUser.firstname,
-        lastname: newUser.lastname,
-        address: newUser.address,
-        phone: newUser.phone,
-        birthYear: newUser.birthYear,
-        profession: newUser.profession,
-        isMarried: newUser.isMarried,
-        role: newUser.role
-    }
-
-    console.log(resUser.id, resUser.email, resUser.username, resUser.firstname, resUser.lastname, resUser.address, resUser.phone, resUser.birthYear, resUser.profession, resUser.isMarried, resUser.role);
-
-    return res.status(200).json(resUser);
-})
 
 // Пример эндпоинта для генерации токена
-app.post("/login", validate(z.object({body: loginRequestSchema})), (req: Request, res: Response) => {
+app.post("/login", validate(z.object({body: loginRequestSchema})), async (req: Request, res: Response) => {
     //після валідації даних req.body за допомогою validate(z.object({body: LoginRequestDTOSchema})) можна
-    //сміливо стверджувати, що вони відповідають типу LoginRequestDTO
-    const loginRequest: LoginRequest = req.body;
-    const loginResponse: LoginResponse | null = login(loginRequest);
-    if(!loginResponse) {
-        return res.status(401).json({ message: "Invalid username or password" });
-    }
+    //сміливо стверджувати, що вони відповідають типу LoginRequest
+    console.log("starting login");
+    const request: LoginRequest = req.body;
+    const args: LoginArgs = toLoginArgs(request);
+    const result: LoginResult = await login(args);
+    const response: LoginResponse = toLoginResponse(result);
+    const validatedResponse: LoginResponse = loginResponseSchema.parse(response);
 
-    return res.json(loginResponse);
+    return res.json(validatedResponse);
 });
 
-app.post("/refresh-all-tokens", (req: Request, res: Response) => {
-    const {refreshToken} = req.body;
-    console.log("refreshToken: ", refreshToken);
-    if(!refreshToken) {
-        console.error("refresh token is undefined");
-        return res.status(403).json({message: "refresh token is undefined"});
-    }
+app.post("/refresh-all-tokens", validate(z.object({body: refreshAllTokensRequestSchema})), (req: Request, res: Response) => {
+    const request: RefreshAllTokensRequest = req.body;
+    const args: RefreshAllTokensArgs = toRefreshAllTokensArgs(request)
+    const result: RefreshAllTokensResult = refreshAllTokens(args);
+    const response: RefreshAllTokensResponse = toRefreshAllTokensResponse(result);
+    const validatedResponse: RefreshAllTokensResponse = refreshAllTokensResponseSchema.parse(response);
 
-
-    const payload: any = validateRefreshToken(refreshToken);
-
-    if(!payload) {
-        console.error("Invalid refresh token");
-        return res.status(403).json({message: "Invalid refresh token"});
-    }
-
-    const newAccessToken = generateAccessToken({...payload, iat: Date.now() / 1000, exp: Date.now() / 1000 + 60});
-    const newRefreshToken = generateRefreshToken({...payload, iat: Date.now() / 1000, exp: (Date.now() / 1000) + 60 * 2});
-    console.log("New access token: ", newAccessToken);
-
-    return res.json({accessToken: newAccessToken, refreshToken: newRefreshToken});
+    return res.json(validatedResponse);
 })
 
+//Цей ендпойнт поки що не використовується бо валідація токена здійснюється локально на клієнті,
+//але може використовуватися при необхідності
 app.post("/validate-token", (req: Request, res: Response) => {
     const {accessToken} = req.body;
 
@@ -161,25 +123,26 @@ app.post("/validate-token", (req: Request, res: Response) => {
     return res.json({valid: false});
 })
 
-app.get("/users", authenticateToken, authorizeRole(["admin"]), validate(z.object({query: getUsersListParamsSchema})), (req: Request, res: Response) => {
+app.get("/users", authenticateToken, authorizeRole(["admin"]), validate(z.object({query: getUsersListQueryParamsSchema})), async (req: Request, res: Response) => {
     //Після валідації за допомогою middleware validate() звалідовані параметри запиту FetchUsersParams передаються в res.locals
-    const getUsersListParams: GetUsersListParams = res.locals.validatedRequest.query as GetUsersListParams;
+    const queryParams: GetUsersListQueryParams = res.locals.validatedRequest.query as GetUsersListQueryParams;
+    const args: GetUsersListArgs = toGetUsersListArgs(queryParams);
+    const result: GetUsersListResult = await getUsersList(args);
+    const response: GetUsersListResponse = toGetUsersListResponse(result);
+    const validatedResponse: GetUsersListResponse = getUsersListResponseSchema.parse(response)
 
-    const getUsersListResponse: GetUsersListResponse = getUsersList(getUsersListParams);
-
-    return res.json(getUsersListResponse);
+    return res.json(validatedResponse);
 })
 
-app.get("/users/me", authenticateToken, (req: Request, res: Response) => {
+app.get("/users/me", authenticateToken, async (req: Request, res: Response) => {
     //після успішної автентифікації через middleware authenticateToken payload вхідного jwt-токена передається в res.locals.payload
-    const {id} = res.locals.payload as TokenPayload;
+    const tokenPayload: TokenPayload = res.locals.payload as TokenPayload;
+    const args: FetchAuthUserArgs = toFetchAuthUserArgs(tokenPayload);
+    const result: FetchAuthUserResult = await fetchAuthUser(args);
+    const response: FetchAuthUserResponse = toFetchAuthUserResponse(result);
+    const validatedResponse: FetchAuthUserResponse = fetchAuthUserResponseSchema.parse(response);
 
-    const fetchAuthUserResponse: FetchAuthUserResponse | null = fetchAuthUser(id);
-    if(!fetchAuthUserResponse) {
-        return res.status(401).json({message: `Undefined user with id ${id}`});
-    }
-
-    return res.json(fetchAuthUserResponse);
+    return res.json(validatedResponse);
 })
 
 app.get("/processors", authenticateToken, validate(z.object({query: getProcessorsCatalogParamsSchema})), (req: Request, res: Response) => {
@@ -256,19 +219,7 @@ app.post("/transactions", authenticateToken, (req: Request, res: Response) => {
 /*Для express js версії 4 потрібно встановити залежність express-async-errors, для автоматичної обробки асинхронних помилок.
 В express js версії 5 обробник вже працює з коробки*/
 //Глобальний обробник для необроблених помилок
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-    // Якщо це помилка валідації нашої відповіді
-    if (err instanceof z.ZodError) {
-        console.error("RESPONSE VALIDATION ERROR:", err.issues);
-        return res.status(500).json({
-            message: "Server produced invalid response data",
-            details: err.issues
-        });
-    }
-
-    // Будь-яка інша непередбачувана помилка
-    res.status(500).json({ message: "Something went wrong on the server" });
-});
+app.use(errorHandler);
 
 
 // Запуск сервера

@@ -14,6 +14,7 @@ export const addressSchema = z.object({
 export type UserRole = "guest" | "user" | "admin";
 export const userRoleSchema = z.enum(["guest", "user", "admin"]);
 
+
 export interface User {
     id: number;
     email: string;

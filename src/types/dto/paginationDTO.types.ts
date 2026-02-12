@@ -1,12 +1,5 @@
 import {z} from "zod";
 
-export interface PaginationResponse {
-    pageNo: number;          // Відповідає PageParams.page
-    pageSize: number;          // Відповідає PageParams.size
-    totalElements: number; // Необхідно для розрахунку кількості сторінок на фронтенді
-    totalPages: number;    // Зазвичай бекенд одразу це рахує
-    last?: boolean;
-}
 
 export const paginationResponseSchema = z.object({
     pageNo: z.number().nonnegative(),
@@ -15,3 +8,4 @@ export const paginationResponseSchema = z.object({
     totalPages: z.number().nonnegative(),
     last: z.boolean().optional(),
 });
+export type PaginationResponse = z.infer<typeof paginationResponseSchema>;

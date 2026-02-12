@@ -1,149 +1,124 @@
-import type {User, UserRole, UserWithoutPassword} from "../types/models/user.ts";
-import {users} from "../data/users.ts";
 import {
-    type FetchAuthUserResponse, fetchAuthUserResponseSchema,
-    type GetUsersListResponse, getUsersListResponseSchema,
-
+    type CreateUserRequest
 } from "../types/dto/userDTO.types.ts";
-import type {GetUsersListParams, ParsedUsersParams, UserFilters} from "../types/params/userParams/userParams.types.ts";
-import type {PageParams, QueryPageParams} from "../types/params/pageParams/pageParams.types.ts";
-
-//сервісний метод для отримання даних поточного автентифікованого користувача типу FetchAuthUserResponse
-export const fetchAuthUser = (id: number): FetchAuthUserResponse | null => {
-    const user: User | undefined = users.find((user) => user.id === id);
-
-    if(!user) {
-        return null;
-    }
-
-    const {password, ...fetchAuthUserResponse} = user
-
-    const validatedFetchAuthUserResponse: FetchAuthUserResponse = fetchAuthUserResponseSchema.parse(fetchAuthUserResponse);
-    return validatedFetchAuthUserResponse;
-}
+//import type {ParsedUsersParams, UserFilters} from "../types/params/userParams/userParams.types.ts";
+//import type {PageParams} from "../types/params/pageParams/pageParams.types.ts";
+import prisma from "../lib/prisma.ts";
+import type {UserRole} from "../types/models/custom/user.model.ts";
+import type {UserWithRelations} from "../types/models/generated";
+import {AppError} from "../error/appError.ts";
+import type {UserWhereInput} from "../generated/prisma/models/User.ts";
+import type {
+    CreateUserResult,
+    FetchAuthUserResult,
+    GetUsersListResult
+} from "../types/services/results/user.results.ts";
+import type {CreateUserArgs, FetchAuthUserArgs, GetUsersListArgs} from "../types/services/args/user.args.ts";
 
 
-export const parseUsersParams = (getUsersListParams: GetUsersListParams): ParsedUsersParams => {
-    const {
-        pageNo = 0,
-        pageSize = 10,
-        sortType = "lastname",
-        sortOrder = "asc",
-        ...userFilters
-    } = getUsersListParams
 
-    const pageParams: PageParams = {
-        pageNo,
-        pageSize,
-        sortType,
-        sortOrder
-    }
+export const createUser = async (createUserArgs: CreateUserArgs): Promise<CreateUserResult> => {
+    const {address, ...userData} = createUserArgs;
 
-    const parsedUsersParams: ParsedUsersParams = {
-        userFilters,
-        pageParams
-    }
+    console.log("userData: ", userData);
 
-    return parsedUsersParams;
-}
 
-export const fetchUsers = (userFilters: UserFilters): UserWithoutPassword[] => {
-    let usersWithoutPassword: UserWithoutPassword[] = users.map((user) => {
-        const {password, ...userWithoutPassword} = user;
-        return userWithoutPassword;
+    //тип UserWithRelations згенерований prisma
+    const createdUser: UserWithRelations = await prisma.user.create({
+        data: {
+            ...userData,
+            address: {
+                create: address
+            }
+        },
+        include: {
+            address: true
+        }
     });
 
+    console.log("resUser: ", createdUser);
 
-    if(userFilters.id !== undefined) {
-       usersWithoutPassword = usersWithoutPassword.filter((user) => user.id === userFilters.id);
+    if(!createdUser.address) {
+        throw new AppError({
+            message: "Даних з адресою поточного користувача не знайдено",
+            code: "NOT_FOUND",
+            statusCode: 404
+        })
     }
 
-    if(userFilters.firstname !== undefined) {
-        const firstname: string = userFilters.firstname;
-        usersWithoutPassword = usersWithoutPassword.filter((user) =>
-            user.firstname.toLowerCase().includes(firstname.toLowerCase()));
+    const createUserResult: CreateUserResult = {
+        userWithRelations: createdUser
     }
 
-    if(userFilters.lastname !== undefined) {
-        const lastname: string = userFilters.lastname;
-        usersWithoutPassword = usersWithoutPassword.filter((user) =>
-            user.lastname.toLowerCase().includes(lastname.toLowerCase()));
+    return createUserResult;
+}
+
+//сервісний метод для отримання даних поточного автентифікованого користувача типу FetchAuthUserResponse
+export const fetchAuthUser = async (fetchAuthUsersArgs: FetchAuthUserArgs/*id: number*/): Promise<FetchAuthUserResult/*UserWithRelations*/> => {
+    const fetchedUser: UserWithRelations = await prisma.user.findUniqueOrThrow({
+        where: {
+            id: fetchAuthUsersArgs.id
+        },
+        include: {
+            address: true
+        }
+    });
+
+    if(!fetchedUser.address) {
+        throw new AppError({
+            message: "Даних з адресою поточного користувача не знайдено",
+            code: "NOT_FOUND",
+            statusCode: 404
+        })
     }
 
-    if(userFilters.roles !== undefined) {
-        const roles: UserRole[] = userFilters.roles;
-        usersWithoutPassword = usersWithoutPassword.filter((user) => roles.includes(user.role));
+    const fetchAuthUserResult: FetchAuthUserResult = {
+        userWithRelations: fetchedUser
     }
 
-    return usersWithoutPassword;
+    return fetchAuthUserResult;
 }
 
 
-export const paginateUsers = (
-    usersWithoutPassword: UserWithoutPassword[],
-    pageParams: PageParams
-): UserWithoutPassword[] => {
-    let paginatedUsersWithoutPassword: UserWithoutPassword[] = [...usersWithoutPassword];
+export const getUsersList = async (getUsersListArgs: GetUsersListArgs): Promise<GetUsersListResult> => {
+    const {userFilters, pageParams} = getUsersListArgs;
 
-    if(paginatedUsersWithoutPassword.length === 0) {
-        return paginatedUsersWithoutPassword;
-    }
+    const skip = pageParams.pageNo * pageParams.pageSize;
 
+    const where: UserWhereInput = {
+        id: userFilters.id,
+        firstname: userFilters.firstname ? { contains: userFilters.firstname, mode: 'insensitive' } : undefined,
+        lastname: userFilters.lastname ? { contains: userFilters.lastname, mode: 'insensitive' } : undefined,
+        role: userFilters.roles ? { in: userFilters.roles } : undefined,
+    };
 
-    if(pageParams.sortType === "firstname" && pageParams.sortOrder === "asc") {
-        paginatedUsersWithoutPassword = paginatedUsersWithoutPassword.sort((a, b) =>
-            a.firstname.localeCompare(b.firstname));
-    }
-    if(pageParams.sortType === "firstname" && pageParams.sortOrder === "desc") {
-        paginatedUsersWithoutPassword = paginatedUsersWithoutPassword.sort((a, b) =>
-            b.firstname.localeCompare(a.firstname));
-    }
-    if(pageParams.sortType === "lastname" && pageParams.sortOrder === "asc") {
-        paginatedUsersWithoutPassword = paginatedUsersWithoutPassword.sort((a, b) =>
-            a.lastname.localeCompare(b.lastname));
-    }
-    if(pageParams.sortType === "lastname" && pageParams.sortOrder === "desc") {
-        paginatedUsersWithoutPassword = paginatedUsersWithoutPassword.sort((a, b) =>
-            b.lastname.localeCompare(b.lastname));
-    }
+    const paginatedUsers: UserWithRelations[] = await prisma.user.findMany({
+        where,
+        include: { address: true },
+        orderBy: {
+            [pageParams.sortType]: pageParams.sortOrder
+        },
+        take: pageParams.pageSize,
+        skip: skip,
+    });
 
-
-    const startIndex: number = (((pageParams.pageNo + 1) * pageParams.pageSize) - pageParams.pageSize);
-    console.log(`start index for page ${pageParams.pageNo}: `, startIndex);
-    paginatedUsersWithoutPassword = paginatedUsersWithoutPassword.splice(startIndex, pageParams.pageSize);
-
-
-    return paginatedUsersWithoutPassword;
-}
-
-
-export const getUsersList = (getUsersListParams: GetUsersListParams): GetUsersListResponse => {
-    const {userFilters, pageParams} = parseUsersParams(getUsersListParams);
-
-    const filteredUsersWithoutPassword: UserWithoutPassword[] = fetchUsers(userFilters);
-
-    const uniqueUserRoles: UserRole[] = Array.from(new Set(filteredUsersWithoutPassword.map((u) => u.role)));
-
-    const paginatedUsersWithoutPassword: UserWithoutPassword[] = paginateUsers(filteredUsersWithoutPassword, pageParams);
+    const totalElements: number = await prisma.user.count({ where });
 
     const pageNo: number = pageParams.pageNo;
+
     const pageSize: number = pageParams.pageSize;
-    const totalElements: number = filteredUsersWithoutPassword.length;
-    const totalPages: number = Math.ceil(totalElements / pageSize);
-    const last: boolean = (pageParams.pageNo) === (totalPages - 1);
+
+    const roles: UserRole[] = userFilters.roles ? userFilters.roles : [];
 
 
-    const getUsersListResponse: GetUsersListResponse = {
-        content: paginatedUsersWithoutPassword,
-        roles: uniqueUserRoles,
+
+    const getUsersListResult: GetUsersListResult = {
+        paginatedUsers: paginatedUsers,
+        totalElements: totalElements,
         pageNo: pageNo,
         pageSize: pageSize,
-        totalElements: totalElements,
-        totalPages: totalPages,
-        last: last
+        roles: roles
     }
 
-    //Валідуєм дані
-    const validatedGetUsersListResponse: GetUsersListResponse = getUsersListResponseSchema.parse(getUsersListResponse);
-    return validatedGetUsersListResponse;
+    return getUsersListResult;
 }

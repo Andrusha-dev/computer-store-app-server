@@ -13,3 +13,59 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+generator zod {
+  provider                  = "zod-prisma-types"
+  output                    = "../src/types/models/generated" // Куди генерувати Zod схеми
+  createRelationValuesTypes = true // дозволяє створювати типи з урахуванням вкладених моделей
+  addIncludeType            = false // додає типи для Prisma Include
+  addSelectType             = false
+}
+
+// Enum для ролей (як у вашому прикладі)
+enum UserRole {
+  guest
+  user
+  admin
+}
+
+model User {
+  id Int @id @default(autoincrement())
+
+  /// @zod.string.email({ message: "Невірний формат email" })
+  email String @unique
+
+  /// @zod.string.min(8, { message: "Довжина паролю має бути не менше 8 символів" })
+  password String
+
+  /// @zod.string.min(6, { message: "Довжина імені користувача має бути не менше 6 символів" })
+  username String @unique
+
+  firstname String
+  lastname  String
+
+  // Складний regex краще додати пізніше в коді, щоб не засмічувати схему,
+  // але прості перевірки довжини можна залишити тут
+  phone String
+
+  /// @zod.number.int().min(1900, { message: "Рік народження має бути не меншим ніж 1900" })
+  birthYear Int
+
+  profession String
+  isMarried  Boolean @default(false)
+
+  role UserRole @default(user)
+
+  // Зв'язок 1 до 1 з адресою
+  address   Address? @relation(fields: [addressId], references: [id])
+  addressId Int?     @unique
+}
+
+model Address {
+  id          Int    @id @default(autoincrement())
+  city        String
+  street      String
+  houseNumber Int
+
+  user User?
+}

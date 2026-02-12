@@ -1,6 +1,7 @@
 import {type QueryParams} from "../../types/common/request.types.ts";
 
-
+//Метод для попередньої обробки обєкту з параметрами запиту queryParams, а саме прибирання квадратних дужок в назвах полів
+//для можливості подальшої валідації
 export const normalizeQueryParams = (queryParams: Record<string, any>): QueryParams => {
     const normalizedQueryParams: QueryParams = {};
     Object.keys(queryParams).forEach((key) => {

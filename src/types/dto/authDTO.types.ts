@@ -1,40 +1,36 @@
 import {z, type ZodObject} from "zod";
-import {type LoginFormValues, loginFormValuesSchema, type UserRole} from "../models/user.ts";
+import {baseUserSchema, type UserRole} from "../models/custom/user.model.ts";
+import jwt from "jsonwebtoken";
+
 
 
 //Тип для payload в jwt-токені
-export interface TokenPayload {
-    id: number;
-    email: string;
-    role: UserRole;
-    iat?: number; // Issued At (timestamp)
-    exp?: number; //Expiration Time (timestamp)
-}
+export const tokenPayloadSchema = baseUserSchema
+    .pick({id: true, email: true, role: true})
+    .extend({
+        iat: z.number().int().positive().optional(),
+        exp: z.number().int().positive().optional()
+    });
+export type TokenPayload = z.infer<typeof tokenPayloadSchema>
 
-export type LoginRequest = LoginFormValues;
-export const loginRequestSchema = loginFormValuesSchema;
 
-export interface LoginResponse {
-    accessToken: string;
-    refreshToken: string;
-}
-export const LoginResponseSchema = z.object({
+export const loginRequestSchema = baseUserSchema.pick({ email: true, password: true });
+export type LoginRequest = z.infer<typeof loginRequestSchema>;
+
+
+export const loginResponseSchema = z.object({
     accessToken: z.string(),
     refreshToken: z.string()
 });
+export type LoginResponse = z.infer<typeof loginResponseSchema>
 
-export interface RefreshAllTokensRequestDTO {
-    refreshToken: string;
-}
-export const RefreshAllTokensRequestDTOSchema = z.object({
+export const refreshAllTokensRequestSchema = z.object({
     refreshToken: z.string()
 });
+export type RefreshAllTokensRequest = z.infer<typeof refreshAllTokensRequestSchema>
 
-export interface RefreshAllTokensResponseDTO {
-    accessToken: string;
-    refreshToken: string;
-}
-export const RefreshAllTokensResponseDTOSchema = z.object({
+export const refreshAllTokensResponseSchema = z.object({
     accessToken: z.string(),
     refreshToken: z.string()
 });
+export type RefreshAllTokensResponse = z.infer<typeof refreshAllTokensResponseSchema>
