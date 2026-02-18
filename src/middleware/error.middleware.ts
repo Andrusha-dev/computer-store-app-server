@@ -3,6 +3,7 @@ import {z} from "zod";
 import {PrismaClientKnownRequestError} from '@prisma/client/runtime/library';
 import {AppError} from "../error/appError.ts";
 import type {ErrorResponse} from "../types/dto/error.dto.ts";
+import {isDevelopment} from "../config/index.ts";
 
 
 
@@ -25,10 +26,13 @@ export const errorHandler = (
 
 
     if (err instanceof z.ZodError) {
+
+
         const error: AppError = new AppError({
             message: 'При валідації даних виникла помилка.',
             statusCode: 422,
-            code: "VALIDATION_ERROR"
+            code: "VALIDATION_ERROR",
+            details: isDevelopment ? {issues: err.issues} : undefined
         });
 
         return sendErrorResponse(res, error);
@@ -53,10 +57,17 @@ export const errorHandler = (
 const handlePrismaError = (err: PrismaClientKnownRequestError) => {
     switch (err.code) {
         case 'P2002':
+            //Отримуємо деталі про поля, в яких виник конфлікт
+            const targets: string[] = (err.meta?.target as string[]) || [];
+            const fields: string = targets.join(', ');
+
             return new AppError({
-                message: 'Запис із таким значенням уже існує',
+                message: `Запис із таким значенням для полів ${fields} уже існує`,
                 code: "CONFLICT",
-                statusCode: 409
+                statusCode: 409,
+                details: {
+                    fields: targets
+                }
             });
         case 'P2025':
             return new AppError({

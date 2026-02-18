@@ -20,16 +20,10 @@ import {
 } from "./types/params/pcComponentParams/processorParams.types.ts";
 import {fetchProcessors, getProcessorsCatalog, paginateProcessors} from "./services/processorService.ts";
 import {type QueryParams} from "./types/common/request.types.ts";
-import {normalizeQueryParams} from "./utils/request/index.ts";
-import {users} from "./data/users.ts";
-import {transactions} from "./data/transactions.ts";
 import {
-    generateAccessToken,
-    generateRefreshToken, login, refreshAllTokens, validateAccessToken,
-    validateRefreshToken,
+    login, refreshAllTokens
 } from "./services/authService.ts";
 import {PORT, REFRESH_TOKEN_SECRET} from "./config/index.ts";
-import { setTimeout } from 'timers/promises';
 import {
     type LoginRequest,
     loginRequestSchema, type LoginResponse, loginResponseSchema,
@@ -39,7 +33,6 @@ import {
 } from "./types/dto/authDTO.types.ts";
 import {authenticateToken, authorizeRole} from "./middleware/auth.middleware.ts";
 import {validate} from "./middleware/validation.middleware.ts";
-//import type {PageParams} from "./types/params/pageParams/pageParams.types.ts";
 import {createUser, fetchAuthUser, getUsersList} from "./services/userService.ts";
 import {
     type CreateUserRequest, createUserRequestSchema,
@@ -65,6 +58,7 @@ import {toCreateUserArgs, toFetchAuthUserArgs, toGetUsersListArgs} from "./mappe
 import {toLoginArgs, toRefreshAllTokensArgs} from "./mappers/request/auth.mapper.ts";
 import type {LoginArgs, RefreshAllTokensArgs} from "./types/services/args/auth.args.ts";
 import {cors} from "./middleware/cors.middleware.ts";
+import {validateAccessToken} from "./utils/auth.utils.ts";
 
 
 
@@ -76,7 +70,7 @@ app.use(cors);
 
 
 
-app.post("/users", validate(z.object({body: createUserRequestSchema})), async (req: Request, res: Response) => {
+app.post("/api/users", validate(z.object({body: createUserRequestSchema})), async (req: Request, res: Response) => {
     const request: CreateUserRequest = req.body;
     const args: CreateUserArgs = toCreateUserArgs(request);
     const result: CreateUserResult = await createUser(args);
@@ -87,7 +81,7 @@ app.post("/users", validate(z.object({body: createUserRequestSchema})), async (r
 });
 
 // Пример эндпоинта для генерации токена
-app.post("/login", validate(z.object({body: loginRequestSchema})), async (req: Request, res: Response) => {
+app.post("/api/login", validate(z.object({body: loginRequestSchema})), async (req: Request, res: Response) => {
     //після валідації даних req.body за допомогою validate(z.object({body: LoginRequestDTOSchema})) можна
     //сміливо стверджувати, що вони відповідають типу LoginRequest
     console.log("starting login");
@@ -100,7 +94,7 @@ app.post("/login", validate(z.object({body: loginRequestSchema})), async (req: R
     return res.json(validatedResponse);
 });
 
-app.post("/refresh-all-tokens", validate(z.object({body: refreshAllTokensRequestSchema})), (req: Request, res: Response) => {
+app.post("/api/refresh-all-tokens", validate(z.object({body: refreshAllTokensRequestSchema})), (req: Request, res: Response) => {
     const request: RefreshAllTokensRequest = req.body;
     const args: RefreshAllTokensArgs = toRefreshAllTokensArgs(request)
     const result: RefreshAllTokensResult = refreshAllTokens(args);
@@ -112,7 +106,7 @@ app.post("/refresh-all-tokens", validate(z.object({body: refreshAllTokensRequest
 
 //Цей ендпойнт поки що не використовується бо валідація токена здійснюється локально на клієнті,
 //але може використовуватися при необхідності
-app.post("/validate-token", (req: Request, res: Response) => {
+app.post("/api/validate-token", (req: Request, res: Response) => {
     const {accessToken} = req.body;
 
     const payload = validateAccessToken(accessToken);
@@ -123,7 +117,7 @@ app.post("/validate-token", (req: Request, res: Response) => {
     return res.json({valid: false});
 })
 
-app.get("/users", authenticateToken, authorizeRole(["admin"]), validate(z.object({query: getUsersListQueryParamsSchema})), async (req: Request, res: Response) => {
+app.get("/api/users", authenticateToken, authorizeRole(["admin"]), validate(z.object({query: getUsersListQueryParamsSchema})), async (req: Request, res: Response) => {
     //Після валідації за допомогою middleware validate() звалідовані параметри запиту FetchUsersParams передаються в res.locals
     const queryParams: GetUsersListQueryParams = res.locals.validatedRequest.query as GetUsersListQueryParams;
     const args: GetUsersListArgs = toGetUsersListArgs(queryParams);
@@ -134,7 +128,7 @@ app.get("/users", authenticateToken, authorizeRole(["admin"]), validate(z.object
     return res.json(validatedResponse);
 })
 
-app.get("/users/me", authenticateToken, async (req: Request, res: Response) => {
+app.get("/api/users/me", authenticateToken, async (req: Request, res: Response) => {
     //після успішної автентифікації через middleware authenticateToken payload вхідного jwt-токена передається в res.locals.payload
     const tokenPayload: TokenPayload = res.locals.payload as TokenPayload;
     const args: FetchAuthUserArgs = toFetchAuthUserArgs(tokenPayload);
@@ -145,7 +139,7 @@ app.get("/users/me", authenticateToken, async (req: Request, res: Response) => {
     return res.json(validatedResponse);
 })
 
-app.get("/processors", authenticateToken, validate(z.object({query: getProcessorsCatalogParamsSchema})), (req: Request, res: Response) => {
+app.get("/api/processors", authenticateToken, validate(z.object({query: getProcessorsCatalogParamsSchema})), (req: Request, res: Response) => {
     console.log("Starting fetch processors");
     //після валідації даних req.query за допомогою validate(z.object({query: fetchProcessorsParamsSchema})) вони
     // точно відповідають типу FetchProcessorsParams і були передані в res.locals.validatedQuery.query

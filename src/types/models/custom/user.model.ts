@@ -18,8 +18,8 @@ export type BaseAddress = z.infer<typeof baseAddressSchema>;
 // тому що в schema.prisma незручно писати складні Regex
 export const baseUserSchema = UserSchema
     .omit({
-        addressId: true}
-    )
+        addressId: true
+    })
     .extend({
         phone: z.string()
             .length(17, "Довжина номеру телефона має бути не меншу 17 символів")
@@ -29,6 +29,8 @@ export const baseUserSchema = UserSchema
         address: baseAddressSchema,
 });
 export type BaseUser = z.infer<typeof baseUserSchema>;
+
+
 
 // Тип для способу сортування користувачів
 export const userSortTypeSchema = baseUserSchema.pick({ firstname: true, lastname: true }).keyof();

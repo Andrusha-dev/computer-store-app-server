@@ -14,6 +14,7 @@ import type {
     GetUsersListResult
 } from "../types/services/results/user.results.ts";
 import type {CreateUserArgs, FetchAuthUserArgs, GetUsersListArgs} from "../types/services/args/user.args.ts";
+import {toUserWhereInput} from "../mappers/db/user.db.mapper.ts";
 
 
 
@@ -83,14 +84,7 @@ export const fetchAuthUser = async (fetchAuthUsersArgs: FetchAuthUserArgs/*id: n
 export const getUsersList = async (getUsersListArgs: GetUsersListArgs): Promise<GetUsersListResult> => {
     const {userFilters, pageParams} = getUsersListArgs;
 
-    const skip = pageParams.pageNo * pageParams.pageSize;
-
-    const where: UserWhereInput = {
-        id: userFilters.id,
-        firstname: userFilters.firstname ? { contains: userFilters.firstname, mode: 'insensitive' } : undefined,
-        lastname: userFilters.lastname ? { contains: userFilters.lastname, mode: 'insensitive' } : undefined,
-        role: userFilters.roles ? { in: userFilters.roles } : undefined,
-    };
+    const where: UserWhereInput = toUserWhereInput(userFilters);
 
     const paginatedUsers: UserWithRelations[] = await prisma.user.findMany({
         where,
@@ -99,15 +93,12 @@ export const getUsersList = async (getUsersListArgs: GetUsersListArgs): Promise<
             [pageParams.sortType]: pageParams.sortOrder
         },
         take: pageParams.pageSize,
-        skip: skip,
+        skip: pageParams.pageNo * pageParams.pageSize,
     });
 
     const totalElements: number = await prisma.user.count({ where });
-
     const pageNo: number = pageParams.pageNo;
-
     const pageSize: number = pageParams.pageSize;
-
     const roles: UserRole[] = userFilters.roles ? userFilters.roles : [];
 
 
