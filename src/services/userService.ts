@@ -1,24 +1,18 @@
-import {
-    type CreateUserRequest
-} from "../types/dto/userDTO.types.ts";
-//import type {ParsedUsersParams, UserFilters} from "../types/params/userParams/userParams.types.ts";
-//import type {PageParams} from "../types/params/pageParams/pageParams.types.ts";
 import prisma from "../lib/prisma.ts";
-import type {UserRole} from "../types/models/custom/user.model.ts";
+import {
+    type UserRole, type UserWithAddress, userWithAddressSchema
+} from "../types/models/custom/user.model.ts";
 import type {UserWithRelations} from "../types/models/generated";
-import {AppError} from "../error/appError.ts";
 import type {UserWhereInput} from "../generated/prisma/models/User.ts";
-import type {
-    CreateUserResult,
-    FetchAuthUserResult,
-    GetUsersListResult
+import {
+    type GetUsersListResult
 } from "../types/services/results/user.results.ts";
-import type {CreateUserArgs, FetchAuthUserArgs, GetUsersListArgs} from "../types/services/args/user.args.ts";
+import type {CreateUserArgs, GetUsersListArgs} from "../types/services/args/user.args.ts";
 import {toUserWhereInput} from "../mappers/db/user.db.mapper.ts";
 
 
 
-export const createUser = async (createUserArgs: CreateUserArgs): Promise<CreateUserResult> => {
+export const createUser = async (createUserArgs: CreateUserArgs): Promise<UserWithAddress> => {
     const {address, ...userData} = createUserArgs;
 
     console.log("userData: ", userData);
@@ -39,45 +33,28 @@ export const createUser = async (createUserArgs: CreateUserArgs): Promise<Create
 
     console.log("resUser: ", createdUser);
 
-    if(!createdUser.address) {
-        throw new AppError({
-            message: "Даних з адресою поточного користувача не знайдено",
-            code: "NOT_FOUND",
-            statusCode: 404
-        })
-    }
+    const userWithAddress: UserWithAddress = userWithAddressSchema.parse(createdUser);
 
-    const createUserResult: CreateUserResult = {
-        userWithRelations: createdUser
-    }
 
-    return createUserResult;
+    return userWithAddress;
 }
 
 //сервісний метод для отримання даних поточного автентифікованого користувача типу FetchAuthUserResponse
-export const fetchAuthUser = async (fetchAuthUsersArgs: FetchAuthUserArgs/*id: number*/): Promise<FetchAuthUserResult/*UserWithRelations*/> => {
+export const fetchAuthUser = async (id: number): Promise<UserWithAddress> => {
     const fetchedUser: UserWithRelations = await prisma.user.findUniqueOrThrow({
         where: {
-            id: fetchAuthUsersArgs.id
+            id: id
         },
         include: {
             address: true
         }
     });
 
-    if(!fetchedUser.address) {
-        throw new AppError({
-            message: "Даних з адресою поточного користувача не знайдено",
-            code: "NOT_FOUND",
-            statusCode: 404
-        })
-    }
 
-    const fetchAuthUserResult: FetchAuthUserResult = {
-        userWithRelations: fetchedUser
-    }
+    const userWithAddress: UserWithAddress = userWithAddressSchema.parse(fetchedUser);
 
-    return fetchAuthUserResult;
+
+    return userWithAddress;
 }
 
 
@@ -96,6 +73,14 @@ export const getUsersList = async (getUsersListArgs: GetUsersListArgs): Promise<
         skip: pageParams.pageNo * pageParams.pageSize,
     });
 
+
+    const paginatedUsersWithAddress = paginatedUsers.map(user => {
+        const userWithAddress: UserWithAddress = userWithAddressSchema.parse(user);
+
+        return userWithAddress;
+    });
+
+
     const totalElements: number = await prisma.user.count({ where });
     const pageNo: number = pageParams.pageNo;
     const pageSize: number = pageParams.pageSize;
@@ -104,7 +89,7 @@ export const getUsersList = async (getUsersListArgs: GetUsersListArgs): Promise<
 
 
     const getUsersListResult: GetUsersListResult = {
-        paginatedUsers: paginatedUsers,
+        content: paginatedUsersWithAddress,
         totalElements: totalElements,
         pageNo: pageNo,
         pageSize: pageSize,

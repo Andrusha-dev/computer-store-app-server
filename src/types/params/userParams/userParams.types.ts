@@ -16,7 +16,7 @@ export const userFiltersSchema = z.object({
     lastname: z.coerce.string().optional(),
     roles: z.preprocess(arrayPreprocess, z.array(userRoleSchema)).optional()
 });
-export type UserFilters = z.infer<typeof userFiltersSchema>
+export interface UserFilters extends z.infer<typeof userFiltersSchema>{}
 
 //Обєднаний тип, на основі ключів інтерфейса UserFilters
 export type UserFiltersKeys = keyof UserFilters;
@@ -29,4 +29,4 @@ export type UserFiltersKeys = keyof UserFilters;
 
 //Тип для параметрів запиту. Всі поля є опціональними
 export const getUsersListQueryParamsSchema = userFiltersSchema.extend(pageQueryParamsSchema.shape);
-export type GetUsersListQueryParams = z.infer<typeof getUsersListQueryParamsSchema>
+export interface GetUsersListQueryParams extends z.infer<typeof getUsersListQueryParamsSchema>{}

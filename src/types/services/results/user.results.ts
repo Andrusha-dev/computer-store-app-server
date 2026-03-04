@@ -1,19 +1,14 @@
-import type {UserWithRelations} from "../../models/generated";
-import type {UserRole} from "../../models/custom/user.model.ts";
+import {
+    type UserRole, type UserWithAddress
+} from "../../models/custom/user.model.ts";
 
-export type CreateUserResult = {
-    userWithRelations: UserWithRelations;
-}
 
-export type FetchAuthUserResult = {
-    userWithRelations: UserWithRelations
-}
 
-export type GetUsersListResult = {
-    paginatedUsers: UserWithRelations[];
+export interface GetUsersListResult {
+    content: UserWithAddress[];
+    roles: UserRole[];
     totalElements: number;
     pageNo: number;
     pageSize: number;
-    roles?: UserRole[];
 }
 

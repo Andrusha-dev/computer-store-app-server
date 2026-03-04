@@ -2,12 +2,16 @@
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",
+    "moduleResolution": "node",
     "allowImportingTsExtensions": true,
     "outDir": "dist",
     "rootDir": "src",
     "strict": true,
+    "noImplicitReturns": true,     // Щоб не забути return (як у Java)
+    "noUnusedLocals": true,        // Чистота коду
     "esModuleInterop": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "skipLibCheck": true
   },
   "include": [
     "src/**/*"

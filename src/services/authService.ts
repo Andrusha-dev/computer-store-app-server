@@ -5,8 +5,12 @@ import prisma from "../lib/prisma.ts";
 import type {User} from "../types/models/generated";
 import type {LoginResult, RefreshAllTokensResult} from "../types/services/results/auth.results.ts";
 import type {LoginArgs, RefreshAllTokensArgs} from "../types/services/args/auth.args.ts";
-import {generateAccessToken, generateRefreshToken, validateRefreshToken} from "../utils/auth.utils.ts";
-import {AppError} from "../error/appError.ts";
+import {
+    generateAccessToken,
+    generateRefreshToken,
+    validateRefreshTokenOrThrow
+} from "../utils/auth.utils.ts";
+import {type UserEntity, userEntitySchema} from "../types/models/custom/user.model.ts";
 
 
 
@@ -28,10 +32,12 @@ export const login = async (loginArgs: LoginArgs): Promise<LoginResult> => {
         //}
     });
 
+    const userEntity: UserEntity = userEntitySchema.parse(user);
+
     const payload: TokenPayload = {
-        id: user.id,
-        email: user.email,
-        role: user.role
+        id: userEntity.id,
+        email: userEntity.email,
+        role: userEntity.role
     };
 
     const accessToken = generateAccessToken({
@@ -47,7 +53,7 @@ export const login = async (loginArgs: LoginArgs): Promise<LoginResult> => {
     });
 
     const loginResult: LoginResult = {
-        user: user,
+        user: userEntity,
         accessToken,
         refreshToken,
     }
@@ -57,14 +63,8 @@ export const login = async (loginArgs: LoginArgs): Promise<LoginResult> => {
 
 export const refreshAllTokens = (refreshAllTokensArgs: RefreshAllTokensArgs): RefreshAllTokensResult => {
     const {refreshToken} = refreshAllTokensArgs;
-    const payload: TokenPayload | null = validateRefreshToken(refreshToken);
-    if(!payload) {
-        throw new AppError({
-            message: "refresh токен недійсний",
-            code: "UNAUTHORIZED",
-            statusCode: 401
-        });
-    }
+    const payload: TokenPayload = validateRefreshTokenOrThrow(refreshToken);
+
 
     const newAccessToken: string = generateAccessToken({
         ...payload,

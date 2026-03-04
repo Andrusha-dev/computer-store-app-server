@@ -1,6 +1,6 @@
-import {z, type ZodObject} from "zod";
-import {baseUserSchema, type UserRole} from "../models/custom/user.model.ts";
-import jwt from "jsonwebtoken";
+import {z} from "zod";
+import {baseUserSchema} from "../models/custom/user.model.ts";
+
 
 
 
@@ -8,29 +8,32 @@ import jwt from "jsonwebtoken";
 export const tokenPayloadSchema = baseUserSchema
     .pick({id: true, email: true, role: true})
     .extend({
-        iat: z.number().int().positive().optional(),
-        exp: z.number().int().positive().optional()
+        iat: z.number().positive().optional(),
+        exp: z.number().positive().optional()
     });
-export type TokenPayload = z.infer<typeof tokenPayloadSchema>
+export interface TokenPayload extends z.infer<typeof tokenPayloadSchema>{}
 
 
-export const loginRequestSchema = baseUserSchema.pick({ email: true, password: true });
-export type LoginRequest = z.infer<typeof loginRequestSchema>;
+export const loginRequestSchema = z.object({
+    email: z.email("Невірний формат пошти"),
+    password: z.string().min(8, "Довжина паролю має бути не менше 8 символів"), // Тут не обов'язково .min(8), бо ми просто перевіряємо те, що ввів юзер
+});
+export interface LoginRequest extends z.infer<typeof loginRequestSchema>{}
 
 
 export const loginResponseSchema = z.object({
     accessToken: z.string(),
     refreshToken: z.string()
 });
-export type LoginResponse = z.infer<typeof loginResponseSchema>
+export interface LoginResponse extends z.infer<typeof loginResponseSchema>{}
 
 export const refreshAllTokensRequestSchema = z.object({
     refreshToken: z.string()
 });
-export type RefreshAllTokensRequest = z.infer<typeof refreshAllTokensRequestSchema>
+export interface RefreshAllTokensRequest extends z.infer<typeof refreshAllTokensRequestSchema>{}
 
 export const refreshAllTokensResponseSchema = z.object({
     accessToken: z.string(),
     refreshToken: z.string()
 });
-export type RefreshAllTokensResponse = z.infer<typeof refreshAllTokensResponseSchema>
+export interface RefreshAllTokensResponse extends z.infer<typeof refreshAllTokensResponseSchema>{}

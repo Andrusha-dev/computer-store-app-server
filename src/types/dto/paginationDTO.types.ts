@@ -8,4 +8,4 @@ export const paginationResponseSchema = z.object({
     totalPages: z.number().nonnegative(),
     last: z.boolean().optional(),
 });
-export type PaginationResponse = z.infer<typeof paginationResponseSchema>;
+export interface PaginationResponse extends z.infer<typeof paginationResponseSchema>{}

@@ -2,7 +2,6 @@ import type {Request, Response, NextFunction} from "express";
 import {z} from "zod";
 import {PrismaClientKnownRequestError} from '@prisma/client/runtime/library';
 import {AppError} from "../error/appError.ts";
-import type {ErrorResponse} from "../types/dto/error.dto.ts";
 import {isDevelopment} from "../config/index.ts";
 
 
@@ -19,16 +18,14 @@ export const errorHandler = (
     if (err instanceof PrismaClientKnownRequestError) {
         //Помилка PrismaClientKnownRequestError може мати різні причини, тому слід створити екземпляр AppError
         //з конкретними даними помилки за допомогою відповідного методу
-        const error: AppError = handlePrismaError(err);
+        const error = handlePrismaError(err);
 
         return sendErrorResponse(res, error);
     }
 
 
     if (err instanceof z.ZodError) {
-
-
-        const error: AppError = new AppError({
+        const error = new AppError({
             message: 'При валідації даних виникла помилка.',
             statusCode: 422,
             code: "VALIDATION_ERROR",
@@ -45,7 +42,7 @@ export const errorHandler = (
 
     // 3. Всі інші непередбачені помилки
     console.error(err);
-    const error: AppError = new AppError({
+    const error = new AppError({
         message: "Внутрішня помилка сервера",
         code: "INTERNAL_SERVER_ERROR",
         statusCode: 500
@@ -54,7 +51,7 @@ export const errorHandler = (
 };
 
 
-const handlePrismaError = (err: PrismaClientKnownRequestError) => {
+const handlePrismaError = (err: PrismaClientKnownRequestError): AppError => {
     switch (err.code) {
         case 'P2002':
             //Отримуємо деталі про поля, в яких виник конфлікт
@@ -62,7 +59,7 @@ const handlePrismaError = (err: PrismaClientKnownRequestError) => {
             const fields: string = targets.join(', ');
 
             return new AppError({
-                message: `Запис із таким значенням для полів ${fields} уже існує`,
+                message: `Запис із таким значенням для поля ${fields} вже існує`,
                 code: "CONFLICT",
                 statusCode: 409,
                 details: {
@@ -85,12 +82,5 @@ const handlePrismaError = (err: PrismaClientKnownRequestError) => {
 };
 
 const sendErrorResponse = (res: Response, error: AppError) => {
-    const errorResponse: ErrorResponse = {
-        message: error.message,
-        code: error.code,
-        statusCode: error.statusCode,
-        details: error.details
-    }
-
-    return res.status(errorResponse.statusCode).json(errorResponse);
+    return res.status(error.statusCode).json(error);
 }

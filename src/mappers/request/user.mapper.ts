@@ -1,7 +1,6 @@
 import type {GetUsersListQueryParams, UserFilters} from "../../types/params/userParams/userParams.types.ts";
-import type {CreateUserArgs, FetchAuthUserArgs, GetUsersListArgs} from "../../types/services/args/user.args.ts";
+import type {CreateUserArgs, GetUsersListArgs} from "../../types/services/args/user.args.ts";
 import type {PageParams} from "../../types/params/pageParams/pageParams.types.ts";
-import type {TokenPayload} from "../../types/dto/authDTO.types.ts";
 import type {CreateUserRequest} from "../../types/dto/userDTO.types.ts";
 
 
@@ -22,13 +21,6 @@ export const toCreateUserArgs = (createUserRequest: CreateUserRequest): CreateUs
     return createUserArgs;
 }
 
-export const toFetchAuthUserArgs = (tokenPayload: TokenPayload): FetchAuthUserArgs => {
-    const fetchAuthUserArgs: FetchAuthUserArgs = {
-        id: tokenPayload.id
-    }
-
-    return fetchAuthUserArgs;
-}
 
 export const toGetUsersListArgs = (getUsersListQueryParams: GetUsersListQueryParams): GetUsersListArgs => {
     const userFilters: UserFilters = {

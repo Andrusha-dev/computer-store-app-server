@@ -10,9 +10,9 @@ export const toLoginArgs = (loginRequest: LoginRequest): LoginArgs => {
     return loginArgs;
 }
 
-export const toRefreshAllTokensArgs = (refreshAllTokensrequest: RefreshAllTokensRequest): RefreshAllTokensArgs => {
+export const toRefreshAllTokensArgs = (refreshAllTokensRequest: RefreshAllTokensRequest): RefreshAllTokensArgs => {
     const refreshAllTokensArgs: RefreshAllTokensArgs = {
-        refreshToken: refreshAllTokensrequest.refreshToken
+        refreshToken: refreshAllTokensRequest.refreshToken
     }
 
     return refreshAllTokensArgs;

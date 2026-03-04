@@ -1,10 +1,10 @@
-import type {BaseUser} from "../../models/custom/user.model.ts";
 
-export type LoginArgs = {
+
+export interface LoginArgs {
     email: string;
     password: string;
 }
 
-export type RefreshAllTokensArgs = {
+export interface RefreshAllTokensArgs {
     refreshToken: string;
 }

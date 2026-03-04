@@ -16,4 +16,4 @@ export const sortParamsSchema = z.object({
     sortType: sortTypeSchema,
     sortOrder: sortOrderSchema,
 });
-export type SortParams = z.infer<typeof sortParamsSchema>
+export interface SortParams extends z.infer<typeof sortParamsSchema>{}

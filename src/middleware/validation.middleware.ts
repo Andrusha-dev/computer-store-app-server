@@ -1,31 +1,52 @@
 import type {NextFunction, Request, Response} from "express";
 import {z} from "zod";
-import type {QueryParams} from "../types/common/request.types.ts";
-import {normalizeQueryParams} from "../utils/request/index.ts";
+import {normalizeQueryParams} from "../utils/request/normalize.utils.ts";
 
 
+//Тип який містить схеми валідації для вхідних даних
+export interface RequestSchemas {
+    body?: z.ZodTypeAny;
+    query?: z.ZodTypeAny;
+    params?: z.ZodTypeAny;
+}
+
+
+export const validate = (schemas: RequestSchemas) =>
+    (req: Request, res: Response, next: NextFunction) => {
+        if (schemas.body) {
+            res.locals.validatedBody = schemas.body.parse(req.body);
+        }
+
+        if (schemas.query) {
+            // Тут ваша логіка нормалізації
+            const normalized = normalizeQueryParams(req.query);
+            res.locals.validatedQuery = schemas.query.parse(normalized);
+        }
+
+        if (schemas.params) {
+            res.locals.validatedParams = schemas.params.parse(req.params);
+        }
+
+        next();
+    };
+
+
+
+/*
 //middleware для валідації даних запиту: body, query та params та передачі звалідованих даних через res.locals
 export const validate = (schema: z.ZodTypeAny) =>
     (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const normalizedQueryParams: QueryParams = normalizeQueryParams(req.query);
 
-            const validatedRequest = schema.parse({
-                body: req.body,
-                query: normalizedQueryParams,
-                params: req.params,
-            });
+        const normalizedQueryParams: QueryParams = normalizeQueryParams(req.query);
 
-            res.locals.validatedRequest = validatedRequest;
+        const validatedRequest = schema.parse({
+            body: req.body,
+            query: normalizedQueryParams,
+            params: req.params,
+        });
 
-            next();
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                return res.status(400).json({
-                    message: "Validation failed",
-                    errors: error.issues,
-                });
-            }
-            return res.status(500).json({ message: "Internal server error" });
-        }
+        res.locals.validatedRequest = validatedRequest;
+
+        next();
     };
+*/

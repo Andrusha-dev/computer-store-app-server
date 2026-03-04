@@ -42,7 +42,7 @@ export const UserSchema = z.object({
   username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
   firstname: z.string(),
   lastname: z.string(),
-  phone: z.string(),
+  phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
   birthYear: z.number().int().min(1900, { message: "Рік народження має бути не меншим ніж 1900" }),
   profession: z.string(),
   isMarried: z.boolean(),
@@ -187,6 +187,19 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
     id: z.number().int(),
     email: z.email({ message: "Невірний формат email" }),
     username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
+    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
+    addressId: z.number().int(),
+  }),
+  z.object({
+    id: z.number().int(),
+    email: z.email({ message: "Невірний формат email" }),
+    username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
+    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
+  }),
+  z.object({
+    id: z.number().int(),
+    email: z.email({ message: "Невірний формат email" }),
+    username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
     addressId: z.number().int(),
   }),
   z.object({
@@ -197,6 +210,17 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
   z.object({
     id: z.number().int(),
     email: z.email({ message: "Невірний формат email" }),
+    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
+    addressId: z.number().int(),
+  }),
+  z.object({
+    id: z.number().int(),
+    email: z.email({ message: "Невірний формат email" }),
+    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
+  }),
+  z.object({
+    id: z.number().int(),
+    email: z.email({ message: "Невірний формат email" }),
     addressId: z.number().int(),
   }),
   z.object({
@@ -206,6 +230,17 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
   z.object({
     id: z.number().int(),
     username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
+    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
+    addressId: z.number().int(),
+  }),
+  z.object({
+    id: z.number().int(),
+    username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
+    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
+  }),
+  z.object({
+    id: z.number().int(),
+    username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
     addressId: z.number().int(),
   }),
   z.object({
@@ -214,6 +249,15 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
   }),
   z.object({
     id: z.number().int(),
+    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
+    addressId: z.number().int(),
+  }),
+  z.object({
+    id: z.number().int(),
+    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
+  }),
+  z.object({
+    id: z.number().int(),
     addressId: z.number().int(),
   }),
   z.object({
@@ -222,6 +266,17 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
   z.object({
     email: z.email({ message: "Невірний формат email" }),
     username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
+    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
+    addressId: z.number().int(),
+  }),
+  z.object({
+    email: z.email({ message: "Невірний формат email" }),
+    username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
+    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
+  }),
+  z.object({
+    email: z.email({ message: "Невірний формат email" }),
+    username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
     addressId: z.number().int(),
   }),
   z.object({
@@ -230,6 +285,15 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
   }),
   z.object({
     email: z.email({ message: "Невірний формат email" }),
+    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
+    addressId: z.number().int(),
+  }),
+  z.object({
+    email: z.email({ message: "Невірний формат email" }),
+    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
+  }),
+  z.object({
+    email: z.email({ message: "Невірний формат email" }),
     addressId: z.number().int(),
   }),
   z.object({
@@ -237,10 +301,26 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
   }),
   z.object({
     username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
+    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
     addressId: z.number().int(),
   }),
   z.object({
     username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
+    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
+  }),
+  z.object({
+    username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
+    addressId: z.number().int(),
+  }),
+  z.object({
+    username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
+  }),
+  z.object({
+    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
+    addressId: z.number().int(),
+  }),
+  z.object({
+    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
   }),
   z.object({
     addressId: z.number().int(),
@@ -250,6 +330,7 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
   id: z.number().int().optional(),
   email: z.email({ message: "Невірний формат email" }).optional(),
   username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }).optional(),
+  phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }).optional(),
   addressId: z.number().int().optional(),
   AND: z.union([ z.lazy(() => UserWhereInputSchema), z.lazy(() => UserWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => UserWhereInputSchema).array().optional(),
@@ -257,7 +338,6 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
   password: z.union([ z.lazy(() => StringFilterSchema), z.string().min(8, { message: "Довжина паролю має бути не менше 8 символів" }) ]).optional(),
   firstname: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   lastname: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
-  phone: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   birthYear: z.union([ z.lazy(() => IntFilterSchema), z.number().int().min(1900, { message: "Рік народження має бути не меншим ніж 1900" }) ]).optional(),
   profession: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   isMarried: z.union([ z.lazy(() => BoolFilterSchema), z.boolean() ]).optional(),
@@ -364,7 +444,7 @@ export const UserCreateInputSchema: z.ZodType<Prisma.UserCreateInput> = z.strict
   username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
   firstname: z.string(),
   lastname: z.string(),
-  phone: z.string(),
+  phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
   birthYear: z.number().int().min(1900, { message: "Рік народження має бути не меншим ніж 1900" }),
   profession: z.string(),
   isMarried: z.boolean().optional(),
@@ -379,7 +459,7 @@ export const UserUncheckedCreateInputSchema: z.ZodType<Prisma.UserUncheckedCreat
   username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
   firstname: z.string(),
   lastname: z.string(),
-  phone: z.string(),
+  phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
   birthYear: z.number().int().min(1900, { message: "Рік народження має бути не меншим ніж 1900" }),
   profession: z.string(),
   isMarried: z.boolean().optional(),
@@ -393,7 +473,7 @@ export const UserUpdateInputSchema: z.ZodType<Prisma.UserUpdateInput> = z.strict
   username: z.union([ z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   firstname: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   lastname: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  phone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  phone: z.union([ z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   birthYear: z.union([ z.number().int().min(1900, { message: "Рік народження має бути не меншим ніж 1900" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   profession: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isMarried: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
@@ -408,7 +488,7 @@ export const UserUncheckedUpdateInputSchema: z.ZodType<Prisma.UserUncheckedUpdat
   username: z.union([ z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   firstname: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   lastname: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  phone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  phone: z.union([ z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   birthYear: z.union([ z.number().int().min(1900, { message: "Рік народження має бути не меншим ніж 1900" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   profession: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isMarried: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
@@ -423,7 +503,7 @@ export const UserCreateManyInputSchema: z.ZodType<Prisma.UserCreateManyInput> = 
   username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
   firstname: z.string(),
   lastname: z.string(),
-  phone: z.string(),
+  phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
   birthYear: z.number().int().min(1900, { message: "Рік народження має бути не меншим ніж 1900" }),
   profession: z.string(),
   isMarried: z.boolean().optional(),
@@ -437,7 +517,7 @@ export const UserUpdateManyMutationInputSchema: z.ZodType<Prisma.UserUpdateManyM
   username: z.union([ z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   firstname: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   lastname: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  phone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  phone: z.union([ z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   birthYear: z.union([ z.number().int().min(1900, { message: "Рік народження має бути не меншим ніж 1900" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   profession: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isMarried: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
@@ -451,7 +531,7 @@ export const UserUncheckedUpdateManyInputSchema: z.ZodType<Prisma.UserUncheckedU
   username: z.union([ z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   firstname: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   lastname: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  phone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  phone: z.union([ z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   birthYear: z.union([ z.number().int().min(1900, { message: "Рік народження має бути не меншим ніж 1900" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   profession: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isMarried: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
@@ -990,7 +1070,7 @@ export const UserCreateWithoutAddressInputSchema: z.ZodType<Prisma.UserCreateWit
   username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
   firstname: z.string(),
   lastname: z.string(),
-  phone: z.string(),
+  phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
   birthYear: z.number().int().min(1900, { message: "Рік народження має бути не меншим ніж 1900" }),
   profession: z.string(),
   isMarried: z.boolean().optional(),
@@ -1004,7 +1084,7 @@ export const UserUncheckedCreateWithoutAddressInputSchema: z.ZodType<Prisma.User
   username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
   firstname: z.string(),
   lastname: z.string(),
-  phone: z.string(),
+  phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
   birthYear: z.number().int().min(1900, { message: "Рік народження має бути не меншим ніж 1900" }),
   profession: z.string(),
   isMarried: z.boolean().optional(),
@@ -1033,7 +1113,7 @@ export const UserUpdateWithoutAddressInputSchema: z.ZodType<Prisma.UserUpdateWit
   username: z.union([ z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   firstname: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   lastname: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  phone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  phone: z.union([ z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   birthYear: z.union([ z.number().int().min(1900, { message: "Рік народження має бути не меншим ніж 1900" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   profession: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isMarried: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
@@ -1047,7 +1127,7 @@ export const UserUncheckedUpdateWithoutAddressInputSchema: z.ZodType<Prisma.User
   username: z.union([ z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   firstname: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   lastname: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  phone: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  phone: z.union([ z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   birthYear: z.union([ z.number().int().min(1900, { message: "Рік народження має бути не меншим ніж 1900" }),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   profession: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isMarried: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
@@ -1058,9 +1138,7 @@ export const UserUncheckedUpdateWithoutAddressInputSchema: z.ZodType<Prisma.User
 // ARGS
 /////////////////////////////////////////
 
-export const UserFindFirstArgsSchema: z.ZodType<Prisma.UserFindFirstArgs> = z.object({
-  select: UserSelectSchema.optional(),
-  include: UserIncludeSchema.optional(),
+export const UserFindFirstArgsSchema: z.ZodType<Omit<Prisma.UserFindFirstArgs, "select" | "include">> = z.object({
   where: UserWhereInputSchema.optional(), 
   orderBy: z.union([ UserOrderByWithRelationInputSchema.array(), UserOrderByWithRelationInputSchema ]).optional(),
   cursor: UserWhereUniqueInputSchema.optional(), 
@@ -1069,9 +1147,7 @@ export const UserFindFirstArgsSchema: z.ZodType<Prisma.UserFindFirstArgs> = z.ob
   distinct: z.union([ UserScalarFieldEnumSchema, UserScalarFieldEnumSchema.array() ]).optional(),
 }).strict();
 
-export const UserFindFirstOrThrowArgsSchema: z.ZodType<Prisma.UserFindFirstOrThrowArgs> = z.object({
-  select: UserSelectSchema.optional(),
-  include: UserIncludeSchema.optional(),
+export const UserFindFirstOrThrowArgsSchema: z.ZodType<Omit<Prisma.UserFindFirstOrThrowArgs, "select" | "include">> = z.object({
   where: UserWhereInputSchema.optional(), 
   orderBy: z.union([ UserOrderByWithRelationInputSchema.array(), UserOrderByWithRelationInputSchema ]).optional(),
   cursor: UserWhereUniqueInputSchema.optional(), 
@@ -1080,9 +1156,7 @@ export const UserFindFirstOrThrowArgsSchema: z.ZodType<Prisma.UserFindFirstOrThr
   distinct: z.union([ UserScalarFieldEnumSchema, UserScalarFieldEnumSchema.array() ]).optional(),
 }).strict();
 
-export const UserFindManyArgsSchema: z.ZodType<Prisma.UserFindManyArgs> = z.object({
-  select: UserSelectSchema.optional(),
-  include: UserIncludeSchema.optional(),
+export const UserFindManyArgsSchema: z.ZodType<Omit<Prisma.UserFindManyArgs, "select" | "include">> = z.object({
   where: UserWhereInputSchema.optional(), 
   orderBy: z.union([ UserOrderByWithRelationInputSchema.array(), UserOrderByWithRelationInputSchema ]).optional(),
   cursor: UserWhereUniqueInputSchema.optional(), 
@@ -1108,21 +1182,15 @@ export const UserGroupByArgsSchema: z.ZodType<Prisma.UserGroupByArgs> = z.object
   skip: z.number().optional(),
 }).strict();
 
-export const UserFindUniqueArgsSchema: z.ZodType<Prisma.UserFindUniqueArgs> = z.object({
-  select: UserSelectSchema.optional(),
-  include: UserIncludeSchema.optional(),
+export const UserFindUniqueArgsSchema: z.ZodType<Omit<Prisma.UserFindUniqueArgs, "select" | "include">> = z.object({
   where: UserWhereUniqueInputSchema, 
 }).strict();
 
-export const UserFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.UserFindUniqueOrThrowArgs> = z.object({
-  select: UserSelectSchema.optional(),
-  include: UserIncludeSchema.optional(),
+export const UserFindUniqueOrThrowArgsSchema: z.ZodType<Omit<Prisma.UserFindUniqueOrThrowArgs, "select" | "include">> = z.object({
   where: UserWhereUniqueInputSchema, 
 }).strict();
 
-export const AddressFindFirstArgsSchema: z.ZodType<Prisma.AddressFindFirstArgs> = z.object({
-  select: AddressSelectSchema.optional(),
-  include: AddressIncludeSchema.optional(),
+export const AddressFindFirstArgsSchema: z.ZodType<Omit<Prisma.AddressFindFirstArgs, "select" | "include">> = z.object({
   where: AddressWhereInputSchema.optional(), 
   orderBy: z.union([ AddressOrderByWithRelationInputSchema.array(), AddressOrderByWithRelationInputSchema ]).optional(),
   cursor: AddressWhereUniqueInputSchema.optional(), 
@@ -1131,9 +1199,7 @@ export const AddressFindFirstArgsSchema: z.ZodType<Prisma.AddressFindFirstArgs> 
   distinct: z.union([ AddressScalarFieldEnumSchema, AddressScalarFieldEnumSchema.array() ]).optional(),
 }).strict();
 
-export const AddressFindFirstOrThrowArgsSchema: z.ZodType<Prisma.AddressFindFirstOrThrowArgs> = z.object({
-  select: AddressSelectSchema.optional(),
-  include: AddressIncludeSchema.optional(),
+export const AddressFindFirstOrThrowArgsSchema: z.ZodType<Omit<Prisma.AddressFindFirstOrThrowArgs, "select" | "include">> = z.object({
   where: AddressWhereInputSchema.optional(), 
   orderBy: z.union([ AddressOrderByWithRelationInputSchema.array(), AddressOrderByWithRelationInputSchema ]).optional(),
   cursor: AddressWhereUniqueInputSchema.optional(), 
@@ -1142,9 +1208,7 @@ export const AddressFindFirstOrThrowArgsSchema: z.ZodType<Prisma.AddressFindFirs
   distinct: z.union([ AddressScalarFieldEnumSchema, AddressScalarFieldEnumSchema.array() ]).optional(),
 }).strict();
 
-export const AddressFindManyArgsSchema: z.ZodType<Prisma.AddressFindManyArgs> = z.object({
-  select: AddressSelectSchema.optional(),
-  include: AddressIncludeSchema.optional(),
+export const AddressFindManyArgsSchema: z.ZodType<Omit<Prisma.AddressFindManyArgs, "select" | "include">> = z.object({
   where: AddressWhereInputSchema.optional(), 
   orderBy: z.union([ AddressOrderByWithRelationInputSchema.array(), AddressOrderByWithRelationInputSchema ]).optional(),
   cursor: AddressWhereUniqueInputSchema.optional(), 
@@ -1170,27 +1234,19 @@ export const AddressGroupByArgsSchema: z.ZodType<Prisma.AddressGroupByArgs> = z.
   skip: z.number().optional(),
 }).strict();
 
-export const AddressFindUniqueArgsSchema: z.ZodType<Prisma.AddressFindUniqueArgs> = z.object({
-  select: AddressSelectSchema.optional(),
-  include: AddressIncludeSchema.optional(),
+export const AddressFindUniqueArgsSchema: z.ZodType<Omit<Prisma.AddressFindUniqueArgs, "select" | "include">> = z.object({
   where: AddressWhereUniqueInputSchema, 
 }).strict();
 
-export const AddressFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.AddressFindUniqueOrThrowArgs> = z.object({
-  select: AddressSelectSchema.optional(),
-  include: AddressIncludeSchema.optional(),
+export const AddressFindUniqueOrThrowArgsSchema: z.ZodType<Omit<Prisma.AddressFindUniqueOrThrowArgs, "select" | "include">> = z.object({
   where: AddressWhereUniqueInputSchema, 
 }).strict();
 
-export const UserCreateArgsSchema: z.ZodType<Prisma.UserCreateArgs> = z.object({
-  select: UserSelectSchema.optional(),
-  include: UserIncludeSchema.optional(),
+export const UserCreateArgsSchema: z.ZodType<Omit<Prisma.UserCreateArgs, "select" | "include">> = z.object({
   data: z.union([ UserCreateInputSchema, UserUncheckedCreateInputSchema ]),
 }).strict();
 
-export const UserUpsertArgsSchema: z.ZodType<Prisma.UserUpsertArgs> = z.object({
-  select: UserSelectSchema.optional(),
-  include: UserIncludeSchema.optional(),
+export const UserUpsertArgsSchema: z.ZodType<Omit<Prisma.UserUpsertArgs, "select" | "include">> = z.object({
   where: UserWhereUniqueInputSchema, 
   create: z.union([ UserCreateInputSchema, UserUncheckedCreateInputSchema ]),
   update: z.union([ UserUpdateInputSchema, UserUncheckedUpdateInputSchema ]),
@@ -1206,15 +1262,11 @@ export const UserCreateManyAndReturnArgsSchema: z.ZodType<Prisma.UserCreateManyA
   skipDuplicates: z.boolean().optional(),
 }).strict();
 
-export const UserDeleteArgsSchema: z.ZodType<Prisma.UserDeleteArgs> = z.object({
-  select: UserSelectSchema.optional(),
-  include: UserIncludeSchema.optional(),
+export const UserDeleteArgsSchema: z.ZodType<Omit<Prisma.UserDeleteArgs, "select" | "include">> = z.object({
   where: UserWhereUniqueInputSchema, 
 }).strict();
 
-export const UserUpdateArgsSchema: z.ZodType<Prisma.UserUpdateArgs> = z.object({
-  select: UserSelectSchema.optional(),
-  include: UserIncludeSchema.optional(),
+export const UserUpdateArgsSchema: z.ZodType<Omit<Prisma.UserUpdateArgs, "select" | "include">> = z.object({
   data: z.union([ UserUpdateInputSchema, UserUncheckedUpdateInputSchema ]),
   where: UserWhereUniqueInputSchema, 
 }).strict();
@@ -1236,15 +1288,11 @@ export const UserDeleteManyArgsSchema: z.ZodType<Prisma.UserDeleteManyArgs> = z.
   limit: z.number().optional(),
 }).strict();
 
-export const AddressCreateArgsSchema: z.ZodType<Prisma.AddressCreateArgs> = z.object({
-  select: AddressSelectSchema.optional(),
-  include: AddressIncludeSchema.optional(),
+export const AddressCreateArgsSchema: z.ZodType<Omit<Prisma.AddressCreateArgs, "select" | "include">> = z.object({
   data: z.union([ AddressCreateInputSchema, AddressUncheckedCreateInputSchema ]),
 }).strict();
 
-export const AddressUpsertArgsSchema: z.ZodType<Prisma.AddressUpsertArgs> = z.object({
-  select: AddressSelectSchema.optional(),
-  include: AddressIncludeSchema.optional(),
+export const AddressUpsertArgsSchema: z.ZodType<Omit<Prisma.AddressUpsertArgs, "select" | "include">> = z.object({
   where: AddressWhereUniqueInputSchema, 
   create: z.union([ AddressCreateInputSchema, AddressUncheckedCreateInputSchema ]),
   update: z.union([ AddressUpdateInputSchema, AddressUncheckedUpdateInputSchema ]),
@@ -1260,15 +1308,11 @@ export const AddressCreateManyAndReturnArgsSchema: z.ZodType<Prisma.AddressCreat
   skipDuplicates: z.boolean().optional(),
 }).strict();
 
-export const AddressDeleteArgsSchema: z.ZodType<Prisma.AddressDeleteArgs> = z.object({
-  select: AddressSelectSchema.optional(),
-  include: AddressIncludeSchema.optional(),
+export const AddressDeleteArgsSchema: z.ZodType<Omit<Prisma.AddressDeleteArgs, "select" | "include">> = z.object({
   where: AddressWhereUniqueInputSchema, 
 }).strict();
 
-export const AddressUpdateArgsSchema: z.ZodType<Prisma.AddressUpdateArgs> = z.object({
-  select: AddressSelectSchema.optional(),
-  include: AddressIncludeSchema.optional(),
+export const AddressUpdateArgsSchema: z.ZodType<Omit<Prisma.AddressUpdateArgs, "select" | "include">> = z.object({
   data: z.union([ AddressUpdateInputSchema, AddressUncheckedUpdateInputSchema ]),
   where: AddressWhereUniqueInputSchema, 
 }).strict();

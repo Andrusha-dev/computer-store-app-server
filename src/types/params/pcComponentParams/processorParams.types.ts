@@ -23,7 +23,7 @@ export const processorFiltersSchema = pcComponentFiltersSchema.extend({
     numberOfCores: z.preprocess(arrayPreprocess, z.array(numberOfCoresSchema).optional()),
     numberOfThreads: z.preprocess(arrayPreprocess, z.array(numberOfThreadsSchema).optional()),
 });
-export type ProcessorFilters = z.infer<typeof processorFiltersSchema>
+export interface ProcessorFilters extends z.infer<typeof processorFiltersSchema>{}
 
 
 //Обєднаний тип, на основі ключів інтерфейса ProcessorFilters
@@ -37,9 +37,9 @@ export const parsedProcessorsParamsSchema = z.object({
     processorFilters: processorFiltersSchema,
     pageParams: pageParamsSchema
 });
-export type ParsedProcessorsParams = z.infer<typeof parsedProcessorsParamsSchema>
+export interface ParsedProcessorsParams extends z.infer<typeof parsedProcessorsParamsSchema>{}
 
 
 //Тип для параметрів запиту в методі getProcessorsCatalog
 export const getProcessorsCatalogParamsSchema = processorFiltersSchema.extend(pageQueryParamsSchema.shape);
-export type GetProcessorsCatalogParams = z.infer<typeof getProcessorsCatalogParamsSchema>
+export interface GetProcessorsCatalogParams extends z.infer<typeof getProcessorsCatalogParamsSchema>{}
