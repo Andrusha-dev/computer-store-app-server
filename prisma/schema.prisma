@@ -16,7 +16,7 @@ datasource db {
 
 generator zod {
   provider                  = "zod-prisma-types"
-  output                    = "../src/types/models/generated" // Куди генерувати Zod схеми
+  output                    = "../src/generated/zod" // Куди генерувати Zod схеми
   createRelationValuesTypes = true // дозволяє створювати типи з урахуванням вкладених моделей
   addIncludeType            = false // додає типи для Prisma Include
   addSelectType             = false
@@ -55,7 +55,7 @@ model User {
   profession String
   isMarried  Boolean @default(false)
 
-  role UserRole @default(user)
+  role UserRole @default(admin)
 
   // Зв'язок 1 до 1 з адресою
   address   Address? @relation(fields: [addressId], references: [id])

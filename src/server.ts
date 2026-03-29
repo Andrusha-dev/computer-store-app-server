@@ -1,69 +1,53 @@
-import type {NextFunction, Request, Response} from "express";
+import type {NextFunction, Request, Response, Router} from "express";
 import express from "express"
-import jwt from "jsonwebtoken";
-import type {Transaction} from "./types/models/transaction.ts";
-import type {User, UserRole, UserWithoutPassword} from "./types/models/user.ts";
-import {jwtDecode} from "jwt-decode";
-import {processors} from "./data/pcComponents/processors.ts";
-import type {
-    NumberOfCores, NumberOfThreads,
-    Processor,
-    ProcessorProducer,
-    ProcessorSocket
-} from "./types/models/pcComponents/processor.types.ts";
-import {z} from "zod";
-import {type GetProcessorsCatalogResponse} from "./types/dto/processorDTO.types.ts";
+import {cors} from "./shared/cors/cors.middleware.ts";
+import {validate} from "./shared/validation/validation.middleware.ts";
 import {
-    type GetProcessorsCatalogParams,
-    getProcessorsCatalogParamsSchema,
-    type ProcessorFilters
+        type CreateUserDto,
+        createUserDtoSchema,
+        type GetUsersListQuery,
+        getUsersListQuerySchema
+} from "./modules/user/api/user.dto.ts";
+import {
+        extractTokenPayloadOrThrow,
+        extractValidatedBodyOrThrow,
+        extractValidatedQueryOrThrow
+} from "./shared/http/express.helpers.ts";
+import {
+        toCreateUserPayload,
+        toCreateUserResponse,
+        toFetchAuthUserResponse,
+        toGetUsersListOptions, toGetUsersListResponse
+} from "./modules/user/api/user.mapper.ts";
+import {UserService} from "./modules/user/domain/user.service.ts";
+import {
+        type LoginDto,
+        loginDtoSchema,
+        type RefreshAllTokensDto,
+        refreshAllTokensDtoSchema
+} from "./modules/auth/api/auth.dto.ts";
+import {
+        toLoginPayload,
+        toLoginResponse,
+        toRefreshAllTokensPayload,
+        toRefreshAllTokensResponse
+} from "./modules/auth/api/auth.mapper.ts";
+//import {authenticateToken, authorizeRole} from "./shared/auth/auth.middleware.ts";
+import {
+        type GetProcessorsCatalogParams,
+        getProcessorsCatalogParamsSchema
 } from "./types/params/pcComponentParams/processorParams.types.ts";
-import {fetchProcessors, getProcessorsCatalog, paginateProcessors} from "./services/processorService.ts";
-import {type QueryParams} from "./types/common/request.types.ts";
-import {
-    login, refreshAllTokens
-} from "./services/authService.ts";
-import {PORT, REFRESH_TOKEN_SECRET} from "./config/index.ts";
-import {
-    type LoginRequest,
-    loginRequestSchema, type LoginResponse, loginResponseSchema,
-    type RefreshAllTokensRequest, refreshAllTokensRequestSchema,
-    type RefreshAllTokensResponse, refreshAllTokensResponseSchema,
-    type TokenPayload
-} from "./types/dto/authDTO.types.ts";
-import {authenticateToken, authorizeRole} from "./middleware/auth.middleware.ts";
-import {validate} from "./middleware/validation.middleware.ts";
-import {createUser, fetchAuthUser, getUsersList} from "./services/userService.ts";
-import {
-    type CreateUserRequest, createUserRequestSchema,
-    type CreateUserResponse, createUserResponseSchema,
-    type FetchAuthUserResponse, fetchAuthUserResponseSchema,
-    type GetUsersListResponse, getUsersListResponseSchema
-} from "./types/dto/userDTO.types.ts";
-import {
-    type GetUsersListQueryParams,
-    getUsersListQueryParamsSchema
-} from "./types/params/userParams/userParams.types.ts";
-import type {} from "./types/models/custom/user.model.ts";
-import {Prisma} from "@prisma/client";
-import prisma from "./lib/prisma.ts";
-import {errorHandler} from "./middleware/error.middleware.ts";
-import type {UserWithRelations} from "./types/models/generated";
-import {toCreateUserResponse, toFetchAuthUserResponse, toGetUsersListResponse} from "./mappers/response/user.mapper.ts";
-import type { GetUsersListResult} from "./types/services/results/user.results.ts";
-import {toLoginResponse, toRefreshAllTokensResponse} from "./mappers/response/auth.mapper.ts";
-import type {LoginResult, RefreshAllTokensResult} from "./types/services/results/auth.results.ts";
-import type {CreateUserArgs, GetUsersListArgs} from "./types/services/args/user.args.ts";
-import {toCreateUserArgs, toGetUsersListArgs} from "./mappers/request/user.mapper.ts";
-import {toLoginArgs, toRefreshAllTokensArgs} from "./mappers/request/auth.mapper.ts";
-import type {LoginArgs, RefreshAllTokensArgs} from "./types/services/args/auth.args.ts";
-import {cors} from "./middleware/cors.middleware.ts";
-import type {} from "./types/common/context.types.ts";
-import {
-    extractPayloadOrThrow,
-    extractValidatedBodyOrThrow,
-    extractValidatedQueryOrThrow
-} from "./utils/request/extractors.utils.ts";
+import {getProcessorsCatalog} from "./modules/pcComponent/domain/processor.service.ts";
+import {errorHandler} from "./shared/error/error.middleware.ts";
+import {config} from "./config/index.ts";
+import {container} from "./container.ts";
+import type {AuthService} from "./modules/auth/domain/auth.service.ts";
+
+
+
+
+
+
 
 
 
@@ -73,54 +57,61 @@ app.use(express.json());
 
 app.use(cors);
 
+const appRouter = container.resolve<Router>("appRouter");
+
+app.use("/api", appRouter);
 
 
+/*
 app.post(
     "/api/users",
-    validate({body: createUserRequestSchema}),
+    validate({body: createUserDtoSchema}),
     async (req: Request, res: Response) => {
-        const request = extractValidatedBodyOrThrow<CreateUserRequest>(res);
-        const args = toCreateUserArgs(request);
-        const userWithAddress = await createUser(args);
-        const response = toCreateUserResponse(userWithAddress);
-        const validatedResponse = createUserResponseSchema.parse(response);
+        const userService = container.resolve<UserService>("userService");
 
-        return res.json(validatedResponse);
+
+
+        const dto = extractValidatedBodyOrThrow<CreateUserDto>(res);
+        const payload = toCreateUserPayload(dto);
+        const user = await userService.createUser(payload);
+        const response = toCreateUserResponse(user);
+
+        return res.json(response);
     }
 );
+
 
 // Пример эндпоинта для генерации токена
 app.post(
     "/api/login",
-    validate({body: loginRequestSchema}),
+    validate({body: loginDtoSchema}),
     async (req: Request, res: Response) => {
-    //після валідації даних req.body за допомогою validate(z.object({body: LoginRequestDTOSchema})) можна
-    //сміливо стверджувати, що вони відповідають типу LoginRequest
         console.log("starting login");
-        const request = extractValidatedBodyOrThrow<LoginRequest>(res);
-        console.log("LoginRequest", request)
-        const args = toLoginArgs(request);
-        const result = await login(args);
+        const authService = container.resolve<AuthService>("authService");
+        const dto = extractValidatedBodyOrThrow<LoginDto>(res);
+        console.log("LoginDto", dto)
+        const payload = toLoginPayload(dto);
+        const result = await authService.login(payload);
         const response = toLoginResponse(result);
-        const validatedResponse = loginResponseSchema.parse(response);
 
-        return res.json(validatedResponse);
+        return res.json(response);
     }
 );
 
 app.post(
     "/api/refresh-all-tokens",
-    validate({body: refreshAllTokensRequestSchema}),
+    validate({body: refreshAllTokensDtoSchema}),
     (req: Request, res: Response) => {
-        const request = extractValidatedBodyOrThrow<RefreshAllTokensRequest>(res);
-        const args = toRefreshAllTokensArgs(request)
-        const result = refreshAllTokens(args);
+        const authService = container.resolve<AuthService>("authService")
+        const dto = extractValidatedBodyOrThrow<RefreshAllTokensDto>(res);
+        const payload = toRefreshAllTokensPayload(dto)
+        const result = authService.refreshAllTokens(payload);
         const response = toRefreshAllTokensResponse(result);
-        const validatedResponse = refreshAllTokensResponseSchema.parse(response);
 
-        return res.json(validatedResponse);
+        return res.json(response);
     }
 );
+*/
 
 //Цей ендпойнт поки що не використовується бо валідація токена здійснюється локально на клієнті,
 //але може використовуватися при необхідності
@@ -137,20 +128,25 @@ app.post("/api/validate-token", (req: Request, res: Response) => {
     */
 })
 
+
+/*
 app.get(
     "/api/users",
     authenticateToken,
     authorizeRole(["admin"]),
-    validate({query: getUsersListQueryParamsSchema}),
+    validate({query: getUsersListQuerySchema}),
     async (req: Request, res: Response) => {
-    //Після валідації за допомогою middleware validate() звалідовані параметри запиту FetchUsersParams передаються в res.locals
-        const queryParams = extractValidatedQueryOrThrow<GetUsersListQueryParams>(res);
-        const args = toGetUsersListArgs(queryParams);
-        const result = await getUsersList(args);
-        const response = toGetUsersListResponse(result);
-        const validatedResponse = getUsersListResponseSchema.parse(response)
+        const userService = container.resolve<UserService>("userService");
 
-        return res.json(validatedResponse);
+
+
+        //Після валідації за допомогою middleware validate() звалідовані параметри запиту FetchUsersParams передаються в res.locals
+        const query = extractValidatedQueryOrThrow<GetUsersListQuery>(res);
+        const options = toGetUsersListOptions(query);
+        const result = await userService.getUsersList(options);
+        const response = toGetUsersListResponse(result);
+
+        return res.json(response);
     }
 );
 
@@ -158,17 +154,22 @@ app.get(
     "/api/users/me",
     authenticateToken,
     async (req: Request, res: Response) => {
-    //після успішної автентифікації через middleware authenticateToken payload вхідного jwt-токена передається в res.locals.payload
-        console.log(" Starting FetchAuthUserResult");
-        const tokenPayload = extractPayloadOrThrow(res);
-        const userWithAddress = await fetchAuthUser(tokenPayload.id);
-        const response = toFetchAuthUserResponse(userWithAddress);
-        const validatedResponse = fetchAuthUserResponseSchema.parse(response);
+        const userService = container.resolve<UserService>("userService");
 
-        return res.json(validatedResponse);
+
+
+        //після успішної автентифікації через middleware authenticateToken payload вхідного jwt-токена передається в res.locals.payload
+        console.log(" Starting FetchAuthUserResult");
+        const tokenPayload = extractTokenPayloadOrThrow(res);
+        const user = await userService.fetchAuthUser(tokenPayload.id);
+        const response = toFetchAuthUserResponse(user);
+
+        return res.json(response);
     }
 );
+ */
 
+/*
 app.get(
     "/api/processors",
     authenticateToken,
@@ -187,6 +188,8 @@ app.get(
         return res.json(getProcessorsCatalogResponse);
     }
 );
+*/
+
 
 /*
 app.get("/transactions/me/:id", authenticateToken, (req: Request, res: Response) => {
@@ -252,4 +255,4 @@ app.use(errorHandler);
 
 
 // Запуск сервера
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+app.listen(config.port, () => console.log(`Server running on http://localhost:${config.port}`));

@@ -1,5 +1,6 @@
 import {z} from "zod";
-import {baseUserSchema} from "../models/custom/user.model.ts";
+import {baseUserSchema} from "../../modules/user/user.schema.ts";
+//import {baseUserSchema} from "../models/custom/user.model.ts";
 
 
 

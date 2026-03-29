@@ -9,7 +9,8 @@ import {
     processorSocketSchema
 } from "../../models/pcComponents/processor.types.ts";
 import {z} from "zod";
-import {arrayPreprocess} from "../../../utils/validation/validation.ts";
+import {arrayPreprocess} from "../../../shared/validation/validation.helpers.ts";
+
 
 
 

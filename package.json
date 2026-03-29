@@ -14,15 +14,19 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "awilix": "^13.0.3",
+    "awilix-express": "^11.0.1",
     "body-parser": "^2.2.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "@prisma/client": "^6.19.0",
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.3.0",
+    "bcrypt": "^6.0.0",
     "esbuild": "^0.27.0",
     "jwt-decode": "^4.0.0",
     "prisma": "^6.19.0",

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import {AddressSchema, UserRoleSchema, UserSchema} from "../generated/index.ts";
+import {AddressSchema, UserRoleSchema, UserSchema} from "../../../generated/zod/index.ts";
 
 
 
