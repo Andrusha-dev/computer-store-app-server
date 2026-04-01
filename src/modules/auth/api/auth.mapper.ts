@@ -4,7 +4,7 @@ import type {
     LoginResult,
     RefreshAllTokensPayload,
     RefreshAllTokensResult
-} from "../domain/auth.contract.ts";
+} from "../domain/auth.service.contract.ts";
 
 
 

@@ -2,9 +2,9 @@ import type {NextFunction, Response, Request} from "express";
 import {extractAccessTokenOrThrow, extractTokenPayloadOrThrow} from "../http/express.helpers.ts";
 import type {UserRole} from "./auth.schema.ts";
 import type {IAuthMiddleware} from "./auth.contract.ts";
-import type {IJwtProvider} from "../../infrastructure/auth/jwt.provider.ts";
 import {UnauthorizedError} from "../../core/errors/custom.errors.ts";
 import {ensureAccess} from "./auth.helper.ts";
+import type {IJwtProvider} from "../../infrastructure/auth/jwt.contract.ts";
 
 
 

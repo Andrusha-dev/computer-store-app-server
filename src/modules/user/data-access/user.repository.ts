@@ -21,19 +21,19 @@ import type {PrismaClient} from "../../../generated/prisma/client.ts";
 
 
 interface Dependencies {
-    prisma: PrismaClient;
+    dbService: PrismaClient;
 }
 
 
 export class UserRepository implements IUserRepository {
-    private readonly prisma: PrismaClient;
+    private readonly dbService: PrismaClient;
 
-    constructor({prisma}: Dependencies) {
-        this.prisma = prisma;
+    constructor({dbService}: Dependencies) {
+        this.dbService = dbService;
     }
 
     async findById(id: number): Promise<UserEntity | null> {
-        const user: User | null = await this.prisma.user.findUnique({
+        const user: User | null = await this.dbService.user.findUnique({
             where: {
                 id: id
             }
@@ -61,7 +61,7 @@ export class UserRepository implements IUserRepository {
     async findFullById(id: number, relations: IncludedUserRelations): Promise<UserFull | null> {
         const include = toUserInclude(relations);
 
-        const user: UserWithRelations | null = await this.prisma.user.findUnique({
+        const user: UserWithRelations | null = await this.dbService.user.findUnique({
             where: {
                 id: id,
             },
@@ -88,7 +88,7 @@ export class UserRepository implements IUserRepository {
     }
 
     async findByEmail(email: string): Promise<UserEntity | null> {
-        const user: User | null = await this.prisma.user.findUnique({
+        const user: User | null = await this.dbService.user.findUnique({
             where: {
                 email: email,
             }
@@ -114,7 +114,7 @@ export class UserRepository implements IUserRepository {
     }
 
     async findForAuthByEmail(email: string): Promise<UserAuth | null> {
-        const user: User | null = await this.prisma.user.findUnique({
+        const user: User | null = await this.dbService.user.findUnique({
             where: {
                 email: email,
             }
@@ -147,7 +147,7 @@ export class UserRepository implements IUserRepository {
 
         const [users, totalElements, rolesGrouped] = await Promise.all([
             //Отримуємо відфільтрованих, відсортованих та зпагінованих користувачів
-            this.prisma.user.findMany({
+            this.dbService.user.findMany({
                 where,
                 //include: { address: true },
                 orderBy: {
@@ -157,10 +157,10 @@ export class UserRepository implements IUserRepository {
                 skip: pageNo * pageSize,
             }),
             //Отримуємо кількість користувачів після фільтрації
-            this.prisma.user.count({ where }),
+            this.dbService.user.count({ where }),
             // Отримуємо групи користувачів з фактичними унікальними ролями для цих фільтрів (БЕЗ пагінації)
             // Це дасть нам список усіх ролей, які існують для поточного пошуку
-            this.prisma.user.groupBy({
+            this.dbService.user.groupBy({
                 where,
                 by: ["role"],
             }),
@@ -187,7 +187,7 @@ export class UserRepository implements IUserRepository {
         const data = toUserCreateInput(createPayload);
         const include = toUserInclude(relations);
 
-        const user = await this.prisma.user.create({
+        const user = await this.dbService.user.create({
             data,
             include
         });

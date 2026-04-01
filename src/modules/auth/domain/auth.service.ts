@@ -4,12 +4,14 @@ import type {
     LoginResult,
     RefreshAllTokensPayload,
     RefreshAllTokensResult
-} from "./auth.contract.ts";
+} from "./auth.service.contract.ts";
 import {type TokenPayload} from "../../../shared/auth/auth.schema.ts";
 import type {IUserRepository} from "../../user/domain/user.repository.contract.ts";
 import {UnauthorizedError} from "../../../core/errors/custom.errors.ts";
-import type {IHashProvider} from "../../../infrastructure/auth/hash.provider.ts";
-import type {IJwtProvider} from "../../../infrastructure/auth/jwt.provider.ts";
+import type {IJwtProvider} from "../../../infrastructure/auth/jwt.contract.ts";
+import type {IHashProvider} from "../../../infrastructure/cryptography/hash.contract.ts";
+
+
 
 
 interface Dependencies {
@@ -30,6 +32,7 @@ export class AuthService implements IAuthService {
     }
 
     login = async (loginPayload: LoginPayload): Promise<LoginResult> => {
+        console.log("Starting checking credentials: ", loginPayload);
         const {email, password} = loginPayload;
 
         const user = await this.userRepository.findForAuthByEmailOrThrow(email);

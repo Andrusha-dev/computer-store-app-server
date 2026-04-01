@@ -1,30 +1,32 @@
-import prisma from "./infrastructure/persistence/prisma.ts";
+import {PrismaService} from "./infrastructure/database/prisma.service.ts";
 import {UserRepository} from "./modules/user/data-access/user.repository.ts";
-import {asClass, asFunction, asValue, createContainer, InjectionMode} from "awilix";
+import {asClass, createContainer, InjectionMode} from "awilix";
 import {UserService} from "./modules/user/domain/user.service.ts";
-import type {PrismaClient} from "./generated/prisma/client.ts";
 import {AuthService} from "./modules/auth/domain/auth.service.ts";
 import {UserController} from "./modules/user/api/user.controller.ts";
-import {createUserRouter} from "./modules/user/api/user.router.ts";
-import {createAppRouter} from "./app.router.ts";
-import {Router} from "express";
+import {UserRouter} from "./modules/user/api/user.router.ts";
+import {AppRouter} from "./app.router.ts";
 import type {IUserRepository} from "./modules/user/domain/user.repository.contract.ts";
-import type {IUserService} from "./modules/user/domain/user.contract.ts";
+import type {IUserService} from "./modules/user/domain/user.service.contract.ts";
 import type {IUserController} from "./modules/user/api/user.contract.ts";
-import type {IAuthService} from "./modules/auth/domain/auth.contract.ts";
-import type {IAuthController} from "./modules/auth/api/auth.contract.ts";
+import type {IAuthService} from "./modules/auth/domain/auth.service.contract.ts";
+import type {IAuthController} from "./modules/auth/api/auth.controller.contract.ts";
 import {AuthController} from "./modules/auth/api/auth.controller.ts";
-import {createAuthRouter} from "./modules/auth/api/auth.router.ts";
+import {AuthRouter} from "./modules/auth/api/auth.router.ts";
 import {AuthMiddleware} from "./shared/auth/auth.middleware.ts";
 import type {IAuthMiddleware} from "./shared/auth/auth.contract.ts";
-import {hashProvider, type IHashProvider} from "./infrastructure/auth/hash.provider.ts";
-import {type IJwtProvider, jwtProvider} from "./infrastructure/auth/jwt.provider.ts";
+import {JwtProvider} from "./infrastructure/auth/jwt.provider.ts";
+import type {IJwtProvider} from "./infrastructure/auth/jwt.contract.ts";
+import type {IDatabaseService} from "./infrastructure/database/database.contract.ts";
+import type {IHashProvider} from "./infrastructure/cryptography/hash.contract.ts";
+import {BcryptProvider} from "./infrastructure/cryptography/bcrypt.provider.ts";
+import type {IRouter} from "./shared/contracts/router.contract.ts";
 
 
 
 export interface ICradle {
     //Залежності сторонніх бібліотек
-    prisma: PrismaClient;
+    dbService: IDatabaseService;
     hashProvider: IHashProvider;
     jwtProvider: IJwtProvider;
 
@@ -32,18 +34,18 @@ export interface ICradle {
     userRepository: IUserRepository;
     userService: IUserService;
     userController: IUserController;
-    userRouter: Router;
+    userRouter: IRouter;
 
     authService: IAuthService;
     authController: IAuthController;
-    authRouter: Router;
+    authRouter: IRouter;
 
 
     //middlewares
     authMiddleware: IAuthMiddleware;
 
     //Глобальні залежності
-    appRouter: Router;
+    appRouter: IRouter;
     //Нові залежності слід додавати сюди
 }
 
@@ -57,28 +59,28 @@ export const container = createContainer<ICradle>({
  */
 container.register({
     // Технічні утиліти (asValue, бо це вже готові об'єкти)
-    prisma: asValue(prisma),
-    hashProvider: asValue(hashProvider),
-    jwtProvider: asValue(jwtProvider),
+    dbService: asClass(PrismaService).singleton(),
+    hashProvider: asClass(BcryptProvider).singleton(),
+    jwtProvider: asClass(JwtProvider).singleton(),
 
     // Репозиторії (asClass)
     userRepository: asClass(UserRepository).singleton(),
     userService: asClass(UserService).singleton(),
     userController: asClass(UserController).singleton(),
     // Модульні роутери (реєструємо як функції)
-    userRouter: asFunction(createUserRouter).singleton(),
+    userRouter: asClass(UserRouter).singleton(),
 
 
     authService: asClass(AuthService).singleton(),
     authController: asClass(AuthController).singleton(),
-    authRouter: asFunction(createAuthRouter).singleton(),
+    authRouter: asClass(AuthRouter).singleton(),
 
 
     //middlewares
     authMiddleware: asClass(AuthMiddleware).singleton(),
 
     // Головний роутер
-    appRouter: asFunction(createAppRouter).singleton(),
+    appRouter: asClass(AppRouter).singleton(),
     // Тут мають бути нові модулі:
     // processorRepository: asClass(ProcessorRepository).singleton(),
 

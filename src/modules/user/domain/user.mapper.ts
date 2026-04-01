@@ -1,4 +1,4 @@
-import type {CreateUserPayload, GetUsersListOptions} from "./user.contract.ts";
+import type {CreateUserPayload, GetUsersListOptions} from "./user.service.contract.ts";
 import type {CreatePayload, FindManyOptions} from "./user.repository.contract.ts";
 
 

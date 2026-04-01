@@ -1,4 +1,4 @@
-import type {IUserService} from "../domain/user.contract.ts";
+import type {IUserService} from "../domain/user.service.contract.ts";
 import type {Request, Response} from "express";
 import {
     extractTokenPayloadOrThrow,

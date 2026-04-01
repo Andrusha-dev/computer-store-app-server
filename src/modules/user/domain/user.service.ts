@@ -1,4 +1,4 @@
-import type {CreateUserPayload, GetUsersListOptions, GetUsersListResult, IUserService} from "./user.contract.ts";
+import type {CreateUserPayload, GetUsersListOptions, GetUsersListResult, IUserService} from "./user.service.contract.ts";
 import {
     type UserEntity,
     type UserFull,
@@ -6,7 +6,8 @@ import {
 import {createPaginationResult} from "../../../shared/pagination/domain/pagination.helper.ts";
 import {toCreatePayload, toFindManyOptions} from "./user.mapper.ts";
 import type {IncludedUserRelations, IUserRepository} from "./user.repository.contract.ts";
-import type {IHashProvider} from "../../../infrastructure/auth/hash.provider.ts";
+import type {IHashProvider} from "../../../infrastructure/cryptography/hash.contract.ts";
+
 
 
 
@@ -81,11 +82,4 @@ export class UserService implements IUserService {
 
         return getUsersListResult;
     }
-
-    /*
-    hashPassword = async (password: string): Promise<string> => {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        return hashedPassword;
-    };
-     */
 }

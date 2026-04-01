@@ -42,6 +42,7 @@ import {errorHandler} from "./shared/error/error.middleware.ts";
 import {config} from "./config/index.ts";
 import {container} from "./container.ts";
 import type {AuthService} from "./modules/auth/domain/auth.service.ts";
+import type {IRouter} from "./shared/contracts/router.contract.ts";
 
 
 
@@ -57,9 +58,9 @@ app.use(express.json());
 
 app.use(cors);
 
-const appRouter = container.resolve<Router>("appRouter");
+const appRouter = container.resolve<IRouter>("appRouter");
 
-app.use("/api", appRouter);
+app.use("/api", appRouter.getRouter());
 
 
 /*

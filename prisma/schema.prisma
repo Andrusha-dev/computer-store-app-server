@@ -5,8 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prismaService-client-js"
 }
 
 datasource db {
@@ -15,7 +14,7 @@ datasource db {
 }
 
 generator zod {
-  provider                  = "zod-prisma-types"
+  provider                  = "zod-prismaService-types"
   output                    = "../src/generated/zod" // Куди генерувати Zod схеми
   createRelationValuesTypes = true // дозволяє створювати типи з урахуванням вкладених моделей
   addIncludeType            = false // додає типи для Prisma Include
