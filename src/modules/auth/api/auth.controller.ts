@@ -1,6 +1,6 @@
 import type {Request, Response} from "express";
-import type {IAuthService} from "../domain/auth.service.contract.ts";
-import {extractValidatedBodyOrThrow} from "../../../shared/http/express.helpers.ts";
+import type {IAuthService} from "../application/auth.service.contract.ts";
+import {extractValidatedBodyOrThrow} from "../../../api/helpers/http.helpers.ts";
 import type {LoginDto, RefreshAllTokensDto} from "./auth.dto.ts";
 import {toLoginPayload, toLoginResponse, toRefreshAllTokensPayload, toRefreshAllTokensResponse} from "./auth.mapper.ts";
 import type {IAuthController} from "./auth.controller.contract.ts";

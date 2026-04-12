@@ -5,7 +5,7 @@ import {
     fetchAuthUserResponseSchema, type FetchUserByIdResponse, fetchUserByIdResponseSchema, type GetUsersListQuery,
     type GetUsersListResponse, getUsersListResponseSchema
 } from "./user.dto.ts";
-import type {CreateUserPayload, GetUsersListOptions, GetUsersListResult} from "../domain/user.service.contract.ts";
+import type {CreateUserPayload, GetUsersListOptions, GetUsersListResult} from "../application/user.service.contract.ts";
 import type {UserEntity, UserFull} from "../domain/user.entity.ts";
 
 

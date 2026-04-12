@@ -1,5 +1,5 @@
 import {z} from "zod";
-import {paginationQuerySchema, paginationResponseSchema} from "../../../shared/pagination/api/pagination.dto.ts";
+import {paginationQuerySchema, paginationResponseSchema} from "../../../shared/dtos/pagination/api/pagination.dto.ts";
 import {
     baseAddressSchema,
     //baseUserRelationsSchema,
@@ -7,7 +7,8 @@ import {
     userFiltersSchema,
     userSortTypeSchema,
 } from "../user.schema.ts";
-import {userRoleSchema} from "../../../shared/auth/auth.schema.ts";
+import {userRoleSchema} from "../../../shared/types/user-role.schema.ts";
+
 
 
 

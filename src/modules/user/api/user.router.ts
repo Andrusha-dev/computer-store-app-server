@@ -1,7 +1,7 @@
-import type {IUserController} from "./user.contract.ts";
-import type {IAuthMiddleware} from "../../../shared/auth/auth.contract.ts";
+import type {IUserController} from "./user.controller.contract.ts";
+import type {IAuthMiddleware} from "../../../shared/contracts/auth.middleware.contract.ts";
 import {Router} from "express";
-import {validate} from "../../../shared/validation/validation.middleware.ts";
+import {validate} from "../../../api/middlewares/validation.middleware.ts";
 import {createUserDtoSchema, fetchUserByIdParamsSchema, getUsersListQuerySchema} from "./user.dto.ts";
 import type {IRouter} from "../../../shared/contracts/router.contract.ts";
 
@@ -76,8 +76,8 @@ export class UserRouter implements IRouter {
 import {Router} from "express";
 import {validate} from "../../../shared/validation/validation.middleware.ts";
 import {createUserDtoSchema, fetchUserByIdParamsSchema, getUsersListQuerySchema} from "./user.dto.ts";
-import type {IUserController} from "./user.contract.ts";
-import type {IAuthMiddleware} from "../../../shared/auth/auth.contract.ts";
+import type {IUserController} from "./user.controller.contract.ts";
+import type {IAuthMiddleware} from "../../../shared/types/types.middleware.contract.ts";
 
 
 interface Dependencies {

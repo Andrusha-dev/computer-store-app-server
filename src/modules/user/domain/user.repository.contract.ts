@@ -1,7 +1,7 @@
 import type {UserAuth, UserEntity, UserFull} from "./user.entity.ts";
 import type {BaseAddress, BaseUser, UserFilters, UserSortType} from "../user.schema.ts";
-import type {PaginationCriteria} from "../../../shared/pagination/pagination.schema.ts";
-import type {UserRole} from "../../../shared/auth/auth.schema.ts";
+import type {PaginationCriteria} from "../../../shared/dtos/pagination/pagination.schema.ts";
+import type {UserRole} from "../../../shared/types/user-role.schema.ts";
 
 
 

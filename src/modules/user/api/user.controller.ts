@@ -1,9 +1,9 @@
-import type {IUserService} from "../domain/user.service.contract.ts";
+import type {IUserService} from "../application/user.service.contract.ts";
 import type {Request, Response} from "express";
 import {
     extractTokenPayloadOrThrow,
     extractValidatedBodyOrThrow, extractValidatedParamsOrThrow, extractValidatedQueryOrThrow,
-} from "../../../shared/http/express.helpers.ts";
+} from "../../../api/helpers/http.helpers.ts";
 import type {CreateUserDto, FetchUserByIdParams, GetUsersListQuery} from "./user.dto.ts";
 import {
     toCreateUserPayload,
@@ -11,7 +11,7 @@ import {
     toFetchAuthUserResponse, toFetchUserByIdResponse,
     toGetUsersListOptions, toGetUsersListResponse
 } from "./user.mapper.ts";
-import type {IUserController} from "./user.contract.ts";
+import type {IUserController} from "./user.controller.contract.ts";
 
 
 

@@ -1,5 +1,6 @@
 import {z} from "zod";
 import {baseAddressSchema, baseUserSchema} from "../user.schema.ts";
+import type {UserRole} from "../../../shared/types/user-role.schema.ts";
 
 
 
@@ -25,6 +26,14 @@ export interface UserFull extends z.infer<typeof userFullSchema>{}
 // Ми просто беремо baseUserSchema, де пароль ЩЕ Є
 export const userAuthSchema = baseUserSchema
 export interface UserAuth extends z.infer<typeof userAuthSchema> {}
+
+
+//БІЗНЕС ТИП ДЛЯ ПОВЕРНЕННЯ СЕРВІСУ AuthService
+export interface AuthenticatedUser {
+    id: number;
+    email: string;
+    role: UserRole;
+}
 
 
 
