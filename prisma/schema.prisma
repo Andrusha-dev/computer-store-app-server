@@ -14,7 +14,7 @@ datasource db {
 }
 
 generator zod {
-  provider                  = "zod-prismaService-types"
+  provider                  = "zod-prismaService-schemas"
   output                    = "../src/generated/zod" // Куди генерувати Zod схеми
   createRelationValuesTypes = true // дозволяє створювати типи з урахуванням вкладених моделей
   addIncludeType            = false // додає типи для Prisma Include

@@ -1,8 +1,8 @@
 //import {AddressSchema, UserRoleSchema, UserSchema} from "../../generated/zod/index.ts";
 import {z} from "zod";
 import {arrayPreprocess} from "../../api/helpers/validation.helpers.ts";
-import {userRoleSchema} from "../../shared/types/user-role.schema.ts";
-//import {userRoleSchema} from "../types/domain/types.schema.ts";
+import {userRoleSchema} from "../../shared/schemas/user-role.schema.ts";
+//import {userRoleSchema} from "../schemas/domain/schemas.schema.ts";
 
 
 

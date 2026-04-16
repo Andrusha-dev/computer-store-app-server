@@ -32,7 +32,6 @@ export const errorHandler = (
                 const details = config.isDev ? {fields: targets} : undefined;
 
                 finalError = new ConflictError(fields, details);
-                console.log("Поле не унікальне", err);
                 break;
             case 'P2025':
                 finalError = new NotFoundError();
@@ -59,7 +58,7 @@ export const errorHandler = (
         finalError = new InternalServerError();
     }
 
-    console.error(err);
+    console.error(finalError);
 
     return res.status(finalError.statusCode).json(finalError);
 };

@@ -1,4 +1,4 @@
-import type {TokenPayload} from "../types/token-payload.schema.ts";
+import type {TokenPayload} from "../schemas/token-payload.schema.ts";
 
 
 

@@ -1,10 +1,32 @@
-import {z} from "zod";
-import {baseAddressSchema, baseUserSchema} from "../user.schema.ts";
-import type {UserRole} from "../../../shared/types/user-role.schema.ts";
+//import {z} from "zod";
+//import {baseAddressSchema, baseUserSchema} from "../user.schema.ts";
+import type {UserRole} from "../../../shared/schemas/user-role.schema.ts";
+import {type Address, Prisma, type User} from "@prisma/client";
 
 
 
 
+
+//ОСНОВНІ БІЗНЕС ТИПИ
+export type AddressEntity = Address;
+
+export type UserEntity = User;
+
+export const userFullInclude = {
+    address: true,
+} satisfies Prisma.UserInclude //або as const;
+export type UserFull = Prisma.UserGetPayload<{ include: typeof userFullInclude}>
+
+
+//БІЗНЕС ТИП ДЛЯ ПОВЕРНЕННЯ СЕРВІСУ AuthService
+export interface AuthenticatedUser {
+    id: number;
+    email: string;
+    role: UserRole;
+}
+
+
+/*
 //БІЗНЕС СУТНОСТІ
 //Бізнес тип для реляції address
 export const addressEntitySchema = baseAddressSchema;
@@ -34,32 +56,9 @@ export interface AuthenticatedUser {
     email: string;
     role: UserRole;
 }
-
-
-
-
-
-
-
-/*
-//Допоміжний тип для реляцій користувача, де кожна реляція може мати значення null або undefined
-const userFlexibleRelationsSchema = z.object(
-    Object.fromEntries(
-        Object.entries(baseUserRelationsSchema.shape).map(([key, value]) => [
-            key,
-            value.optional().nullable(),
-        ])
-    )
-);
-
-
-
-//БІЗНЕС СУТНОСТІ
-// Універсальний бізнес тип без реляцій (Чиста, без пароля)
-export const userEntitySchema = baseUserSchema.omit({ password: true });
-export interface UserEntity extends z.infer<typeof userEntitySchema>{}
-
-//Універсальний бізнес тип з опціональними реляціями
-export const userFullSchema = userEntitySchema.extend(userFlexibleRelationsSchema.shape);
-export interface UserFull extends z.infer<typeof userFullSchema>{}
 */
+
+
+
+
+

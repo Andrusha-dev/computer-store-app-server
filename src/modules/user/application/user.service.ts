@@ -1,19 +1,111 @@
-import type {CreateUserPayload, GetUsersListOptions, GetUsersListResult, IUserService} from "./user.service.contract.ts";
+import type {IUserService} from "./user.service.contract.ts";
 import {
     type AuthenticatedUser,
-    type UserAuth,
     type UserEntity,
     type UserFull,
 } from "../domain/user.entity.ts";
-import {createPaginationResult} from "../../../shared/dtos/pagination/domain/pagination.helper.ts";
-import {toCreatePayload, toFindManyOptions} from "./user.mapper.ts";
-import type {IncludedUserRelations, IUserRepository} from "../domain/user.repository.contract.ts";
+import {toAuthenticatedUser, toFindManyOptions} from "./user.mapper.ts";
+import type {IUserRepository} from "../domain/user.repository.contract.ts";
 import type {IHashProvider} from "../../../shared/contracts/hash.contract.ts";
+import type {CreateUserDto, GetUsersListQuery} from "../api/user.dto.ts";
+import {toUserCreateInput} from "../infrastructure/database/user.mapper.ts";
+import type {FindManyResult} from "../../../shared/types/repository.types.ts";
 
 
 
 
 
+
+
+interface Dependencies {
+    hashProvider: IHashProvider;
+    userRepository: IUserRepository;
+}
+
+export class UserService implements IUserService {
+    private readonly hashProvider: IHashProvider;
+    private readonly userRepository: IUserRepository;
+
+
+    constructor({hashProvider, userRepository}: Dependencies) {
+        this.hashProvider = hashProvider;
+        this.userRepository = userRepository;
+    }
+
+    async createUser(createUserDto: CreateUserDto): Promise<UserFull> {
+        //Хешуємо пароль
+        const passwordHash = await this.hashProvider.hash(createUserDto.password);
+
+        const userCreateInput = toUserCreateInput({
+            ...createUserDto,
+            password: passwordHash,
+        });
+
+
+        const user: UserFull = await this.userRepository.create(userCreateInput);
+
+        return user;
+    }
+
+    //сервісний метод для отримання поточного автентифікованого користувача з реляціями
+    async fetchAuthUser(id: number): Promise<UserFull> {
+        const user: UserFull = await this.userRepository.findFullByIdOrThrow(id);
+
+        return user;
+    }
+
+
+    //Сервісний метод для отримання користувача без реляцій. Використовується в адмінці
+    async fetchUserById(id: number): Promise<UserEntity> {
+        const user = await this.userRepository.findByIdOrThrow(id);
+
+        return user;
+    }
+
+
+    //Сервісний метод, який викликається модулем schemas під час автентифікації користувача
+    async fetchUserByEmail(email: string): Promise<UserEntity | null> {
+        const user: UserEntity | null = await this.userRepository.findByEmail(email);
+
+        if (!user) {
+            return null;
+        }
+
+        return user;
+    }
+
+
+    async verifyCredentials(email: string, password: string): Promise<AuthenticatedUser | null> {
+        const user: UserEntity | null = await this.fetchUserByEmail(email);
+        if(!user) {
+            return null;
+        }
+
+        const isPasswordValid = await this.hashProvider.compare(password, user.password);
+        if(!isPasswordValid) {
+            return null;
+        }
+
+        const authenticatedUser = toAuthenticatedUser(user);
+
+        return authenticatedUser;
+    }
+
+
+    //Сервісний метод для отримання списку користувачів без реляцій. Використовується в адмінці
+    async getUsersList(getUsersListQuery: GetUsersListQuery): Promise<FindManyResult<UserEntity>> {
+        const findManyOptions = toFindManyOptions(getUsersListQuery);
+
+        const findManyResult = await this.userRepository.findMany(findManyOptions);
+
+        return findManyResult;
+    }
+}
+
+
+
+
+/*
 interface Dependencies {
     hashProvider: IHashProvider;
     userRepository: IUserRepository;
@@ -69,7 +161,7 @@ export class UserService implements IUserService {
     }
 
 
-    //Сервісний метод, який викликається модулем types під час автентифікації користувача
+    //Сервісний метод, який викликається модулем schemas під час автентифікації користувача
     async fetchUserForAuthByEmail(email: string): Promise<UserAuth | null> {
         const user = await this.userRepository.findForAuthByEmail(email);
 
@@ -115,3 +207,4 @@ export class UserService implements IUserService {
         return authenticatedUser;
     }
 }
+*/

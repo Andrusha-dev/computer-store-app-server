@@ -1,16 +1,14 @@
 import {
-    type CreateUserDto,
     type CreateUserResponse, createUserResponseSchema,
     type FetchAuthUserResponse,
-    fetchAuthUserResponseSchema, type FetchUserByIdResponse, fetchUserByIdResponseSchema, type GetUsersListQuery,
-    type GetUsersListResponse, getUsersListResponseSchema
+    fetchAuthUserResponseSchema, type FetchUserByIdResponse, fetchUserByIdResponseSchema,
 } from "./user.dto.ts";
-import type {CreateUserPayload, GetUsersListOptions, GetUsersListResult} from "../application/user.service.contract.ts";
 import type {UserEntity, UserFull} from "../domain/user.entity.ts";
 
 
 
 
+/*
 export const toCreateUserPayload =
     (createUserDto: CreateUserDto): CreateUserPayload => {
         const createUserPayload: CreateUserPayload = {
@@ -20,6 +18,8 @@ export const toCreateUserPayload =
 
         return createUserPayload;
     }
+*/
+
 
 export const toCreateUserResponse =
     (user: UserFull): CreateUserResponse => {
@@ -65,7 +65,7 @@ export const toFetchUserByIdResponse =
 
 
 
-
+/*
 export const toGetUsersListOptions =
     (getUsersListQuery: GetUsersListQuery): GetUsersListOptions => {
         const getUsersListOptions: GetUsersListOptions = {
@@ -87,3 +87,4 @@ export const toGetUsersListResponse =
 
         return GetUserslistResponse;
     }
+ */

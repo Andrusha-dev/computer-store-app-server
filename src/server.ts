@@ -5,8 +5,6 @@ import {validate} from "./api/middlewares/validation.middleware.ts";
 import {
         type CreateUserDto,
         createUserDtoSchema,
-        type GetUsersListQuery,
-        getUsersListQuerySchema
 } from "./modules/user/api/user.dto.ts";
 import {
         extractTokenPayloadOrThrow,
@@ -14,10 +12,8 @@ import {
         extractValidatedQueryOrThrow
 } from "./api/helpers/http.helpers.ts";
 import {
-        toCreateUserPayload,
         toCreateUserResponse,
         toFetchAuthUserResponse,
-        toGetUsersListOptions, toGetUsersListResponse
 } from "./modules/user/api/user.mapper.ts";
 import {UserService} from "./modules/user/application/user.service.ts";
 import {
@@ -32,7 +28,7 @@ import {
         toRefreshAllTokensPayload,
         toRefreshAllTokensResponse
 } from "./modules/auth/api/auth.mapper.ts";
-//import {authenticateToken, authorizeRole} from "./shared/types/types.middleware.ts";
+//import {authenticateToken, authorizeRole} from "./shared/schemas/schemas.middleware.ts";
 import {
         type GetProcessorsCatalogParams,
         getProcessorsCatalogParamsSchema
@@ -92,23 +88,6 @@ bootstrap();
 
 
 
-
-
-
-/*
-const app = express();
-
-app.use(express.json());
-
-app.use(cors);
-
-const appRouter = container.resolve<IRouter>("appRouter");
-
-app.use("/api", appRouter.getRouter());
-*/
-
-
-
 /*
 app.get(
     "/api/processors",
@@ -129,14 +108,3 @@ app.get(
     }
 );
 */
-
-
-
-/*Для express js версії 4 потрібно встановити залежність express-async-errors, для автоматичної обробки асинхронних помилок.
-В express js версії 5 обробник вже працює з коробки*/
-//Глобальний обробник для необроблених помилок
-//app.use(errorHandler);
-
-
-// Запуск сервера
-//app.listen(config.port, () => console.log(`Server running on http://localhost:${config.port}`));

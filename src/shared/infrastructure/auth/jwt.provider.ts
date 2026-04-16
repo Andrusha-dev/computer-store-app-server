@@ -3,7 +3,7 @@ import {
     config,
 } from "../config/index.ts";
 import type {IJwtProvider} from "../../contracts/jwt.contract.ts";
-import {type TokenPayload, tokenPayloadSchema} from "../../types/token-payload.schema.ts";
+import {type TokenPayload, tokenPayloadSchema} from "../../schemas/token-payload.schema.ts";
 
 
 

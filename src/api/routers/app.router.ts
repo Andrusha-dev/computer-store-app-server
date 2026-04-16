@@ -49,7 +49,7 @@ export const createAppRouter = ({userRouter, authRouter}: Dependencies): Router 
     const router = Router();
 
     router.use("/users", userRouter.getRouter());
-    router.use("/types", authRouter.getRouter());
+    router.use("/schemas", authRouter.getRouter());
     //Решта маршрутів будуть додаватись далі
 
     return router;

@@ -1,5 +1,5 @@
 import type {RequestHandler} from "express";
-import type {UserRole} from "../types/user-role.schema.ts";
+import type {UserRole} from "../schemas/user-role.schema.ts";
 
 
 

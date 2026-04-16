@@ -3,7 +3,7 @@ import {extractAccessTokenOrThrow, extractTokenPayloadOrThrow} from "../helpers/
 import type {IAuthMiddleware} from "../../shared/contracts/auth.middleware.contract.ts";
 import {ForbiddenError, UnauthorizedError} from "../../shared/error/custom.errors.ts";
 import type {IJwtProvider} from "../../shared/contracts/jwt.contract.ts";
-import type {UserRole} from "../../shared/types/user-role.schema.ts";
+import type {UserRole} from "../../shared/schemas/user-role.schema.ts";
 
 
 

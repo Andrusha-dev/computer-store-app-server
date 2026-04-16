@@ -1,14 +1,32 @@
 import type {
     AuthenticatedUser,
-    UserAuth,
     UserEntity, UserFull,
 } from "../domain/user.entity.ts";
-import type {PaginationOptions, PaginationResult} from "../../../shared/dtos/pagination/domain/pagination.contract.ts";
-import type {BaseAddress, BaseUser, UserFilters, UserSortType} from "../user.schema.ts";
-import type {UserRole} from "../../../shared/types/user-role.schema.ts";
+import type {CreateUserDto, GetUsersListQuery} from "../api/user.dto.ts";
+import type {FindManyResult} from "../../../shared/types/repository.types.ts";
 
 
 
+
+
+
+
+export interface IUserService {
+    createUser: (createUserDto: CreateUserDto) => Promise<UserFull>;
+    fetchUserById: (id: number) => Promise<UserEntity>;
+    fetchAuthUser: (id: number) => Promise<UserFull>;
+    fetchUserByEmail: (email: string) => Promise<UserEntity | null>;
+    getUsersList: (getUsersListQuery: GetUsersListQuery) => Promise<FindManyResult<UserEntity>>;
+    verifyCredentials: (email: string, password: string) => Promise<AuthenticatedUser | null>
+}
+
+
+
+
+
+
+
+/*
 
 export interface CreateUserPayload extends Omit<BaseUser, "id" | "role"> {
     address: BaseAddress
@@ -34,3 +52,4 @@ export interface IUserService {
     getUsersList: (getUsersListOptions: GetUsersListOptions) => Promise<GetUsersListResult>;
     verifyCredentials: (email: string, password: string) => Promise<AuthenticatedUser | null>
 }
+ */
