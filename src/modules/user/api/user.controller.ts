@@ -4,10 +4,10 @@ import {
     extractTokenPayloadOrThrow,
     extractValidatedBodyOrThrow, extractValidatedParamsOrThrow, extractValidatedQueryOrThrow,
 } from "../../../api/helpers/http.helpers.ts";
-import type {CreateUserDto, FetchUserByIdParams} from "./user.dto.ts";
+import type {CreateUserDto, FetchUserByIdParams, GetUsersListQuery} from "./user.dto.ts";
 import {
     toCreateUserResponse,
-    toFetchAuthUserResponse, toFetchUserByIdResponse,
+    toFetchAuthUserResponse, toFetchUserByIdResponse, toGetUsersListResponse,
 } from "./user.mapper.ts";
 import type {IUserController} from "./user.controller.contract.ts";
 
@@ -54,16 +54,13 @@ export class UserController implements IUserController {
         return res.json(response);
     };
 
-    /*
+
     index = async (req: Request, res: Response) => {
         //Після валідації за допомогою middleware validate() звалідовані параметри запиту FetchUsersParams передаються в res.locals
         const query = extractValidatedQueryOrThrow<GetUsersListQuery>(res);
-        const options = toGetUsersListOptions(query);
-        const result = await this.userService.getUsersList(options);
+        const result = await this.userService.getUsersList(query);
         const response = toGetUsersListResponse(result);
 
         return res.json(response);
     }
-     */
-
 }

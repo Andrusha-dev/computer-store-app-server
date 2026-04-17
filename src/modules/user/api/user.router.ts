@@ -2,7 +2,7 @@ import type {IUserController} from "./user.controller.contract.ts";
 import type {IAuthMiddleware} from "../../../shared/contracts/auth.middleware.contract.ts";
 import {Router} from "express";
 import {validate} from "../../../api/middlewares/validation.middleware.ts";
-import {createUserDtoSchema, fetchUserByIdParamsSchema} from "./user.dto.ts";
+import {createUserDtoSchema, fetchUserByIdParamsSchema, getUsersListQuerySchema} from "./user.dto.ts";
 import type {IRouter} from "../../../shared/contracts/router.contract.ts";
 
 
@@ -48,7 +48,7 @@ export class UserRouter implements IRouter {
         );
 
         // GET /api/users -> Список користувачів (з пагінацією та фільтрами)
-        /*
+
         this.router.get(
             "/",
             this.authMiddleware.authenticate,
@@ -56,7 +56,7 @@ export class UserRouter implements IRouter {
             validate({ query: getUsersListQuerySchema }),
             this.userController.index
         );
-        */
+
 
         // POST /api/users -> Реєстрація або створення (Public або Admin)
         this.router.post(

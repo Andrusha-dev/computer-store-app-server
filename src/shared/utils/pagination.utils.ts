@@ -1,4 +1,4 @@
-import type {PaginationMeta} from "../dtos/pagination/pagination.schema.ts";
+import type {PaginationMeta} from "../schemas/pagination.schema.ts";
 
 
 //Функція для створення метаданих пагінації для результатів запиту.

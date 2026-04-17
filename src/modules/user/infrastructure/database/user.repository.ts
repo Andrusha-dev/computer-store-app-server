@@ -1,5 +1,4 @@
 import type {
-    //FindManyOptions, FindManyResult,
     IUserRepository, UserFilters, UserSortType,
 } from "../../domain/user.repository.contract.ts";
 import {
@@ -11,9 +10,8 @@ import type {PrismaService} from "../../../../shared/infrastructure/database/pri
 import {Prisma} from "@prisma/client";
 import {toUserWhereInput} from "./user.mapper.ts";
 import type {FindManyOptions, FindManyResult} from "../../../../shared/types/repository.types.ts";
-import type {PaginationMeta} from "../../../../shared/dtos/pagination/pagination.schema.ts";
+import type {PaginationMeta} from "../../../../shared/schemas/pagination.schema.ts";
 import {createPaginationMeta} from "../../../../shared/utils/pagination.utils.ts";
-
 
 
 
@@ -107,230 +105,47 @@ export class UserRepository implements IUserRepository {
 
 
 
-    async findMany(options: FindManyOptions<UserFilters, UserSortType>): Promise<FindManyResult<UserEntity>> {
-        const {filters, sortType, criteria} = options
+    findMany =
+        async (options: FindManyOptions<UserFilters, UserSortType>): Promise<FindManyResult<UserEntity>> => {
+            const {filters, sortType, criteria} = options
 
-        const where = toUserWhereInput(filters);
+            const where = toUserWhereInput(filters);
 
-        const [users, totalElements] = await Promise.all([
-            //Отримуємо відфільтрованих, відсортованих та зпагінованих користувачів
-            this.dbService.user.findMany({
-                where,
-                //include: { address: true },
-                orderBy: {
-                    [sortType]: criteria.sortOrder
-                },
-                take: criteria.pageSize,
-                skip: criteria.pageNo * criteria.pageSize,
-            }),
-            //Отримуємо кількість користувачів після фільтрації
-            this.dbService.user.count({ where }),
-        ]);
+            const [users, totalElements] = await Promise.all([
+                //Отримуємо відфільтрованих, відсортованих та зпагінованих користувачів
+                this.dbService.user.findMany({
+                    where,
+                    //include: { address: true },
+                    orderBy: {
+                        [sortType]: criteria.sortOrder
+                    },
+                    take: criteria.pageSize,
+                    skip: criteria.pageNo * criteria.pageSize,
+                }),
+                //Отримуємо кількість користувачів після фільтрації
+                this.dbService.user.count({ where }),
+            ]);
 
-        const meta: PaginationMeta = createPaginationMeta(criteria.pageNo, criteria.pageSize, totalElements);
+            const meta: PaginationMeta = createPaginationMeta(criteria.pageNo, criteria.pageSize, totalElements);
 
 
-        const result: FindManyResult<UserEntity> = {
-            content: users,
-            meta: meta,
+            const result: FindManyResult<UserEntity> = {
+                content: users,
+                meta: meta,
+            }
+
+            return result;
         }
 
-        return result;
-    }
 
+    create =
+        async (userCreateInput: Prisma.UserCreateInput): Promise<UserFull> => {
+            const user: UserFull | null = await this.dbService.user.create({
+                data: userCreateInput,
+                include: userFullInclude
+            });
 
-    create = async (userCreateInput: Prisma.UserCreateInput): Promise<UserFull> => {
-        const user: UserFull | null = await this.dbService.user.create({
-            data: userCreateInput,
-            include: userFullInclude
-        });
-
-        return user;
-    }
+            return user;
+        }
 
 }
-
-
-
-
-
-/*
-interface Dependencies {
-    dbService: PrismaService;
-}
-
-
-export class UserRepository implements IUserRepository {
-    private readonly dbService: PrismaService;
-
-    constructor({dbService}: Dependencies) {
-        this.dbService = dbService;
-    }
-
-    async findById(id: number): Promise<UserEntity | null> {
-        const user: User | null = await this.dbService.user.findUnique({
-            where: {
-                id: id
-            }
-        });
-
-        if(!user) {
-            return null;
-        }
-
-        const userEntity: UserEntity = userEntitySchema.parse(user);
-
-        return userEntity;
-    }
-
-    async findByIdOrThrow(id: number): Promise<UserEntity> {
-        const user = await this.findById(id);
-
-        if (!user) {
-            throw new NotFoundError(`Користувача з ID ${id} не знайдено`);
-        }
-
-        return user;
-    }
-
-    async findFullById(id: number, relations: IncludedUserRelations): Promise<UserFull | null> {
-        const include = toUserInclude(relations);
-
-        const user: UserWithRelations | null = await this.dbService.user.findUnique({
-            where: {
-                id: id,
-            },
-            include
-        });
-
-        if(!user) {
-            return null;
-        }
-
-        const userFull: UserFull = userFullSchema.parse(user);
-
-        return userFull;
-    }
-
-    async findFullByIdOrThrow(id: number, relation: IncludedUserRelations): Promise<UserFull> {
-        const user = await this.findFullById(id, relation);
-
-        if(!user) {
-            throw new NotFoundError(`Користувача з ID ${id} не знайдено`);
-        }
-
-        return user;
-    }
-
-    async findByEmail(email: string): Promise<UserEntity | null> {
-        const user: User | null = await this.dbService.user.findUnique({
-            where: {
-                email: email,
-            }
-        });
-
-        if(!user) {
-            return null;
-        }
-
-        const userEntity: UserEntity = userEntitySchema.parse(user);
-
-        return userEntity;
-    }
-
-    async findByEmailOrThrow(email: string): Promise<UserEntity> {
-        const user = await this.findByEmail(email);
-
-        if (!user) {
-            throw new NotFoundError(`Користувача з email ${email} не знайдено`);
-        }
-
-        return user;
-    }
-
-    async findForAuthByEmail(email: string): Promise<UserAuth | null> {
-        const user: User | null = await this.dbService.user.findUnique({
-            where: {
-                email: email,
-            }
-        });
-
-        if (!user) {
-           return null;
-        }
-
-        const userAuth: UserAuth = userAuthSchema.parse(user);
-
-        return userAuth;
-    }
-
-    async findForAuthByEmailOrThrow(email: string): Promise<UserAuth> {
-        const user = await this.findForAuthByEmail(email);
-
-        if (!user) {
-            throw new UnauthorizedError("Email або пароль не вірні")
-        }
-
-        return user;
-    }
-
-
-    async findMany(options: FindManyOptions): Promise<FindManyResult> {
-        const {pageNo, pageSize, sortOrder, sortType, ...userFilters} = options;
-
-        const where: Prisma.UserWhereInput = toUserWhereInput(userFilters);
-
-        const [users, totalElements, rolesGrouped] = await Promise.all([
-            //Отримуємо відфільтрованих, відсортованих та зпагінованих користувачів
-            this.dbService.user.findMany({
-                where,
-                //include: { address: true },
-                orderBy: {
-                    [sortType]: sortOrder
-                },
-                take: pageSize,
-                skip: pageNo * pageSize,
-            }),
-            //Отримуємо кількість користувачів після фільтрації
-            this.dbService.user.count({ where }),
-            // Отримуємо групи користувачів з фактичними унікальними ролями для цих фільтрів (БЕЗ пагінації)
-            // Це дасть нам список усіх ролей, які існують для поточного пошуку
-            this.dbService.user.groupBy({
-                where,
-                by: ["role"],
-            }),
-        ]);
-
-        const userEntities = users.map(user => {
-            const userEntity: UserEntity = userEntitySchema.parse(user);
-
-            return userEntity;
-        });
-
-        const actualRoles: UserRole[] = rolesGrouped.map(group => group.role);
-
-        const result: FindManyResult = {
-            content: userEntities,
-            roles: actualRoles,
-            totalElements: totalElements
-        }
-
-        return result;
-    }
-
-    async create(createPayload: CreatePayload, relations: IncludedUserRelations): Promise<UserFull> {
-        const data = toUserCreateInput(createPayload);
-        const include = toUserInclude(relations);
-
-        const user = await this.dbService.user.create({
-            data,
-            include
-        });
-
-        const userFull: UserFull = userFullSchema.parse(user);
-
-        return userFull;
-    }
-
-}
- */

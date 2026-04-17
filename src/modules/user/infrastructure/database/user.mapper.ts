@@ -1,21 +1,8 @@
 import {Prisma} from "@prisma/client";
-import type {CreateUserDto} from "../../api/user.dto.ts";
 import type {UserFilters} from "../../domain/user.repository.contract.ts";
 
 
 
-
-//Маппер для перетворення контракту CreatePayload до обєкту UserCreateInput
-export const toUserCreateInput = (createUserDto: CreateUserDto): Prisma.UserCreateInput => {
-    const data: Prisma.UserCreateInput = {
-        ...createUserDto,
-        address: {
-            create: createUserDto.address // Явне перетворення реляції
-        }
-    }
-
-    return data;
-};
 
 
 

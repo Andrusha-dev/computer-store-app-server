@@ -10,7 +10,6 @@ export const loginDtoSchema = z.object({
 export interface LoginDto extends z.infer<typeof loginDtoSchema>{}
 
 export const loginResponseSchema = z.object({
-    //user: baseUserSchema.omit({password: true}),
     accessToken: z.string(),
     refreshToken: z.string(),
 });

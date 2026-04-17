@@ -1,4 +1,4 @@
-import type {PaginationCriteria, PaginationMeta} from "../dtos/pagination/pagination.schema.ts";
+import type {PaginationCriteria, PaginationMeta} from "../schemas/pagination.schema.ts";
 
 
 export interface FindManyOptions<T, V> {
