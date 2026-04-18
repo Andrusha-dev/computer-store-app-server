@@ -1,20 +1,12 @@
 import type {UserEntity, UserFull} from "./user.entity.ts";
 import {Prisma} from "@prisma/client";
-import {type UserRole} from "../../../shared/schemas/user-role.schema.ts";
 import type {FindManyOptions, FindManyResult} from "../../../shared/types/repository.types.ts";
+import type {UserFilters, UserSortType} from "./user.types.ts";
 
 
 
 
 
-
-export interface UserFilters {
-    id?: number,
-    firstname?: string,
-    lastname?: string,
-    roles?: UserRole[],
-}
-export type UserSortType = keyof Pick<UserEntity, "firstname" | "lastname">
 
 
 export interface IUserRepository {

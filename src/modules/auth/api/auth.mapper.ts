@@ -1,48 +1,26 @@
-import type {LoginDto, LoginResponse, RefreshAllTokensDto, RefreshAllTokensResponse} from "./auth.dto.ts";
+import type {LoginResponse, RefreshAllTokensResponse} from "./auth.dto.ts";
 import type {
-    LoginPayload,
-    LoginResult,
-    RefreshAllTokensPayload,
-    RefreshAllTokensResult
+
 } from "../application/auth.service.contract.ts";
+import type {AuthTokens} from "../domain/auth.types.ts";
 
 
 
 
-
-
-export const toLoginPayload = (loginDto: LoginDto): LoginPayload => {
-    const loginPayload: LoginPayload = {
-        email: loginDto.email,
-        password: loginDto.password,
-    }
-
-    return loginPayload;
-}
-
-export const toLoginResponse = (loginResult: LoginResult): LoginResponse => {
+export const toLoginResponse = (authTokens: AuthTokens): LoginResponse => {
     const LoginResponse: LoginResponse = {
-        accessToken: loginResult.accessToken,
-        refreshToken: loginResult.refreshToken,
+        accessToken: authTokens.accessToken,
+        refreshToken: authTokens.refreshToken,
     }
 
     return LoginResponse;
 }
 
 
-
-export const toRefreshAllTokensPayload = (refreshAllTokensDto: RefreshAllTokensDto): RefreshAllTokensPayload => {
-    const refreshAllTokensPayload: RefreshAllTokensPayload = {
-        refreshToken: refreshAllTokensDto.refreshToken,
-    }
-
-    return refreshAllTokensPayload;
-}
-
-export const toRefreshAllTokensResponse = (refreshAllTokensResult: RefreshAllTokensResult): RefreshAllTokensResponse => {
+export const toRefreshAllTokensResponse = (authTokens: AuthTokens): RefreshAllTokensResponse => {
     const refreshAllTokensResponse: RefreshAllTokensResponse = {
-        accessToken: refreshAllTokensResult.accessToken,
-        refreshToken: refreshAllTokensResult.refreshToken,
+        accessToken: authTokens.accessToken,
+        refreshToken: authTokens.refreshToken,
     }
 
     return refreshAllTokensResponse;
