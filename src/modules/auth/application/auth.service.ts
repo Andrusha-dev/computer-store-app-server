@@ -4,9 +4,9 @@ import type {
 import {UnauthorizedError} from "../../../shared/error/custom.errors.ts";
 import type {IJwtProvider} from "../../../shared/contracts/jwt.contract.ts";
 import type {TokenPayload} from "../../../shared/schemas/token-payload.schema.ts";
-import type {IUserService} from "../../user/application/user.service.contract.ts";
 import type {LoginDto, RefreshAllTokensDto} from "../api/auth.dto.ts";
 import type {AuthTokens} from "../domain/auth.types.ts";
+import type {IUserService} from "../../user/index.ts";
 
 
 
@@ -31,16 +31,16 @@ export class AuthService implements IAuthService {
         console.log("Starting checking credentials: ", loginDto);
         const {email, password} = loginDto;
 
-        const authenticatedUser = await this.userService.verifyCredentials(email, password);
-        if (!authenticatedUser) {
+        const user = await this.userService.verifyCredentials(email, password);
+        if (!user) {
             //Кажемо, що невірний email або пароль, що зловмисник не знав в чому саме причина
             throw new UnauthorizedError("Невірний email або пароль");
         }
 
         const payload: TokenPayload = {
-            id: authenticatedUser.id,
-            email: authenticatedUser.email,
-            role: authenticatedUser.role
+            id: user.id,
+            email: user.email,
+            role: user.role
         };
 
         const accessToken = this.jwtProvider.signAccess(payload);

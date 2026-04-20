@@ -1,5 +1,5 @@
 import type {
-    IUserRepository, UserFilters, UserSortType,
+    IUserRepository,
 } from "../../domain/user.repository.contract.ts";
 import {
     type UserEntity,
@@ -12,6 +12,7 @@ import {toUserWhereInput} from "./user.mapper.ts";
 import type {FindManyOptions, FindManyResult} from "../../../../shared/types/repository.types.ts";
 import type {PaginationMeta} from "../../../../shared/schemas/pagination.schema.ts";
 import {createPaginationMeta} from "../../../../shared/utils/pagination.utils.ts";
+import type {UserFilters, UserSortType} from "../../domain/user.types.ts";
 
 
 

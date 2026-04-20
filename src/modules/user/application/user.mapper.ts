@@ -1,11 +1,8 @@
-import type {AuthenticatedUser, UserEntity} from "../domain/user.entity.ts";
 import type {CreateUserDto, GetUsersListQuery} from "../api/user.dto.ts";
 import type {FindManyOptions} from "../../../shared/types/repository.types.ts";
-import type {UserFilters, UserSortType} from "../domain/user.repository.contract.ts";
 import type {PaginationCriteria} from "../../../shared/schemas/pagination.schema.ts";
 import {Prisma} from "@prisma/client";
-
-
+import type {UserFilters, UserSortType} from "../domain/user.types.ts";
 
 
 
@@ -52,15 +49,3 @@ export const toFindManyOptions =
 
         return findManyOptions;
     }
-
-
-//Маппер для отримання сутності AuthenticatedUser, яка повертатиметься модулю auth
-export const toAuthenticatedUser = (user: UserEntity): AuthenticatedUser => {
-    const authenticatedUser: AuthenticatedUser = {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-    }
-
-    return authenticatedUser;
-}

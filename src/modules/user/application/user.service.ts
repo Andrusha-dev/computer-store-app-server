@@ -1,10 +1,9 @@
 import type {IUserService} from "./user.service.contract.ts";
 import {
-    type AuthenticatedUser,
     type UserEntity,
     type UserFull,
 } from "../domain/user.entity.ts";
-import {toAuthenticatedUser, toFindManyOptions, toUserCreateInput} from "./user.mapper.ts";
+import {toFindManyOptions, toUserCreateInput} from "./user.mapper.ts";
 import type {IUserRepository} from "../domain/user.repository.contract.ts";
 import type {IHashProvider} from "../../../shared/contracts/hash.contract.ts";
 import type {CreateUserDto, GetUsersListQuery} from "../api/user.dto.ts";
@@ -88,7 +87,7 @@ export class UserService implements IUserService {
     //Сервісний метод для пошуку та валідації користувача по email та password,
     //отриманих від AuthService, для перевірки автентифікації
     verifyCredentials =
-        async (email: string, password: string): Promise<AuthenticatedUser | null> => {
+        async (email: string, password: string): Promise<UserEntity | null> => {
             const user: UserEntity | null = await this.fetchUserByEmail(email);
             if(!user) {
                 return null;
@@ -99,8 +98,8 @@ export class UserService implements IUserService {
                 return null;
             }
 
-            const authenticatedUser = toAuthenticatedUser(user);
 
-            return authenticatedUser;
+
+            return user;
         }
 }

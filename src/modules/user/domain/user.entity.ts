@@ -1,4 +1,3 @@
-import type {UserRole} from "../../../shared/schemas/user-role.schema.ts";
 import {type Address, Prisma, type User} from "@prisma/client";
 
 
@@ -17,11 +16,13 @@ export type UserFull = Prisma.UserGetPayload<{ include: typeof userFullInclude}>
 
 
 //БІЗНЕС ТИП ДЛЯ ПОВЕРНЕННЯ СЕРВІСУ AuthService
+/*
 export interface AuthenticatedUser {
     id: number;
     email: string;
     role: UserRole;
 }
+*/
 
 
 
