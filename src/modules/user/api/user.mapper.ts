@@ -1,8 +1,6 @@
 import {
-    type CreateUserResponse, createUserResponseSchema,
-    type FetchAuthUserResponse,
-    fetchAuthUserResponseSchema, type FetchUserByIdResponse, fetchUserByIdResponseSchema, type GetUsersListResponse,
-    getUsersListResponseSchema,
+    type UserFullResponse, userFullResponseSchema,
+    type UserListResponse, userListResponseSchema, type UserResponse, userResponseSchema,
 } from "./user.dto.ts";
 import type {UserEntity, UserFull} from "../domain/user.entity.ts";
 import type {FindManyResult} from "../../../shared/types/repository.types.ts";
@@ -11,9 +9,8 @@ import type {FindManyResult} from "../../../shared/types/repository.types.ts";
 
 
 
-
-export const toCreateUserResponse =
-    (user: UserFull): CreateUserResponse => {
+export const toUserResponse =
+    (user: UserEntity): UserResponse => {
         const transformedUser = {
             //Деструктуризація без ручного маппінгу разом з лишніми полями (password, addressId)
             ...user,
@@ -21,16 +18,14 @@ export const toCreateUserResponse =
         }
 
         //Після валідації лишні поля (password, addressId) відсіються
-        const createUserResponse: CreateUserResponse = createUserResponseSchema.parse(transformedUser)
+        const userResponse: UserResponse = userResponseSchema.parse(transformedUser);
 
-        return createUserResponse;
+        return userResponse;
     }
 
 
-
-
-export const toFetchAuthUserResponse =
-    (user: UserFull): FetchAuthUserResponse => {
+export const toUserFullResponse =
+    (user: UserFull): UserFullResponse => {
         const transformedUser = {
             //Деструктуризація без ручного маппінгу разом з лишніми полями (password, addressId)
             ...user,
@@ -38,37 +33,23 @@ export const toFetchAuthUserResponse =
         }
 
         //Після валідації лишні поля (password, addressId) відсіються
-        const fetchAuthUserResponse: FetchAuthUserResponse = fetchAuthUserResponseSchema.parse(transformedUser);
+        const userFullResponse: UserFullResponse = userFullResponseSchema.parse(transformedUser)
 
-        return fetchAuthUserResponse
+        return userFullResponse;
     }
 
 
 
 
-export const toFetchUserByIdResponse =
-    (user: UserEntity): FetchUserByIdResponse => {
-        const transformedUser = {
-            //Деструктуризація без ручного маппінгу разом з лишніми полями (password, addressId)
-            ...user,
-            //додаткові поля, або змінені поля, якщо контракт репозиторію відрізняється від контракту response
-        }
 
-        //Після валідації лишні поля (password, addressId) відсіються
-        const fetchUserByIdResponse: FetchUserByIdResponse = fetchUserByIdResponseSchema.parse(transformedUser);
-
-        return fetchUserByIdResponse;
-    }
-
-
-export const toGetUsersListResponse =
-    (findManyResult: FindManyResult<UserEntity>): GetUsersListResponse => {
+export const toUserListResponse =
+    (findManyResult: FindManyResult<UserEntity>): UserListResponse => {
         const {content, meta} = findManyResult;
 
 
-        const response: GetUsersListResponse = {
+        const response: UserListResponse = {
             content: content.map(user => ({
-                //Деструктуризація без ручного маппінгу разом з лишніми полями (password, addressId)
+                //Деструктуризація без ручного маппінгу разом з лишніми полями (password)
                 ...user,
                 //додаткові поля, або змінені поля, якщо контракт репозиторію відрізняється від контракту response
             })),
@@ -78,7 +59,7 @@ export const toGetUsersListResponse =
         };
 
         //Після валідації лишні поля (password, addressId) відсіються
-        const validatedResponse: GetUsersListResponse = getUsersListResponseSchema.parse(response);
+        const validatedResponse: UserListResponse = userListResponseSchema.parse(response);
 
         return validatedResponse;
     }

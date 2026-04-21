@@ -1,8 +1,6 @@
 import type {UserEntity, UserFull} from "./user.entity.ts";
-import {Prisma} from "@prisma/client";
-import type {FindManyOptions, FindManyResult} from "../../../shared/types/repository.types.ts";
-import type {UserFilters, UserSortType} from "./user.types.ts";
-
+import type {FindManyResult} from "../../../shared/types/repository.types.ts";
+import type {CreateUserDto, GetUsersListQuery} from "../api/user.dto.ts";
 
 
 
@@ -22,10 +20,10 @@ export interface IUserRepository {
 
 
     // 2. Списки (завжди повертають масив, навіть порожній)
-    findMany: (options: FindManyOptions<UserFilters, UserSortType>) => Promise<FindManyResult<UserEntity>>;
+    findMany: (getUsersListQuery: GetUsersListQuery) => Promise<FindManyResult<UserEntity>>;
 
     // 3. Мутації (завжди повертають об'єкт, бо помилка - це Exception)
-    create: (userCreateInput: Prisma.UserCreateInput) => Promise<UserFull>;
+    create: (createUserDto: CreateUserDto) => Promise<UserFull>;
     //update: (id: number, payload: UpdateUserPayload) => Promise<UserFull>;
     //delete: (id: number) => Promise<void>;
 }

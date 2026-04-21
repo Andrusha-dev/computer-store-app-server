@@ -1,9 +1,15 @@
 import type {NextFunction, Request, Response} from "express";
-import type {RequestSchemas} from "../types/validation.types.ts";
-import {normalizeQueryParams} from "../helpers/validation.helpers.ts";
+import {normalizeQueryParams} from "../helpers/http.helpers.ts";
+import {z} from "zod";
 
 
 
+//Тип який містить схеми валідації для вхідних даних. Є аргументом для validation.middleware.ts
+export interface RequestSchemas {
+    body?: z.ZodTypeAny;
+    query?: z.ZodTypeAny;
+    params?: z.ZodTypeAny;
+}
 
 
 export const validate = (schemas: RequestSchemas) =>

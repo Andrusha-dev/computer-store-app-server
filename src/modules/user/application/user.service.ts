@@ -3,7 +3,6 @@ import {
     type UserEntity,
     type UserFull,
 } from "../domain/user.entity.ts";
-import {toFindManyOptions, toUserCreateInput} from "./user.mapper.ts";
 import type {IUserRepository} from "../domain/user.repository.contract.ts";
 import type {IHashProvider} from "../../../shared/contracts/hash.contract.ts";
 import type {CreateUserDto, GetUsersListQuery} from "../api/user.dto.ts";
@@ -34,13 +33,10 @@ export class UserService implements IUserService {
         //Хешуємо пароль
         const passwordHash = await this.hashProvider.hash(createUserDto.password);
 
-        const userCreateInput = toUserCreateInput({
+        const user: UserFull = await this.userRepository.create({
             ...createUserDto,
             password: passwordHash,
         });
-
-
-        const user: UserFull = await this.userRepository.create(userCreateInput);
 
         return user;
     }
@@ -76,9 +72,9 @@ export class UserService implements IUserService {
     //Сервісний метод для отримання списку користувачів без реляцій. Використовується в адмінці
     getUsersList =
         async (getUsersListQuery: GetUsersListQuery): Promise<FindManyResult<UserEntity>> => {
-            const findManyOptions = toFindManyOptions(getUsersListQuery);
+            //const findManyOptions = toFindManyOptions(getUsersListQuery);
 
-            const findManyResult = await this.userRepository.findMany(findManyOptions);
+            const findManyResult = await this.userRepository.findMany(getUsersListQuery);
 
             return findManyResult;
         }
@@ -97,8 +93,6 @@ export class UserService implements IUserService {
             if(!isPasswordValid) {
                 return null;
             }
-
-
 
             return user;
         }

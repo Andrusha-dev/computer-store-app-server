@@ -6,8 +6,7 @@ import {
 } from "../../../api/helpers/http.helpers.ts";
 import type {CreateUserDto, FetchUserByIdParams, GetUsersListQuery} from "./user.dto.ts";
 import {
-    toCreateUserResponse,
-    toFetchAuthUserResponse, toFetchUserByIdResponse, toGetUsersListResponse,
+    toUserFullResponse, toUserListResponse, toUserResponse,
 } from "./user.mapper.ts";
 import type {IUserController} from "./user.controller.contract.ts";
 
@@ -27,9 +26,8 @@ export class UserController implements IUserController {
 
     register = async (req: Request, res: Response) => {
         const dto = extractValidatedBodyOrThrow<CreateUserDto>(res);
-        //const payload = toCreateUserPayload(dto);
         const user = await this.userService.createUser(dto);
-        const response = toCreateUserResponse(user);
+        const response = toUserFullResponse(user);
 
         return res.json(response);
     }
@@ -40,7 +38,7 @@ export class UserController implements IUserController {
         console.log(" Starting FetchAuthUserResult");
         const tokenPayload = extractTokenPayloadOrThrow(res);
         const user = await this.userService.fetchAuthUser(tokenPayload.id);
-        const response = toFetchAuthUserResponse(user);
+        const response = toUserFullResponse(user);
 
         return res.json(response);
     }
@@ -49,7 +47,7 @@ export class UserController implements IUserController {
     show = async (req: Request, res: Response) => {
         const {id} = extractValidatedParamsOrThrow<FetchUserByIdParams>(res);
         const user = await this.userService.fetchUserById(id);
-        const response = toFetchUserByIdResponse(user);
+        const response = toUserResponse(user);
 
         return res.json(response);
     };
@@ -59,7 +57,7 @@ export class UserController implements IUserController {
         //Після валідації за допомогою middleware validate() звалідовані параметри запиту FetchUsersParams передаються в res.locals
         const query = extractValidatedQueryOrThrow<GetUsersListQuery>(res);
         const result = await this.userService.getUsersList(query);
-        const response = toGetUsersListResponse(result);
+        const response = toUserListResponse(result);
 
         return res.json(response);
     }

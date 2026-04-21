@@ -1,4 +1,3 @@
-
 import { PrismaClient } from '@prisma/client';
 import {config} from "../config/index.ts";
 import type {IDatabaseService} from "../../contracts/database.contract.ts";

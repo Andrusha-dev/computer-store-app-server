@@ -3,16 +3,15 @@ import type {
 } from "../../domain/user.repository.contract.ts";
 import {
     type UserEntity,
-    type UserFull, userFullInclude,
+    type UserFull,
 } from "../../domain/user.entity.ts";
 import {NotFoundError} from "../../../../shared/error/custom.errors.ts";
 import type {PrismaService} from "../../../../shared/infrastructure/database/prisma.service.ts";
-import {Prisma} from "@prisma/client";
-import {toUserWhereInput} from "./user.mapper.ts";
-import type {FindManyOptions, FindManyResult} from "../../../../shared/types/repository.types.ts";
+import {toUserCreateInput, toUserWhereInput} from "./user.mapper.ts";
+import type {FindManyResult} from "../../../../shared/types/repository.types.ts";
 import type {PaginationMeta} from "../../../../shared/schemas/pagination.schema.ts";
 import {createPaginationMeta} from "../../../../shared/utils/pagination.utils.ts";
-import type {UserFilters, UserSortType} from "../../domain/user.types.ts";
+import type {CreateUserDto, GetUsersListQuery} from "../../api/user.dto.ts";
 
 
 
@@ -60,7 +59,9 @@ export class UserRepository implements IUserRepository {
             where: {
                 id: id,
             },
-            include: userFullInclude
+            include: {
+                address: true,
+            }
         });
 
         if(!user) {
@@ -107,8 +108,8 @@ export class UserRepository implements IUserRepository {
 
 
     findMany =
-        async (options: FindManyOptions<UserFilters, UserSortType>): Promise<FindManyResult<UserEntity>> => {
-            const {filters, sortType, criteria} = options
+        async (getUsersListQuery: GetUsersListQuery): Promise<FindManyResult<UserEntity>> => {
+            const {sortType, sortOrder, pageSize, pageNo, ...filters} = getUsersListQuery;
 
             const where = toUserWhereInput(filters);
 
@@ -118,16 +119,16 @@ export class UserRepository implements IUserRepository {
                     where,
                     //include: { address: true },
                     orderBy: {
-                        [sortType]: criteria.sortOrder
+                        [sortType]: sortOrder
                     },
-                    take: criteria.pageSize,
-                    skip: criteria.pageNo * criteria.pageSize,
+                    take: pageSize,
+                    skip: pageNo * pageSize,
                 }),
                 //Отримуємо кількість користувачів після фільтрації
                 this.dbService.user.count({ where }),
             ]);
 
-            const meta: PaginationMeta = createPaginationMeta(criteria.pageNo, criteria.pageSize, totalElements);
+            const meta: PaginationMeta = createPaginationMeta(pageNo, pageSize, totalElements);
 
 
             const result: FindManyResult<UserEntity> = {
@@ -140,10 +141,14 @@ export class UserRepository implements IUserRepository {
 
 
     create =
-        async (userCreateInput: Prisma.UserCreateInput): Promise<UserFull> => {
+        async (createUserDto: CreateUserDto): Promise<UserFull> => {
+            const userCreateInput = toUserCreateInput(createUserDto);
+
             const user: UserFull | null = await this.dbService.user.create({
                 data: userCreateInput,
-                include: userFullInclude
+                include: {
+                    address: true,
+                }
             });
 
             return user;
