@@ -6,10 +6,10 @@ import {JwtProvider} from "../auth/jwt.provider.ts";
 import type {IJwtProvider} from "../../contracts/jwt.contract.ts";
 import type {IHashProvider} from "../../contracts/hash.contract.ts";
 import {BcryptProvider} from "../cryptography/bcrypt.provider.ts";
-import {authModuleDeps, type IAuthModuleCradle} from "../../../modules/auth/auth.module.ts";
-import {type IUserModuleCradle, userModuleDeps} from "../../../modules/user/user.module.ts";
 import type {Router} from "express";
 import {createAppRouter} from "../../../api/routers/app.router.ts";
+import {authModuleDeps, type IAuthModuleCradle} from "../../../modules/auth/index.ts";
+import {type IUserModuleCradle, userModuleDeps} from "../../../modules/user/index.ts";
 
 
 

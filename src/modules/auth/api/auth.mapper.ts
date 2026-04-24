@@ -1,27 +1,16 @@
-import type {LoginResponse, RefreshAllTokensResponse} from "./auth.dto.ts";
-import type {
-
-} from "../application/auth.service.contract.ts";
 import type {AuthTokens} from "../domain/auth.types.ts";
+import {type AuthResponse, authResponseSchema} from "./auth.dto.ts";
 
 
 
 
-export const toLoginResponse = (authTokens: AuthTokens): LoginResponse => {
-    const LoginResponse: LoginResponse = {
+export const toAuthResponse = (authTokens: AuthTokens): AuthResponse => {
+    const authResponse: AuthResponse = {
         accessToken: authTokens.accessToken,
         refreshToken: authTokens.refreshToken,
     }
 
-    return LoginResponse;
-}
+    const validatedAuthResponse: AuthResponse = authResponseSchema.parse(authResponse);
 
-
-export const toRefreshAllTokensResponse = (authTokens: AuthTokens): RefreshAllTokensResponse => {
-    const refreshAllTokensResponse: RefreshAllTokensResponse = {
-        accessToken: authTokens.accessToken,
-        refreshToken: authTokens.refreshToken,
-    }
-
-    return refreshAllTokensResponse;
+    return validatedAuthResponse;
 }

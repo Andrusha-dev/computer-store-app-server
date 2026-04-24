@@ -1,0 +1,1 @@
+export {type IAuthModuleCradle, authModuleDeps} from "./auth.module.ts"
