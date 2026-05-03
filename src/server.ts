@@ -14,7 +14,7 @@ async function bootstrap() {
 
                 const app = await initLoaders();
 
-                // 3. Тільки після успішних перевірок запускаємо Express
+                //Тільки після успішних перевірок запускаємо Express
                 const server = app.listen(config.port, () => {
                         console.log(`
                                 ################################################
@@ -25,7 +25,7 @@ async function bootstrap() {
                         `);
                 });
 
-
+                //Запускаємо прослуховування ручного закриття сервера з безпечним закриттям з'єднань
                 setupGracefulShutdown(server);
 
         } catch (error) {

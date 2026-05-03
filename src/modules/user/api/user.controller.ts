@@ -40,6 +40,7 @@ export class UserController implements IUserController {
         const user = await this.userService.fetchAuthUser(tokenPayload.id);
         const response = toUserFullResponse(user);
 
+        console.log("UserResponse: ", response);
         return res.json(response);
     }
 

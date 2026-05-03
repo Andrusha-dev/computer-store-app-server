@@ -1,19 +1,14 @@
 import {z} from "zod";
+import {processorSchema} from "./processor.types.ts";
+import {graphicCardSchema} from "./graphicCard.types.ts";
 
 
-export type Category = "processors" | "memory" | "storage" | "graphicCards" | "motherboards" | "powerSupplies";
-export const categorySchema = z.enum(["processors", "memory", "storage", "graphicCards", "motherboards", "powerSupplies"]); // додайте свої категорії
+//Тип для категорій товарів
+export const categorySchema = z.enum(["PROCESSORS", "MEMORY", "STORAGE", "GRAPHIC_CARDS", "MOTHERBOARDS", "POWER_SUPPLIES"]); // додайте свої категорії
+export type Category = z.infer<typeof categorySchema>;
 
-export interface PCComponent {
-    id: number;
-    componentName: string;
-    imgUrls: string[];
-    price: number;
-    description: string;
-    quantity: number;
-    category: Category;
-}
-export const pcComponentSchema = z.object({
+//Загальний тип для товарів зі спільними полями для будь-якої категорії товару
+export const productSchema = z.object({
     id: z.number(),
     componentName: z.string(),
     imgUrls: z.array(z.string()),
@@ -22,8 +17,27 @@ export const pcComponentSchema = z.object({
     quantity: z.number(),
     category: categorySchema,
 });
+export type Product = z.infer<typeof productSchema>;
 
 
-//Тип для способу сортування всіх обєктів PCComponent
-export type PCComponentSortType = keyof Pick<PCComponent, "price" | "quantity">;
-export const pcComponentSortTypeSchema = z.enum(["price", "quantity"]);
+//Тип для способу сортування товарів
+export const productSortTypeSchema = productSchema
+    .pick({price: true, quantity: true})
+    .keyof()
+export type ProductSortType = z.infer<typeof productSortTypeSchema>;
+
+
+export const pcComponentSchema = z.discriminatedUnion("category", [
+    z.object({
+        ...productSchema.shape,
+        category: z.literal(categorySchema.enum.PROCESSORS),
+        details: processorSchema,
+    }),
+    z.object({
+        ...productSchema.shape,
+        category: z.literal(categorySchema.enum.GRAPHIC_CARDS),
+        details: graphicCardSchema,
+    }),
+
+]);
+export type PCComponent = z.infer<typeof pcComponentSchema>;

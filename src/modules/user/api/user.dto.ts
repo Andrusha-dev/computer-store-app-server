@@ -7,8 +7,8 @@ import {userRoleSchema} from "../../../shared/schemas/user-role.schema.ts";
 
 
 
-//БАЗОВІ СХЕМИ (БУДІВЕЛЬНІ БЛОКИ)
-//Базова схема користувача
+//ОСНОВНІ СХЕМИ (БУДІВЕЛЬНІ БЛОКИ)
+//Основна схема користувача
 export const userSchema = z.object({
     id: z.number().int(),
     email: z.email({ message: "Невірний формат email" }),
@@ -25,7 +25,7 @@ export const userSchema = z.object({
     role: userRoleSchema,
 });
 
-//Базова схема адреси користувача (реляція)
+//Основна схема адреси користувача (реляція)
 export const addressSchema = z.object({
     city: z.string(),
     street: z.string(),
@@ -74,10 +74,10 @@ export const userSortTypeSchema = userSchema
 export type UserSortType = z.infer<typeof userSortTypeSchema>;
 //Схема для параметрів запиту списку користувачів
 export const getUsersListQuerySchema = paginationCriteriaSchema
-    .extend(userFiltersSchema.shape)
     .extend({
         sortType: userSortTypeSchema
-    });
+    })
+    .extend(userFiltersSchema.shape);
 export interface GetUsersListQuery extends z.infer<typeof getUsersListQuerySchema> {}
 
 

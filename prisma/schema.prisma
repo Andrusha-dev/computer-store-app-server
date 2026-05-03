@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prismaService-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -14,13 +14,14 @@ datasource db {
 }
 
 generator zod {
-  provider                  = "zod-prismaService-schemas"
+  provider                  = "zod-prisma-types"
   output                    = "../src/generated/zod" // Куди генерувати Zod схеми
   createRelationValuesTypes = true // дозволяє створювати типи з урахуванням вкладених моделей
   addIncludeType            = false // додає типи для Prisma Include
   addSelectType             = false
 }
 
+// СХЕМИ ДЛЯ СУТНОСТІ USER
 // Enum для ролей (як у вашому прикладі)
 enum UserRole {
   guest
@@ -68,4 +69,44 @@ model Address {
   houseNumber Int
 
   user User?
+}
+
+// СХЕМИ ДЛЯ СУТНОСТІ PRODUCT
+// Перелік допустимих значень для поля category
+enum Category {
+  PROCESSORS
+  MEMORY
+  STORAGE
+  GRAPHIC_CARDS
+  MOTHERBOARDS
+  POWER_SUPPLIES
+}
+
+//Схема для сутності Producer (виробник товару)
+model Producer {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  logoUrl  String?
+  // Зв'язок: один виробник має багато товарів
+  products Product[]
+}
+
+//Схема для сутності Product
+model Product {
+  id          Int       @id @default(autoincrement())
+  productName String
+  imgUrls     String[]
+  price       Decimal   @db.Decimal(10, 2) // Для грошей краще Decimal, ніж Float
+  description String    @db.Text
+  quantity    Int       @default(0)
+  category    Category
+  // Характеристики (Processor, Memory тощо)
+  details     Json
+  producer    Producer? @relation(fields: [producerId], references: [id])
+  producerId  Int?
+
+  // Індекси для швидкої фільтрації
+  @@index([category])
+  @@index([price])
+  @@index([producerId])
 }

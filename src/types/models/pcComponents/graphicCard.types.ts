@@ -1,21 +1,31 @@
-import type {Category, PCComponent} from "./pcComponent.types.ts";
+import {z} from "zod";
 
-export type GraphicCardProducer = "Nvidia" | "AMD" | "Intel";
-export type PcieType = "2.0" | "3.0" | "4.0" | "5.0";
-export type VideoMemoryCapacity = "1GB" | "2GB" | "4GB" | "8GB" | "16GB" | "32GB" | "64GB" | "128GB";
+export const graphicCardProducerSchema = z.enum(["NVIDIA", "AMD", "INTEL"]);
+export type GraphicCardProducer = z.infer<typeof graphicCardProducerSchema>;
 
-export interface GraphicCardOptions {
-    producer: GraphicCardProducer;
-    pcieType: PcieType;
-    GPUClockMHz: number;
-    memoryClockMHz: number;
-    videoMemoryCapacityGb: VideoMemoryCapacity;
-    HDMIExist: boolean;
-    DVIExist: boolean;
-    rtxSupport: boolean;
-}
+export const pcieTypeSchema = z.enum(["PCIE_2.0", "PCIE_3.0", "PCIE_4.0", "PCIE_5.0"]);
+export type PcieType = z.infer<typeof pcieTypeSchema>;
 
-export interface GraphicCard extends PCComponent {
-    category: Extract<Category, "graphicCards">;
-    graphicCardOptions: GraphicCardOptions;
-}
+const allowedVideoMemoryCapacity = [1, 2, 4, 8, 16, 32, 64, 128];
+export const videoMemoryCapacitySchema = z
+    .number()
+    .int()
+    .refine((value) => allowedVideoMemoryCapacity.includes(value), {
+        error: "Неприпустиме значення відеопам\'яті. Оберіть одне з дозволених значень"
+    });
+export type VideoMemoryCapacity = z.infer<typeof videoMemoryCapacitySchema>;
+
+
+export const graphicCardSchema = z.object({
+    graphicCardProducer: graphicCardProducerSchema,
+    pcieType: pcieTypeSchema,
+    GPUClock: z.number().positive(),
+    memoryClock: z.number().positive(),
+    videoMemoryCapacity: videoMemoryCapacitySchema,
+    HDMIExist: z.boolean(),
+    DVIExist: z.boolean(),
+    rtxSupport: z.boolean(),
+})
+export type GraphicCard = z.infer<typeof graphicCardSchema>;
+
+
