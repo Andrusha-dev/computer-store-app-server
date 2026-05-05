@@ -3,7 +3,7 @@ import type {
 } from "../../domain/user.repository.contract.ts";
 import {
     type UserEntity,
-    type UserFull,
+    type UserFull, userFullInclude,
 } from "../../domain/user.entity.ts";
 import {NotFoundError} from "../../../../shared/error/custom.errors.ts";
 import type {PrismaService} from "../../../../shared/infrastructure/database/prisma.service.ts";
@@ -59,14 +59,8 @@ export class UserRepository implements IUserRepository {
             where: {
                 id: id,
             },
-            include: {
-                address: true,
-            }
+            include: userFullInclude
         });
-
-        if(!user) {
-            return null;
-        }
 
         return user;
     }

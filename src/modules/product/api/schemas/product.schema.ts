@@ -13,6 +13,38 @@ import {arrayPreprocess} from "../../../../shared/utils/validation.utils.ts";
 export const PRODUCT_CATEGORIES = ["PROCESSORS", "MEMORY", "STORAGE", "GRAPHIC_CARDS", "MOTHERBOARDS", "POWER_SUPPLIES"] as const;
 export const categorySchema = z.enum(PRODUCT_CATEGORIES); // додайте свої категорії
 export type Category = z.infer<typeof categorySchema>;
+/*
+//Обєкт з додатковою інформацією для категорій товарів (використовується на фронтенді).
+export const CATEGORY_INFO: Record<Category, {
+    label: string,
+    imgURL: string,
+}> = {
+    GRAPHIC_CARDS: {
+        label: "Відеокарти",
+        imgURL: "https://i.ibb.co/1fj3FnY2/2.webp"
+    },
+    MEMORY: {
+        label: "Оперативна пам\'ять",
+        imgURL: "https://i.ibb.co/1fj3FnY2/2.webp"
+    },
+    MOTHERBOARDS: {
+        label: "Материнські плати",
+        imgURL: "https://i.ibb.co/1fj3FnY2/2.webp"
+    },
+    PROCESSORS: {
+        label: "Процесори",
+        imgURL: "https://i.ibb.co/1fj3FnY2/2.webp"
+    },
+    POWER_SUPPLIES: {
+        label: "Блоки живлення",
+        imgURL: "https://i.ibb.co/1fj3FnY2/2.webp"
+    },
+    STORAGE: {
+        label: "НОСІЇ ДАНИХ",
+        imgURL: "https://i.ibb.co/1fj3FnY2/2.webp"
+    }
+};
+*/
 
 
 //Базовий тип для product зі спільними полями для будь-якої категорії товару
@@ -20,7 +52,7 @@ export const baseProductSchema = z.object({
     id: z.number(),
     productName: z.string(),
     imgUrls: z.array(z.string()),
-    price: z.coerce.number().positive().max(10),
+    price: z.coerce.number().positive(),
     description: z.string(),
     quantity: z.coerce.number().int().nonnegative({error: "Кількість товару не може бути від\'ємним числом"}),
     category: categorySchema,
@@ -66,3 +98,6 @@ export const productSortTypeSchema = baseProductSchema
     .keyof()
     .default("price");
 export type ProductSortType = z.infer<typeof productSortTypeSchema>;
+
+
+

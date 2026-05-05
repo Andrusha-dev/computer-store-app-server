@@ -1,5 +1,5 @@
 import type {IProductRepository} from "../../domain/product.repository.contract.ts";
-import type {ProductEntity} from "../../domain/product.entity.ts";
+import {type ProductEntity, type ProductFullEntity, productInclude} from "../../domain/product.entity.ts";
 import type {PrismaService} from "../../../../shared/infrastructure/database/prisma.service.ts";
 import {Prisma} from "@prisma/client";
 
@@ -21,6 +21,17 @@ export class ProductRepository implements IProductRepository {
             where: {
                 id: id
             }
+        });
+
+        return product;
+    }
+
+    findFullById = async (id: number): Promise<ProductFullEntity | null> => {
+        const product: ProductFullEntity | null = await this.dbService.product.findUnique({
+            where: {
+                id: id
+            },
+            include: productInclude
         });
 
         return product;
