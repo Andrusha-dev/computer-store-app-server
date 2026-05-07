@@ -4,6 +4,7 @@ import type {PrismaService} from "../../../../shared/infrastructure/database/pri
 import {Prisma} from "@prisma/client";
 
 
+
 interface Dependencies {
     dbService: PrismaService
 }
@@ -38,6 +39,36 @@ export class ProductRepository implements IProductRepository {
     }
 
     findMany = async (args: Prisma.ProductFindManyArgs): Promise<ProductEntity[]> => {
+        const products: ProductEntity[] = await this.dbService.product.findMany(args);
 
+        return products;
     }
+
+    count = async (where: Prisma.ProductWhereInput): Promise<number> => {
+        const count: number = await this.dbService.product.count({where});
+
+        return count;
+    }
+
+    create = async (data: Prisma.ProductCreateInput): Promise<ProductFullEntity> => {
+        const product: ProductFullEntity = await this.dbService.product.create({
+            data: data,
+            include: productInclude
+        });
+
+        return product;
+    }
+
+    update = async (id: number, data: Prisma.ProductUpdateInput): Promise<ProductFullEntity> => {
+        const product: ProductFullEntity = await this.dbService.product.update({
+            where: {
+                id: id
+            },
+            data: data
+        });
+
+        return product;
+    }
+
+
 }

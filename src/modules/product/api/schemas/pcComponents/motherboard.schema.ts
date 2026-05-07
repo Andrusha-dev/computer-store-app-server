@@ -36,7 +36,7 @@ export const motherboardSchema = z.object({
     memoryType: memoryTypeSchema,
     numberOfMemorySlots: numberOfMEmorySlotsSchema,
     pcieType: pcieTypeSchema,
-    usbPortsType: usbPortTypeSchema,
+    usbPortType: usbPortTypeSchema,
     numberOfUsbPorts: z.coerce.number().int().positive({error: "Кількість портів usb має бути цілим додатнім числом"}),
 })
 export type Motherboard = z.infer<typeof motherboardSchema>;

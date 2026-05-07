@@ -27,10 +27,12 @@ export const toUserWhereInput =
 //Маппер для перетворення UserCreateDto на обєкт UserCreateInput
 export const toUserCreateInput =
     (createUserDto: CreateUserDto): Prisma.UserCreateInput => {
+        const {address, ...rest} = createUserDto;
+
         const data: Prisma.UserCreateInput = {
-            ...createUserDto,
+            ...rest,
             address: {
-                create: createUserDto.address // Явне перетворення реляції
+                create: address // Явне перетворення реляції
             }
         }
 
