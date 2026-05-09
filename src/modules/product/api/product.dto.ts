@@ -16,57 +16,42 @@ import {storageSchema} from "./schemas/pcComponents/storage.schema.ts";
 
 
 //INPUT
+//Базова схема dto для мутацій
+const baseProductDtoSchema = baseProductSchema.omit({id: true});
+
 export const createProductDtoSchema = z.discriminatedUnion("category", [
-    baseProductSchema
-        .omit({id: true})
-        .extend({category: z.literal(categorySchema.enum.GRAPHIC_CARDS), details: graphicCardSchema}),
-    baseProductSchema
-        .omit({id: true})
-        .extend({category: z.literal(categorySchema.enum.MEMORY), details: memorySchema}),
-    baseProductSchema
-        .omit({id: true})
-        .extend({category: z.literal(categorySchema.enum.MOTHERBOARDS), details: motherboardSchema}),
-    baseProductSchema
-        .omit({id: true})
-        .extend({category: z.literal(categorySchema.enum.POWER_SUPPLIES), details: powerSupplySchema}),
-    baseProductSchema
-        .omit({id: true})
-        .extend({category: z.literal(categorySchema.enum.PROCESSORS), details: processorSchema}),
-    baseProductSchema
-        .omit({id: true})
-        .extend({category: z.literal(categorySchema.enum.STORAGE), details: storageSchema}),
+    baseProductDtoSchema.extend({category: z.literal(categorySchema.enum.GRAPHIC_CARDS), details: graphicCardSchema}),
+    baseProductDtoSchema.extend({category: z.literal(categorySchema.enum.MEMORY), details: memorySchema}),
+    baseProductDtoSchema.extend({category: z.literal(categorySchema.enum.MOTHERBOARDS), details: motherboardSchema}),
+    baseProductDtoSchema.extend({category: z.literal(categorySchema.enum.POWER_SUPPLIES), details: powerSupplySchema}),
+    baseProductDtoSchema.extend({category: z.literal(categorySchema.enum.PROCESSORS), details: processorSchema}),
+    baseProductDtoSchema.extend({category: z.literal(categorySchema.enum.STORAGE), details: storageSchema}),
 ]);
 export type CreateProductDto = z.infer<typeof createProductDtoSchema>;
 
 
 export const updateProductDtoSchema = z.discriminatedUnion("category", [
-    baseProductSchema
-        .omit({id: true})
+    baseProductDtoSchema
         .extend({details: graphicCardSchema.partial()})
         .partial()
         .extend({category: z.literal(categorySchema.enum.GRAPHIC_CARDS)}),
-    baseProductSchema
-        .omit({id: true})
+    baseProductDtoSchema
         .extend({details: memorySchema.partial()})
         .partial()
         .extend({category: z.literal(categorySchema.enum.MEMORY)}),
-    baseProductSchema
-        .omit({id: true})
+    baseProductDtoSchema
         .extend({details: motherboardSchema.partial()})
         .partial()
         .extend({category: z.literal(categorySchema.enum.MOTHERBOARDS)}),
-    baseProductSchema
-        .omit({id: true})
+    baseProductDtoSchema
         .extend({details: powerSupplySchema.partial()})
         .partial()
         .extend({category: z.literal(categorySchema.enum.POWER_SUPPLIES)}),
-    baseProductSchema
-        .omit({id: true})
+    baseProductDtoSchema
         .extend({details: processorSchema.partial()})
         .partial()
         .extend({category: z.literal(categorySchema.enum.PROCESSORS)}),
-    baseProductSchema
-        .omit({id: true})
+    baseProductDtoSchema
         .extend({details: storageSchema.partial()})
         .partial()
         .extend({category: z.literal(categorySchema.enum.STORAGE)}),
@@ -90,16 +75,26 @@ export type ProductsQuery = z.infer<typeof productsQuerySchema>;
 
 
 
+
 //OUTPUT
 export const productResponseSchema = productSchema;
 export type ProductResponse = z.infer<typeof productResponseSchema>;
 
-export const productFullResponseSchema = z.discriminatedUnion("category",
-    productSchema.options.map(option => option.extend({
-        producer: producerResponseSchema // Використовуємо саме RESPONSE версію
-    })) as any
-);
+
+//Базова схема response, що містить реляції
+const baseProductFullResponseSchema = baseProductSchema.extend({
+    producer: producerResponseSchema,
+});
+export const productFullResponseSchema = z.discriminatedUnion("category", [
+    baseProductFullResponseSchema.extend({category: z.literal(categorySchema.enum.PROCESSORS), details: processorSchema}),
+    baseProductFullResponseSchema.extend({category: z.literal(categorySchema.enum.MEMORY), details: memorySchema}),
+    baseProductFullResponseSchema.extend({category: z.literal(categorySchema.enum.STORAGE), details: storageSchema}),
+    baseProductFullResponseSchema.extend({category: z.literal(categorySchema.enum.GRAPHIC_CARDS), details: graphicCardSchema}),
+    baseProductFullResponseSchema.extend({category: z.literal(categorySchema.enum.MOTHERBOARDS), details: motherboardSchema}),
+    baseProductFullResponseSchema.extend({category: z.literal(categorySchema.enum.POWER_SUPPLIES), details: powerSupplySchema,})
+]);
 export type ProductFullResponse = z.infer<typeof productFullResponseSchema>;
+
 
 export const productsResponseSchema = z.object({
     content: z.array(productResponseSchema),

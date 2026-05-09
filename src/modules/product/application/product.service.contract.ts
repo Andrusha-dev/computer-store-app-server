@@ -1,5 +1,5 @@
 import type {
-    CreateProductDto,
+    CreateProductDto, ProductFullResponse,
     ProductResponse,
     ProductsQuery,
     ProductsResponse,
@@ -7,10 +7,12 @@ import type {
 } from "../api/product.dto.ts";
 
 
+
 export interface IProductService {
-    fetchProductById: (id: number) => Promise<ProductResponse>;
-    fetchProducts: (productsQuery: ProductsQuery) => Promise<ProductsResponse>;
-    createProduct: (product: CreateProductDto) => Promise<ProductResponse>
-    updateProduct: (id: number, product: UpdateProductDto) => Promise<ProductResponse>
-    deleteProduct: (id: number) => Promise<void>;
+    findById: (id: number) => Promise<ProductResponse>;
+    findFullById: (id: number) => Promise<ProductFullResponse>
+    findMany: (productsQuery: ProductsQuery) => Promise<ProductsResponse>;
+    create: (product: CreateProductDto) => Promise<ProductFullResponse>
+    update: (id: number, product: UpdateProductDto) => Promise<ProductFullResponse>
+    delete: (id: number) => Promise<ProductFullResponse>;
 }

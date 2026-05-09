@@ -64,7 +64,19 @@ export class ProductRepository implements IProductRepository {
             where: {
                 id: id
             },
-            data: data
+            data: data,
+            include: productInclude
+        });
+
+        return product;
+    }
+
+    delete = async (id: number): Promise<ProductFullEntity> => {
+        const product: ProductFullEntity = await this.dbService.product.delete({
+            where: {
+                id: id
+            },
+            include: productInclude
         });
 
         return product;

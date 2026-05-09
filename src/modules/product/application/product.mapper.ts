@@ -1,6 +1,6 @@
 import type {CreateProductDto, ProductsQuery, UpdateProductDto} from "../api/product.dto.ts";
 import {Prisma} from "@prisma/client";
-import {type Product, type ProductFilters} from "../api/schemas/product.schema.ts";
+import {type ProductFilters} from "../api/schemas/product.schema.ts";
 
 
 
@@ -73,11 +73,13 @@ export const toProductFindManyArgs =
     }
 
 export const toProductCreateInput =
-    (createProductDto: CreateProductDto): Prisma.ProductCreateInput => {
-        const {producerId, ...rest} = createProductDto;
+    (dto: CreateProductDto): Prisma.ProductCreateInput => {
+        const {producerId, ...rest} = dto;
 
         const data: Prisma.ProductCreateInput = {
             ...rest,
+            //Вказуєм поле producer, щоб звязати product з producer
+            //Як варіант можна взагалі не вказувати producer, натомість вказати producerId
             producer: {
                 connect: {id: producerId}
             }
@@ -87,11 +89,13 @@ export const toProductCreateInput =
     }
 
 export const toProductUpdateInput =
-    (updateProductDto: UpdateProductDto): Prisma.ProductUpdateInput => {
-        const {producerId, ...rest} = updateProductDto;
+    (dto: UpdateProductDto): Prisma.ProductUpdateInput => {
+        const {producerId, ...rest} = dto;
 
         const data: Prisma.ProductUpdateInput = {
             ...rest,
+            //Якщо producerId було змінено, то вказуєм це в полі producer. Якщо ні, то залишаєм undefined
+            //Як варіант можна взагалі не вказувати producer, натомість вказати producerId
             producer: producerId ?
                 {connect:  {id: producerId} }
                 : undefined

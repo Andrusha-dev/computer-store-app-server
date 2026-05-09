@@ -58,7 +58,6 @@ export const baseProductSchema = z.object({
     category: categorySchema,
     producerId: z.coerce.number().int().positive(),
 });
-export type BaseProduct = z.infer<typeof baseProductSchema>;
 
 export const baseProductFiltersSchema = z.object({
     minPrice: z.coerce.number().positive().optional(),
@@ -66,7 +65,6 @@ export const baseProductFiltersSchema = z.object({
     category: categorySchema.optional(),
     producerIds: z.preprocess(arrayPreprocess, z.array(z.coerce.number().int().positive())).optional(),
 });
-export type BaseProductFilters = z.infer<typeof baseProductFiltersSchema>;
 
 
 
