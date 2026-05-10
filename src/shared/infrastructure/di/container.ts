@@ -10,13 +10,15 @@ import type {Router} from "express";
 import {createAppRouter} from "../../../api/routers/app.router.ts";
 import {authModuleDeps, type IAuthModuleCradle} from "../../../modules/auth/index.ts";
 import {type IUserModuleCradle, userModuleDeps} from "../../../modules/user/index.ts";
+import {type IProductModuleCradle, productModuleDeps} from "../../../modules/product/index.ts";
 
 
 
 
 export interface ICradle extends
     IAuthModuleCradle,
-    IUserModuleCradle {
+    IUserModuleCradle,
+    IProductModuleCradle {
         //global
         dbService: PrismaService;
         hashProvider: IHashProvider;
@@ -43,8 +45,8 @@ container.register({
     authMiddleware: asClass(AuthMiddleware).singleton(),
     appRouter: asFunction(createAppRouter).singleton(),
 
-
     //modules
     ...authModuleDeps,
     ...userModuleDeps,
+    ...productModuleDeps
 });

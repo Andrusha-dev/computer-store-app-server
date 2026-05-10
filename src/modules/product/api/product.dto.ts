@@ -76,6 +76,7 @@ export type ProductsQuery = z.infer<typeof productsQuerySchema>;
 
 
 
+
 //OUTPUT
 export const productResponseSchema = productSchema;
 export type ProductResponse = z.infer<typeof productResponseSchema>;

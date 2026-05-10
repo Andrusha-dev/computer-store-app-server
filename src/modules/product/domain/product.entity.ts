@@ -1,4 +1,4 @@
-import {Prisma, Product} from "@prisma/client";
+import {Prisma, type Product} from "@prisma/client";
 
 
 export type ProductEntity = Product;

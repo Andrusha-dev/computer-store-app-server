@@ -93,6 +93,9 @@ export class ProductService implements IProductService {
         async (id: number, dto: UpdateProductDto): Promise<ProductFullResponse> => {
             let finalDto: UpdateProductDto = {...dto};
 
+            //Під час оновлення запису в бд якщо в полі json були змінені лише деякі поля,
+            //потрібно все одно передавати весь обєкт json разом з полями, які не змінювались,
+            //оскільки поле json повністю перезаписується даними, які йому передають
             if(dto.details) {
                 const existingProduct: ProductResponse = await this.findById(id);
 
