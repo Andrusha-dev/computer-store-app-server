@@ -44,7 +44,7 @@ export class ProductRepository implements IProductRepository {
         return products;
     }
 
-    count = async (where: Prisma.ProductWhereInput): Promise<number> => {
+    count = async (where?: Prisma.ProductWhereInput): Promise<number> => {
         const count: number = await this.dbService.product.count({where});
 
         return count;

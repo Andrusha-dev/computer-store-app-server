@@ -1,22 +1,25 @@
 import type {
-    UserEntity, UserFull,
-} from "../domain/user.entity.ts";
-import type {CreateUserDto, GetUsersListQuery} from "../api/user.dto.ts";
-import type {FindManyResult} from "../../../shared/types/repository.types.ts";
-
-
+    CreateUserDto,
+    UpdateUserDto,
+    UserFullResponse,
+    UserResponse,
+    UsersQuery,
+    UsersResponse
+} from "../api/user.dto.ts";
 
 
 
 
 
 export interface IUserService {
-    createUser: (createUserDto: CreateUserDto) => Promise<UserFull>;
-    fetchUserById: (id: number) => Promise<UserEntity>;
-    fetchAuthUser: (id: number) => Promise<UserFull>;
-    fetchUserByEmail: (email: string) => Promise<UserEntity | null>;
-    getUsersList: (getUsersListQuery: GetUsersListQuery) => Promise<FindManyResult<UserEntity>>;
-    verifyCredentials: (email: string, password: string) => Promise<UserEntity | null>
+    findById: (id: number) => Promise<UserResponse>;
+    findFullById: (id: number) => Promise<UserFullResponse>;
+    findByEmail: (email: string) => Promise<UserResponse>;
+    findMany: (query: UsersQuery) => Promise<UsersResponse>;
+    verifyCredentials: (email: string, password: string) => Promise<UserResponse>
+    create: (dto: CreateUserDto) => Promise<UserFullResponse>;
+    update: (id: number, dto: UpdateUserDto) => Promise<UserFullResponse>;
+    delete: (id: number) => Promise<UserFullResponse>;
 }
 
 

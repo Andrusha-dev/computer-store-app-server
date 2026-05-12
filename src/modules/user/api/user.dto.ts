@@ -37,35 +37,40 @@ export const addressSchema = z.object({
 
 
 
-
 //INPUT
+//Базова схема для dto
+const baseUserDtoSchema = userSchema.omit({id: true, role: true});
+
 //Схема вхідного dto для створення користувача
-export const createUserDtoSchema = userSchema
-    .omit({
-        id: true,
-        role: true,
-    })
+export const createUserDtoSchema = baseUserDtoSchema
     .extend({
         address: addressSchema
     });
-export interface CreateUserDto extends z.infer<typeof createUserDtoSchema> {}
+export type CreateUserDto = z.infer<typeof createUserDtoSchema>;
 
+
+//Схема для оновлення User
+export const updateUserDtoSchema = baseUserDtoSchema
+    .extend({
+        address: addressSchema.partial()
+    })
+    .partial();
+export type UpdateUserDto = z.infer<typeof updateUserDtoSchema>;
 
 //Схема параметрів url для отримання користувача по id
-export const fetchUserByIdParamsSchema = z.object({
+export const userParamsSchema = z.object({
     id: z.coerce.number().int().positive()
 });
-export interface FetchUserByIdParams extends z.infer<typeof fetchUserByIdParamsSchema> {}
+export type UserParams = z.infer<typeof userParamsSchema>;
 
 
 //Схема для фільтрів користувача
 export const userFiltersSchema = z.object({
-    id: z.coerce.number().int().positive().optional(),
     firstname: z.coerce.string().optional(),
     lastname: z.coerce.string().optional(),
     roles: z.preprocess(arrayPreprocess, z.array(userRoleSchema)).optional()
 });
-export interface UserFilters extends z.infer<typeof userFiltersSchema> {}
+export type UserFilters = z.infer<typeof userFiltersSchema>;
 //Схема для типу сортування користувача
 export const userSortTypeSchema = userSchema
     .pick({ firstname: true, lastname: true })
@@ -73,32 +78,36 @@ export const userSortTypeSchema = userSchema
     .default("lastname")
 export type UserSortType = z.infer<typeof userSortTypeSchema>;
 //Схема для параметрів запиту списку користувачів
-export const getUsersListQuerySchema = paginationCriteriaSchema
+export const usersQuerySchema = paginationCriteriaSchema
     .extend({
         sortType: userSortTypeSchema
     })
     .extend(userFiltersSchema.shape);
-export interface GetUsersListQuery extends z.infer<typeof getUsersListQuerySchema> {}
+export type UsersQuery = z.infer<typeof usersQuerySchema>;
 
 
 
 //OUTPUT
+//Базова схема для response
+const baseUserResponseSchema = userSchema.omit({password: true});
+
 //Схема dto відповіді без реляцій (підходить для експорту в інші модулі)
-export const userResponseSchema = userSchema.omit({password: true});
-export interface UserResponse extends z.infer<typeof userResponseSchema> {}
+export const userResponseSchema = baseUserResponseSchema;
+export type UserResponse = z.infer<typeof userResponseSchema>;
 
 //Схема dto відповіді з реляціями
-export const userFullResponseSchema = userResponseSchema.extend({
-    address: addressSchema.nullable()
-});
-export interface UserFullResponse extends z.infer<typeof userFullResponseSchema> {}
+export const userFullResponseSchema = baseUserResponseSchema
+    .extend({
+        address: addressSchema.nullable()
+    });
+export type UserFullResponse = z.infer<typeof userFullResponseSchema>;
 
 //Схема dto відповіді зі списком користувачів та метаданими
-export const userListResponseSchema = z.object({
+export const usersResponseSchema = z.object({
     content: z.array(userResponseSchema),
     meta: paginationMetaSchema,
 });
-export interface UserListResponse extends z.infer<typeof userListResponseSchema> {}
+export type UsersResponse = z.infer<typeof usersResponseSchema>;
 
 
 

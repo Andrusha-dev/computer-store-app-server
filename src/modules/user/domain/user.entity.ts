@@ -10,10 +10,10 @@ export type AddressEntity = Address;
 
 export type UserEntity = User;
 
-export const userFullInclude = {
+export const userInclude = {
     address: true,
 } satisfies Prisma.UserInclude //або as const;
-export type UserFull = Prisma.UserGetPayload<{ include: typeof userFullInclude}>
+export type UserFullEntity = Prisma.UserGetPayload<{ include: typeof userInclude}>
 
 
 

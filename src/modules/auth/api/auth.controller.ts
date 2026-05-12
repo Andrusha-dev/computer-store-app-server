@@ -3,7 +3,6 @@ import type {IAuthService} from "../application/auth.service.contract.ts";
 import {extractValidatedBodyOrThrow} from "../../../api/helpers/http.helpers.ts";
 import type {LoginDto, RefreshAllTokensDto} from "./auth.dto.ts";
 import type {IAuthController} from "./auth.controller.contract.ts";
-import {toAuthResponse} from "./auth.mapper.ts";
 
 
 
@@ -19,22 +18,21 @@ export class AuthController implements IAuthController {
         this.authService = authService;
     }
 
-    login = async (req: Request, res: Response) => {
+    login = async (req: Request, res: Response): Promise<void> => {
         console.log("starting login");
         const dto = extractValidatedBodyOrThrow<LoginDto>(res);
         console.log("LoginDto", dto)
-        const result = await this.authService.login(dto);
-        const response = toAuthResponse(result);
+        const response = await this.authService.login(dto);
 
-        return res.json(response);
+        res.json(response);
     }
 
-    refresh = async (req: Request, res: Response) => {
+    refresh = async (req: Request, res: Response): Promise<void> => {
         const dto = extractValidatedBodyOrThrow<RefreshAllTokensDto>(res);
-        const result = this.authService.refreshAllTokens(dto);
-        const response = toAuthResponse(result);
 
-        return res.json(response);
+        const response = this.authService.refreshAllTokens(dto);
+
+        res.json(response);
     }
 
 }

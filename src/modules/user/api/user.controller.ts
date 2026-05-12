@@ -4,11 +4,17 @@ import {
     extractTokenPayloadOrThrow,
     extractValidatedBodyOrThrow, extractValidatedParamsOrThrow, extractValidatedQueryOrThrow,
 } from "../../../api/helpers/http.helpers.ts";
-import type {CreateUserDto, FetchUserByIdParams, GetUsersListQuery} from "./user.dto.ts";
-import {
-    toUserFullResponse, toUserListResponse, toUserResponse,
-} from "./user.mapper.ts";
+import type {
+    CreateUserDto,
+    UpdateUserDto,
+    UserFullResponse,
+    UserParams,
+    UserResponse,
+    UsersQuery,
+    UsersResponse
+} from "./user.dto.ts";
 import type {IUserController} from "./user.controller.contract.ts";
+import type {TokenPayload} from "../../../shared/schemas/token-payload.schema.ts";
 
 
 
@@ -24,42 +30,52 @@ export class UserController implements IUserController {
         this.userService = userService;
     }
 
-    register = async (req: Request, res: Response) => {
-        const dto = extractValidatedBodyOrThrow<CreateUserDto>(res);
-        const user = await this.userService.createUser(dto);
-        const response = toUserFullResponse(user);
+    findById = async (req: Request, res: Response<UserResponse>): Promise<void> => {
+        const {id} = extractValidatedParamsOrThrow<UserParams>(res);
 
-        return res.json(response);
+        const response: UserResponse = await this.userService.findById(id);
+
+        res.json(response);
     }
 
+    findFullById = async (req: Request, res: Response<UserFullResponse>): Promise<void> => {
+        const tokenPayload: TokenPayload = extractTokenPayloadOrThrow(res);
 
-    me = async (req: Request, res: Response) => {
-        //після успішної автентифікації через middleware authenticateToken payload вхідного jwt-токена передається в res.locals.payload
-        console.log(" Starting FetchAuthUserResult");
-        const tokenPayload = extractTokenPayloadOrThrow(res);
-        const user = await this.userService.fetchAuthUser(tokenPayload.id);
-        const response = toUserFullResponse(user);
+        const response: UserFullResponse = await this.userService.findFullById(tokenPayload.id);
 
-        console.log("UserResponse: ", response);
-        return res.json(response);
+        res.json(response);
     }
 
-    // GET /api/users/:id -> Отримання за ID
-    show = async (req: Request, res: Response) => {
-        const {id} = extractValidatedParamsOrThrow<FetchUserByIdParams>(res);
-        const user = await this.userService.fetchUserById(id);
-        const response = toUserResponse(user);
+    findMany = async (req: Request, res: Response<UsersResponse>): Promise<void> => {
+        const query: UsersQuery = extractValidatedQueryOrThrow<UsersQuery>(res);
 
-        return res.json(response);
-    };
+        const response: UsersResponse = await this.userService.findMany(query);
 
+        res.json(response);
+    }
 
-    index = async (req: Request, res: Response) => {
-        //Після валідації за допомогою middleware validate() звалідовані параметри запиту FetchUsersParams передаються в res.locals
-        const query = extractValidatedQueryOrThrow<GetUsersListQuery>(res);
-        const result = await this.userService.getUsersList(query);
-        const response = toUserListResponse(result);
+    create = async (req: Request, res: Response<UserFullResponse>): Promise<void> => {
+        const dto: CreateUserDto = extractValidatedBodyOrThrow<CreateUserDto>(res);
 
-        return res.json(response);
+        const response: UserFullResponse = await this.userService.create(dto);
+
+        res.json(response);
+    }
+
+    update = async (req: Request, res: Response<UserFullResponse>): Promise<void> => {
+        const {id} = extractValidatedBodyOrThrow<UserParams>(res);
+        const dto: UpdateUserDto = extractValidatedBodyOrThrow<UpdateUserDto>(res);
+
+        const response: UserFullResponse = await this.userService.update(id, dto);
+
+        res.json(response);
+    }
+
+    delete = async (req: Request, res: Response<UserFullResponse>): Promise<void> => {
+        const {id} = extractValidatedParamsOrThrow<UserParams>(res);
+
+        const response: UserFullResponse = await this.userService.delete(id);
+
+        res.json(response);
     }
 }

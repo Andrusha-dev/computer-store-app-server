@@ -2,16 +2,10 @@ import type {
     IUserRepository,
 } from "../../domain/user.repository.contract.ts";
 import {
-    type UserEntity,
-    type UserFull, userFullInclude,
+    type UserEntity, type UserFullEntity, userInclude,
 } from "../../domain/user.entity.ts";
-import {NotFoundError} from "../../../../shared/error/custom.errors.ts";
 import type {PrismaService} from "../../../../shared/infrastructure/database/prisma.service.ts";
-import {toUserCreateInput, toUserWhereInput} from "./user.mapper.ts";
-import type {FindManyResult} from "../../../../shared/types/repository.types.ts";
-import type {PaginationMeta} from "../../../../shared/schemas/pagination.schema.ts";
-import {createPaginationMeta} from "../../../../shared/utils/pagination.utils.ts";
-import type {CreateUserDto, GetUsersListQuery} from "../../api/user.dto.ts";
+import {Prisma} from "@prisma/client";
 
 
 
@@ -30,122 +24,86 @@ export class UserRepository implements IUserRepository {
         this.dbService = dbService;
     }
 
-    findById = async (id: number): Promise<UserEntity | null> => {
-        const user: UserEntity | null = await this.dbService.user.findUnique({
-            where: {
-                id: id
-            }
-        });
-
-        if(!user) {
-            return null;
-        }
-
-        return user;
-    }
-
-    findByIdOrThrow = async (id: number): Promise<UserEntity> => {
-        const user: UserEntity | null = await this.findById(id);
-
-        if (!user) {
-            throw new NotFoundError(`Користувача з ID ${id} не знайдено`);
-        }
-
-        return user;
-    }
-
-    findFullById = async (id: number): Promise<UserFull | null> => {
-        const user: UserFull | null = await this.dbService.user.findUnique({
-            where: {
-                id: id,
-            },
-            include: userFullInclude
-        });
-
-        return user;
-    }
-
-    findFullByIdOrThrow = async (id: number): Promise<UserFull> => {
-        const user: UserFull | null = await this.findFullById(id);
-
-        if(!user) {
-            throw new NotFoundError(`Користувача з ID ${id} не знайдено`);
-        }
-
-        return user;
-    }
-
-    findByEmail = async (email: string): Promise<UserEntity | null> => {
-        const user: UserEntity | null = await this.dbService.user.findUnique({
-            where: {
-                email: email,
-            }
-        });
-
-        if(!user) {
-            return null;
-        }
-
-        return user;
-    }
-
-    findByEmailOrThrow = async (email: string): Promise<UserEntity> => {
-        const user: UserEntity | null = await this.findByEmail(email);
-
-        if (!user) {
-            throw new NotFoundError(`Користувача з email ${email} не знайдено`);
-        }
-
-        return user;
-    }
-
-
-
-    findMany =
-        async (getUsersListQuery: GetUsersListQuery): Promise<FindManyResult<UserEntity>> => {
-            const {sortType, sortOrder, pageSize, pageNo, ...filters} = getUsersListQuery;
-
-            const where = toUserWhereInput(filters);
-
-            const [users, totalElements] = await Promise.all([
-                //Отримуємо відфільтрованих, відсортованих та зпагінованих користувачів
-                this.dbService.user.findMany({
-                    where,
-                    //include: { address: true },
-                    orderBy: {
-                        [sortType]: sortOrder
-                    },
-                    take: pageSize,
-                    skip: pageNo * pageSize,
-                }),
-                //Отримуємо кількість користувачів після фільтрації
-                this.dbService.user.count({ where }),
-            ]);
-
-            const meta: PaginationMeta = createPaginationMeta(pageNo, pageSize, totalElements);
-
-
-            const result: FindManyResult<UserEntity> = {
-                content: users,
-                meta: meta,
-            }
-
-            return result;
-        }
-
-
-    create =
-        async (createUserDto: CreateUserDto): Promise<UserFull> => {
-            const userCreateInput = toUserCreateInput(createUserDto);
-
-            const user: UserFull | null = await this.dbService.user.create({
-                data: userCreateInput,
-                include: {
-                    address: true,
+    findById =
+        async (id: number): Promise<UserEntity | null> => {
+            const user: UserEntity | null = await this.dbService.user.findUnique({
+                where: {
+                    id: id
                 }
             });
 
             return user;
         }
+
+    findFullById =
+        async (id: number): Promise<UserFullEntity | null> => {
+            const user: UserFullEntity | null = await this.dbService.user.findUnique({
+                where: {
+                    id: id,
+                },
+                include: userInclude
+            });
+
+            return user;
+        }
+
+    findByEmail =
+        async (email: string): Promise<UserEntity | null> => {
+            const user: UserEntity | null = await this.dbService.user.findUnique({
+                where: {
+                    email: email,
+                }
+            });
+
+            return user;
+        }
+
+    findMany =
+        async (args: Prisma.UserFindManyArgs): Promise<UserEntity[]> => {
+            const users: UserEntity[] = await this.dbService.user.findMany(args);
+
+            return users;
+        }
+
+    count = async (where?: Prisma.UserWhereInput): Promise<number> => {
+        const count: number = await this.dbService.user.count({where});
+
+        return count;
+    }
+
+
+    create =
+        async (data: Prisma.UserCreateInput): Promise<UserFullEntity> => {
+            const user: UserFullEntity = await this.dbService.user.create({
+                data: data,
+                include: userInclude
+            });
+
+            return user;
+        }
+
+    update =
+        async (id: number, data: Prisma.UserUpdateInput): Promise<UserFullEntity> => {
+            const user: UserFullEntity = await this.dbService.user.update({
+                where: {
+                    id: id
+                },
+                data: data,
+                include: userInclude
+            });
+
+            return user;
+        }
+
+    delete = async (id: number): Promise<UserFullEntity> => {
+        const user: UserFullEntity = await this.dbService.user.delete({
+            where: {
+                id: id
+            },
+            include: userInclude
+        });
+
+        return user;
+    }
 
 }

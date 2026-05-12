@@ -58,7 +58,7 @@ model User {
   role UserRole @default(admin)
 
   // Зв'язок 1 до 1 з адресою
-  address   Address? @relation(fields: [addressId], references: [id])
+  address   Address? @relation(fields: [addressId], references: [id], onDelete: Cascade) //Вказуємо onDelete: Cascade, щоб запис в User видалявся разом із записом в Address
   addressId Int?     @unique
 }
 

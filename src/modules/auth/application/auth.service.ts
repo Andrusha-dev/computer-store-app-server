@@ -4,9 +4,9 @@ import type {
 import {UnauthorizedError} from "../../../shared/error/custom.errors.ts";
 import type {IJwtProvider} from "../../../shared/contracts/jwt.contract.ts";
 import type {TokenPayload} from "../../../shared/schemas/token-payload.schema.ts";
-import type {LoginDto, RefreshAllTokensDto} from "../api/auth.dto.ts";
-import type {AuthTokens} from "../domain/auth.types.ts";
-import type {IUserService} from "../../user/index.ts";
+import type {AuthResponse, LoginDto, RefreshAllTokensDto} from "../api/auth.dto.ts";
+import type {IUserService, UserResponse} from "../../user/index.ts";
+import {toAuthResponse} from "../api/auth.mapper.ts";
 
 
 
@@ -27,15 +27,12 @@ export class AuthService implements IAuthService {
         this.userService = userService;
     }
 
-    login = async (loginDto: LoginDto): Promise<AuthTokens> => {
-        console.log("Starting checking credentials: ", loginDto);
-        const {email, password} = loginDto;
+    login = async (dto: LoginDto): Promise<AuthResponse> => {
+        console.log("Starting checking credentials: ", dto);
+        const {email, password} = dto;
 
-        const user = await this.userService.verifyCredentials(email, password);
-        if (!user) {
-            //Кажемо, що невірний email або пароль, що зловмисник не знав в чому саме причина
-            throw new UnauthorizedError("Невірний email або пароль");
-        }
+        //метод verifyCredentials генерує помилку, якщо email чи пароль не валідні
+        const user: UserResponse = await this.userService.verifyCredentials(email, password);
 
         const payload: TokenPayload = {
             id: user.id,
@@ -47,34 +44,26 @@ export class AuthService implements IAuthService {
         console.log("Starting access token: ", accessToken);
         const refreshToken = this.jwtProvider.signRefresh(payload);
 
-        const authTokens: AuthTokens = {
-            accessToken,
-            refreshToken,
-        }
+        const response: AuthResponse = toAuthResponse(accessToken, refreshToken);
 
-        return authTokens;
+        return response;
     }
 
 
-    refreshAllTokens = (refreshAllTokensDto: RefreshAllTokensDto): AuthTokens => {
-        const {refreshToken} = refreshAllTokensDto;
+    refreshAllTokens = (dto: RefreshAllTokensDto): AuthResponse => {
+        const {refreshToken} = dto;
         const payload = this.jwtProvider.verifyRefresh(refreshToken);
         if(!payload) {
             throw new UnauthorizedError("refresh токен недійсний чи некоректний");
         }
 
-
-        const newAccessToken: string = this.jwtProvider.signAccess(payload);
-        const newRefreshToken: string = this.jwtProvider.signRefresh(payload);
+        const newAccessToken = this.jwtProvider.signAccess(payload);
+        const newRefreshToken = this.jwtProvider.signRefresh(payload);
         console.log("New access token: ", newAccessToken);
-        console.log("new refreshToken: ", refreshToken);
+        console.log("new refreshToken: ", newRefreshToken);
 
-        const authTokens: AuthTokens = {
-            accessToken: newAccessToken,
-            refreshToken: newRefreshToken
-        }
+        const response: AuthResponse = toAuthResponse(newAccessToken, newRefreshToken);
 
-
-        return authTokens;
+        return response;
     }
 }

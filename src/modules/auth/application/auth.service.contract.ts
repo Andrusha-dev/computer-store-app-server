@@ -1,11 +1,10 @@
-import type {LoginDto, RefreshAllTokensDto} from "../api/auth.dto.ts";
-import type {AuthTokens} from "../domain/auth.types.ts";
+import type {AuthResponse, LoginDto, RefreshAllTokensDto} from "../api/auth.dto.ts";
 
 
 //Повний контракт сервісу для використання в Controller
 export interface IAuthService {
-    login: (loginDto: LoginDto) => Promise<AuthTokens>;
-    refreshAllTokens: (refreshAllTokensDto: RefreshAllTokensDto) => AuthTokens;
+    login: (dto: LoginDto) => Promise<AuthResponse>;
+    refreshAllTokens: (dto: RefreshAllTokensDto) => AuthResponse;
 }
 
 

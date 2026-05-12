@@ -74,7 +74,10 @@ export type ProductsQuery = z.infer<typeof productsQuerySchema>;
 
 
 
-
+const producerResponseSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+});
 
 
 //OUTPUT

@@ -1,9 +1,9 @@
 import {
     type UserFullResponse, userFullResponseSchema,
-    type UserListResponse, userListResponseSchema, type UserResponse, userResponseSchema,
+    type UserResponse, userResponseSchema, type UsersResponse, usersResponseSchema,
 } from "./user.dto.ts";
-import type {UserEntity, UserFull} from "../domain/user.entity.ts";
-import type {FindManyResult} from "../../../shared/types/repository.types.ts";
+import type {UserEntity, UserFullEntity} from "../domain/user.entity.ts";
+import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts";
 
 
 
@@ -25,7 +25,7 @@ export const toUserResponse =
 
 
 export const toUserFullResponse =
-    (user: UserFull): UserFullResponse => {
+    (user: UserFullEntity): UserFullResponse => {
         const transformedUser = {
             //Деструктуризація без ручного маппінгу разом з лишніми полями (password, addressId)
             ...user,
@@ -39,27 +39,15 @@ export const toUserFullResponse =
     }
 
 
-
-
-
-export const toUserListResponse =
-    (findManyResult: FindManyResult<UserEntity>): UserListResponse => {
-        const {content, meta} = findManyResult;
-
-
-        const response: UserListResponse = {
-            content: content.map(user => ({
-                //Деструктуризація без ручного маппінгу разом з лишніми полями (password)
-                ...user,
-                //додаткові поля, або змінені поля, якщо контракт репозиторію відрізняється від контракту response
-            })),
-            //meta з findManyResult і з GetUsersListResponse мають однаковий тип,
-            //тому передаємо його без мапінга
+export const toUsersResponse =
+    (content: UserResponse[], meta: PaginationMeta): UsersResponse => {
+        const response: UsersResponse = {
+            content: content,
             meta: meta
         };
 
         //Після валідації лишні поля (password, addressId) відсіються
-        const validatedResponse: UserListResponse = userListResponseSchema.parse(response);
+        const validatedResponse: UsersResponse = usersResponseSchema.parse(response);
 
         return validatedResponse;
     }
