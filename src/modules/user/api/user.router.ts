@@ -61,7 +61,7 @@ export const createUserRouter = ({userController, authMiddleware}: Dependencies)
 
     // PATCH /api/users -> Оновлення користувача
     router.patch(
-        "/",
+        "/:id",
         authMiddleware.authenticate,
         validate({ params: userParamsSchema, body: updateUserDtoSchema }),
         userController.update
@@ -69,10 +69,10 @@ export const createUserRouter = ({userController, authMiddleware}: Dependencies)
 
     // DELETE /api/users -> Видалення користувача (лише для admin)
     router.delete(
-        "/",
+        "/:id",
         authMiddleware.authenticate,
         authMiddleware.authorize(["admin"]),
-        validate({ params: userParamsSchema, body: updateUserDtoSchema }),
+        validate({ params: userParamsSchema}),
         userController.delete
     );
 

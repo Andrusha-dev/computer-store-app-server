@@ -77,9 +77,9 @@ export const isValidDecimalInput =
 
 export const TransactionIsolationLevelSchema = z.enum(['ReadUncommitted','ReadCommitted','RepeatableRead','Serializable']);
 
-export const UserScalarFieldEnumSchema = z.enum(['id','email','password','username','firstname','lastname','phone','birthYear','profession','isMarried','role','addressId']);
+export const UserScalarFieldEnumSchema = z.enum(['id','email','password','username','firstname','lastname','phone','birthYear','profession','isMarried','role']);
 
-export const AddressScalarFieldEnumSchema = z.enum(['id','city','street','houseNumber']);
+export const AddressScalarFieldEnumSchema = z.enum(['id','city','street','houseNumber','userId']);
 
 export const ProducerScalarFieldEnumSchema = z.enum(['id','name','logoUrl']);
 
@@ -123,7 +123,6 @@ export const UserSchema = z.object({
   birthYear: z.number().int().min(1900, { message: "Рік народження має бути не меншим ніж 1900" }),
   profession: z.string(),
   isMarried: z.boolean(),
-  addressId: z.number().int().nullable(),
 })
 
 export type User = z.infer<typeof UserSchema>
@@ -150,6 +149,7 @@ export const AddressSchema = z.object({
   city: z.string(),
   street: z.string(),
   houseNumber: z.number().int(),
+  userId: z.number().int().nullable(),
 })
 
 export type Address = z.infer<typeof AddressSchema>
@@ -251,7 +251,6 @@ export const UserSelectSchema: z.ZodType<Prisma.UserSelect> = z.object({
   profession: z.boolean().optional(),
   isMarried: z.boolean().optional(),
   role: z.boolean().optional(),
-  addressId: z.boolean().optional(),
   address: z.union([z.boolean(),z.lazy(() => AddressArgsSchema)]).optional(),
 }).strict()
 
@@ -272,6 +271,7 @@ export const AddressSelectSchema: z.ZodType<Prisma.AddressSelect> = z.object({
   city: z.boolean().optional(),
   street: z.boolean().optional(),
   houseNumber: z.boolean().optional(),
+  userId: z.boolean().optional(),
   user: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
 }).strict()
 
@@ -349,7 +349,6 @@ export const UserWhereInputSchema: z.ZodType<Prisma.UserWhereInput> = z.strictOb
   profession: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   isMarried: z.union([ z.lazy(() => BoolFilterSchema), z.boolean() ]).optional(),
   role: z.union([ z.lazy(() => EnumUserRoleFilterSchema), z.lazy(() => UserRoleSchema) ]).optional(),
-  addressId: z.union([ z.lazy(() => IntNullableFilterSchema), z.number() ]).optional().nullable(),
   address: z.union([ z.lazy(() => AddressNullableScalarRelationFilterSchema), z.lazy(() => AddressWhereInputSchema) ]).optional().nullable(),
 });
 
@@ -365,7 +364,6 @@ export const UserOrderByWithRelationInputSchema: z.ZodType<Prisma.UserOrderByWit
   profession: z.lazy(() => SortOrderSchema).optional(),
   isMarried: z.lazy(() => SortOrderSchema).optional(),
   role: z.lazy(() => SortOrderSchema).optional(),
-  addressId: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   address: z.lazy(() => AddressOrderByWithRelationInputSchema).optional(),
 });
 
@@ -375,19 +373,6 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
     email: z.email({ message: "Невірний формат email" }),
     username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
     phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
-    addressId: z.number().int(),
-  }),
-  z.object({
-    id: z.number().int(),
-    email: z.email({ message: "Невірний формат email" }),
-    username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
-    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
-  }),
-  z.object({
-    id: z.number().int(),
-    email: z.email({ message: "Невірний формат email" }),
-    username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
-    addressId: z.number().int(),
   }),
   z.object({
     id: z.number().int(),
@@ -398,17 +383,6 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
     id: z.number().int(),
     email: z.email({ message: "Невірний формат email" }),
     phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
-    addressId: z.number().int(),
-  }),
-  z.object({
-    id: z.number().int(),
-    email: z.email({ message: "Невірний формат email" }),
-    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
-  }),
-  z.object({
-    id: z.number().int(),
-    email: z.email({ message: "Невірний формат email" }),
-    addressId: z.number().int(),
   }),
   z.object({
     id: z.number().int(),
@@ -418,17 +392,6 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
     id: z.number().int(),
     username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
     phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
-    addressId: z.number().int(),
-  }),
-  z.object({
-    id: z.number().int(),
-    username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
-    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
-  }),
-  z.object({
-    id: z.number().int(),
-    username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
-    addressId: z.number().int(),
   }),
   z.object({
     id: z.number().int(),
@@ -437,15 +400,6 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
   z.object({
     id: z.number().int(),
     phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
-    addressId: z.number().int(),
-  }),
-  z.object({
-    id: z.number().int(),
-    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
-  }),
-  z.object({
-    id: z.number().int(),
-    addressId: z.number().int(),
   }),
   z.object({
     id: z.number().int(),
@@ -454,17 +408,6 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
     email: z.email({ message: "Невірний формат email" }),
     username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
     phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
-    addressId: z.number().int(),
-  }),
-  z.object({
-    email: z.email({ message: "Невірний формат email" }),
-    username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
-    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
-  }),
-  z.object({
-    email: z.email({ message: "Невірний формат email" }),
-    username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
-    addressId: z.number().int(),
   }),
   z.object({
     email: z.email({ message: "Невірний формат email" }),
@@ -473,15 +416,6 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
   z.object({
     email: z.email({ message: "Невірний формат email" }),
     phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
-    addressId: z.number().int(),
-  }),
-  z.object({
-    email: z.email({ message: "Невірний формат email" }),
-    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
-  }),
-  z.object({
-    email: z.email({ message: "Невірний формат email" }),
-    addressId: z.number().int(),
   }),
   z.object({
     email: z.email({ message: "Невірний формат email" }),
@@ -489,28 +423,12 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
   z.object({
     username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
     phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
-    addressId: z.number().int(),
-  }),
-  z.object({
-    username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
-    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
-  }),
-  z.object({
-    username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
-    addressId: z.number().int(),
   }),
   z.object({
     username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
   }),
   z.object({
     phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
-    addressId: z.number().int(),
-  }),
-  z.object({
-    phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }),
-  }),
-  z.object({
-    addressId: z.number().int(),
   }),
 ])
 .and(z.strictObject({
@@ -518,7 +436,6 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
   email: z.email({ message: "Невірний формат email" }).optional(),
   username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }).optional(),
   phone: z.string().length(17, { message: "Довжина номеру телефона має бути 17 символів" }).optional(),
-  addressId: z.number().int().optional(),
   AND: z.union([ z.lazy(() => UserWhereInputSchema), z.lazy(() => UserWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => UserWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => UserWhereInputSchema), z.lazy(() => UserWhereInputSchema).array() ]).optional(),
@@ -544,7 +461,6 @@ export const UserOrderByWithAggregationInputSchema: z.ZodType<Prisma.UserOrderBy
   profession: z.lazy(() => SortOrderSchema).optional(),
   isMarried: z.lazy(() => SortOrderSchema).optional(),
   role: z.lazy(() => SortOrderSchema).optional(),
-  addressId: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   _count: z.lazy(() => UserCountOrderByAggregateInputSchema).optional(),
   _avg: z.lazy(() => UserAvgOrderByAggregateInputSchema).optional(),
   _max: z.lazy(() => UserMaxOrderByAggregateInputSchema).optional(),
@@ -567,7 +483,6 @@ export const UserScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.UserScal
   profession: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
   isMarried: z.union([ z.lazy(() => BoolWithAggregatesFilterSchema), z.boolean() ]).optional(),
   role: z.union([ z.lazy(() => EnumUserRoleWithAggregatesFilterSchema), z.lazy(() => UserRoleSchema) ]).optional(),
-  addressId: z.union([ z.lazy(() => IntNullableWithAggregatesFilterSchema), z.number() ]).optional().nullable(),
 });
 
 export const AddressWhereInputSchema: z.ZodType<Prisma.AddressWhereInput> = z.strictObject({
@@ -578,6 +493,7 @@ export const AddressWhereInputSchema: z.ZodType<Prisma.AddressWhereInput> = z.st
   city: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   street: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   houseNumber: z.union([ z.lazy(() => IntFilterSchema), z.number() ]).optional(),
+  userId: z.union([ z.lazy(() => IntNullableFilterSchema), z.number() ]).optional().nullable(),
   user: z.union([ z.lazy(() => UserNullableScalarRelationFilterSchema), z.lazy(() => UserWhereInputSchema) ]).optional().nullable(),
 });
 
@@ -586,14 +502,25 @@ export const AddressOrderByWithRelationInputSchema: z.ZodType<Prisma.AddressOrde
   city: z.lazy(() => SortOrderSchema).optional(),
   street: z.lazy(() => SortOrderSchema).optional(),
   houseNumber: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   user: z.lazy(() => UserOrderByWithRelationInputSchema).optional(),
 });
 
-export const AddressWhereUniqueInputSchema: z.ZodType<Prisma.AddressWhereUniqueInput> = z.object({
-  id: z.number().int(),
-})
+export const AddressWhereUniqueInputSchema: z.ZodType<Prisma.AddressWhereUniqueInput> = z.union([
+  z.object({
+    id: z.number().int(),
+    userId: z.number().int(),
+  }),
+  z.object({
+    id: z.number().int(),
+  }),
+  z.object({
+    userId: z.number().int(),
+  }),
+])
 .and(z.strictObject({
   id: z.number().int().optional(),
+  userId: z.number().int().optional(),
   AND: z.union([ z.lazy(() => AddressWhereInputSchema), z.lazy(() => AddressWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => AddressWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => AddressWhereInputSchema), z.lazy(() => AddressWhereInputSchema).array() ]).optional(),
@@ -608,6 +535,7 @@ export const AddressOrderByWithAggregationInputSchema: z.ZodType<Prisma.AddressO
   city: z.lazy(() => SortOrderSchema).optional(),
   street: z.lazy(() => SortOrderSchema).optional(),
   houseNumber: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   _count: z.lazy(() => AddressCountOrderByAggregateInputSchema).optional(),
   _avg: z.lazy(() => AddressAvgOrderByAggregateInputSchema).optional(),
   _max: z.lazy(() => AddressMaxOrderByAggregateInputSchema).optional(),
@@ -623,6 +551,7 @@ export const AddressScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.Addre
   city: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
   street: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
   houseNumber: z.union([ z.lazy(() => IntWithAggregatesFilterSchema), z.number() ]).optional(),
+  userId: z.union([ z.lazy(() => IntNullableWithAggregatesFilterSchema), z.number() ]).optional().nullable(),
 });
 
 export const ProducerWhereInputSchema: z.ZodType<Prisma.ProducerWhereInput> = z.strictObject({
@@ -790,7 +719,7 @@ export const UserUncheckedCreateInputSchema: z.ZodType<Prisma.UserUncheckedCreat
   profession: z.string(),
   isMarried: z.boolean().optional(),
   role: z.lazy(() => UserRoleSchema).optional(),
-  addressId: z.number().int().optional().nullable(),
+  address: z.lazy(() => AddressUncheckedCreateNestedOneWithoutUserInputSchema).optional(),
 });
 
 export const UserUpdateInputSchema: z.ZodType<Prisma.UserUpdateInput> = z.strictObject({
@@ -819,7 +748,7 @@ export const UserUncheckedUpdateInputSchema: z.ZodType<Prisma.UserUncheckedUpdat
   profession: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isMarried: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   role: z.union([ z.lazy(() => UserRoleSchema), z.lazy(() => EnumUserRoleFieldUpdateOperationsInputSchema) ]).optional(),
-  addressId: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  address: z.lazy(() => AddressUncheckedUpdateOneWithoutUserNestedInputSchema).optional(),
 });
 
 export const UserCreateManyInputSchema: z.ZodType<Prisma.UserCreateManyInput> = z.strictObject({
@@ -834,7 +763,6 @@ export const UserCreateManyInputSchema: z.ZodType<Prisma.UserCreateManyInput> = 
   profession: z.string(),
   isMarried: z.boolean().optional(),
   role: z.lazy(() => UserRoleSchema).optional(),
-  addressId: z.number().int().optional().nullable(),
 });
 
 export const UserUpdateManyMutationInputSchema: z.ZodType<Prisma.UserUpdateManyMutationInput> = z.strictObject({
@@ -862,7 +790,6 @@ export const UserUncheckedUpdateManyInputSchema: z.ZodType<Prisma.UserUncheckedU
   profession: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   isMarried: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   role: z.union([ z.lazy(() => UserRoleSchema), z.lazy(() => EnumUserRoleFieldUpdateOperationsInputSchema) ]).optional(),
-  addressId: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 });
 
 export const AddressCreateInputSchema: z.ZodType<Prisma.AddressCreateInput> = z.strictObject({
@@ -877,7 +804,7 @@ export const AddressUncheckedCreateInputSchema: z.ZodType<Prisma.AddressUnchecke
   city: z.string(),
   street: z.string(),
   houseNumber: z.number().int(),
-  user: z.lazy(() => UserUncheckedCreateNestedOneWithoutAddressInputSchema).optional(),
+  userId: z.number().int().optional().nullable(),
 });
 
 export const AddressUpdateInputSchema: z.ZodType<Prisma.AddressUpdateInput> = z.strictObject({
@@ -892,7 +819,7 @@ export const AddressUncheckedUpdateInputSchema: z.ZodType<Prisma.AddressUnchecke
   city: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   street: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   houseNumber: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  user: z.lazy(() => UserUncheckedUpdateOneWithoutAddressNestedInputSchema).optional(),
+  userId: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 });
 
 export const AddressCreateManyInputSchema: z.ZodType<Prisma.AddressCreateManyInput> = z.strictObject({
@@ -900,6 +827,7 @@ export const AddressCreateManyInputSchema: z.ZodType<Prisma.AddressCreateManyInp
   city: z.string(),
   street: z.string(),
   houseNumber: z.number().int(),
+  userId: z.number().int().optional().nullable(),
 });
 
 export const AddressUpdateManyMutationInputSchema: z.ZodType<Prisma.AddressUpdateManyMutationInput> = z.strictObject({
@@ -913,6 +841,7 @@ export const AddressUncheckedUpdateManyInputSchema: z.ZodType<Prisma.AddressUnch
   city: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   street: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   houseNumber: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 });
 
 export const ProducerCreateInputSchema: z.ZodType<Prisma.ProducerCreateInput> = z.strictObject({
@@ -1076,25 +1005,9 @@ export const EnumUserRoleFilterSchema: z.ZodType<Prisma.EnumUserRoleFilter> = z.
   not: z.union([ z.lazy(() => UserRoleSchema), z.lazy(() => NestedEnumUserRoleFilterSchema) ]).optional(),
 });
 
-export const IntNullableFilterSchema: z.ZodType<Prisma.IntNullableFilter> = z.strictObject({
-  equals: z.number().optional().nullable(),
-  in: z.number().array().optional().nullable(),
-  notIn: z.number().array().optional().nullable(),
-  lt: z.number().optional(),
-  lte: z.number().optional(),
-  gt: z.number().optional(),
-  gte: z.number().optional(),
-  not: z.union([ z.number(),z.lazy(() => NestedIntNullableFilterSchema) ]).optional().nullable(),
-});
-
 export const AddressNullableScalarRelationFilterSchema: z.ZodType<Prisma.AddressNullableScalarRelationFilter> = z.strictObject({
   is: z.lazy(() => AddressWhereInputSchema).optional().nullable(),
   isNot: z.lazy(() => AddressWhereInputSchema).optional().nullable(),
-});
-
-export const SortOrderInputSchema: z.ZodType<Prisma.SortOrderInput> = z.strictObject({
-  sort: z.lazy(() => SortOrderSchema),
-  nulls: z.lazy(() => NullsOrderSchema).optional(),
 });
 
 export const UserCountOrderByAggregateInputSchema: z.ZodType<Prisma.UserCountOrderByAggregateInput> = z.strictObject({
@@ -1109,13 +1022,11 @@ export const UserCountOrderByAggregateInputSchema: z.ZodType<Prisma.UserCountOrd
   profession: z.lazy(() => SortOrderSchema).optional(),
   isMarried: z.lazy(() => SortOrderSchema).optional(),
   role: z.lazy(() => SortOrderSchema).optional(),
-  addressId: z.lazy(() => SortOrderSchema).optional(),
 });
 
 export const UserAvgOrderByAggregateInputSchema: z.ZodType<Prisma.UserAvgOrderByAggregateInput> = z.strictObject({
   id: z.lazy(() => SortOrderSchema).optional(),
   birthYear: z.lazy(() => SortOrderSchema).optional(),
-  addressId: z.lazy(() => SortOrderSchema).optional(),
 });
 
 export const UserMaxOrderByAggregateInputSchema: z.ZodType<Prisma.UserMaxOrderByAggregateInput> = z.strictObject({
@@ -1130,7 +1041,6 @@ export const UserMaxOrderByAggregateInputSchema: z.ZodType<Prisma.UserMaxOrderBy
   profession: z.lazy(() => SortOrderSchema).optional(),
   isMarried: z.lazy(() => SortOrderSchema).optional(),
   role: z.lazy(() => SortOrderSchema).optional(),
-  addressId: z.lazy(() => SortOrderSchema).optional(),
 });
 
 export const UserMinOrderByAggregateInputSchema: z.ZodType<Prisma.UserMinOrderByAggregateInput> = z.strictObject({
@@ -1145,13 +1055,11 @@ export const UserMinOrderByAggregateInputSchema: z.ZodType<Prisma.UserMinOrderBy
   profession: z.lazy(() => SortOrderSchema).optional(),
   isMarried: z.lazy(() => SortOrderSchema).optional(),
   role: z.lazy(() => SortOrderSchema).optional(),
-  addressId: z.lazy(() => SortOrderSchema).optional(),
 });
 
 export const UserSumOrderByAggregateInputSchema: z.ZodType<Prisma.UserSumOrderByAggregateInput> = z.strictObject({
   id: z.lazy(() => SortOrderSchema).optional(),
   birthYear: z.lazy(() => SortOrderSchema).optional(),
-  addressId: z.lazy(() => SortOrderSchema).optional(),
 });
 
 export const IntWithAggregatesFilterSchema: z.ZodType<Prisma.IntWithAggregatesFilter> = z.strictObject({
@@ -1206,6 +1114,63 @@ export const EnumUserRoleWithAggregatesFilterSchema: z.ZodType<Prisma.EnumUserRo
   _max: z.lazy(() => NestedEnumUserRoleFilterSchema).optional(),
 });
 
+export const IntNullableFilterSchema: z.ZodType<Prisma.IntNullableFilter> = z.strictObject({
+  equals: z.number().optional().nullable(),
+  in: z.number().array().optional().nullable(),
+  notIn: z.number().array().optional().nullable(),
+  lt: z.number().optional(),
+  lte: z.number().optional(),
+  gt: z.number().optional(),
+  gte: z.number().optional(),
+  not: z.union([ z.number(),z.lazy(() => NestedIntNullableFilterSchema) ]).optional().nullable(),
+});
+
+export const UserNullableScalarRelationFilterSchema: z.ZodType<Prisma.UserNullableScalarRelationFilter> = z.strictObject({
+  is: z.lazy(() => UserWhereInputSchema).optional().nullable(),
+  isNot: z.lazy(() => UserWhereInputSchema).optional().nullable(),
+});
+
+export const SortOrderInputSchema: z.ZodType<Prisma.SortOrderInput> = z.strictObject({
+  sort: z.lazy(() => SortOrderSchema),
+  nulls: z.lazy(() => NullsOrderSchema).optional(),
+});
+
+export const AddressCountOrderByAggregateInputSchema: z.ZodType<Prisma.AddressCountOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  city: z.lazy(() => SortOrderSchema).optional(),
+  street: z.lazy(() => SortOrderSchema).optional(),
+  houseNumber: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const AddressAvgOrderByAggregateInputSchema: z.ZodType<Prisma.AddressAvgOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  houseNumber: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const AddressMaxOrderByAggregateInputSchema: z.ZodType<Prisma.AddressMaxOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  city: z.lazy(() => SortOrderSchema).optional(),
+  street: z.lazy(() => SortOrderSchema).optional(),
+  houseNumber: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const AddressMinOrderByAggregateInputSchema: z.ZodType<Prisma.AddressMinOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  city: z.lazy(() => SortOrderSchema).optional(),
+  street: z.lazy(() => SortOrderSchema).optional(),
+  houseNumber: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
+});
+
+export const AddressSumOrderByAggregateInputSchema: z.ZodType<Prisma.AddressSumOrderByAggregateInput> = z.strictObject({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  houseNumber: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
+});
+
 export const IntNullableWithAggregatesFilterSchema: z.ZodType<Prisma.IntNullableWithAggregatesFilter> = z.strictObject({
   equals: z.number().optional().nullable(),
   in: z.number().array().optional().nullable(),
@@ -1220,42 +1185,6 @@ export const IntNullableWithAggregatesFilterSchema: z.ZodType<Prisma.IntNullable
   _sum: z.lazy(() => NestedIntNullableFilterSchema).optional(),
   _min: z.lazy(() => NestedIntNullableFilterSchema).optional(),
   _max: z.lazy(() => NestedIntNullableFilterSchema).optional(),
-});
-
-export const UserNullableScalarRelationFilterSchema: z.ZodType<Prisma.UserNullableScalarRelationFilter> = z.strictObject({
-  is: z.lazy(() => UserWhereInputSchema).optional().nullable(),
-  isNot: z.lazy(() => UserWhereInputSchema).optional().nullable(),
-});
-
-export const AddressCountOrderByAggregateInputSchema: z.ZodType<Prisma.AddressCountOrderByAggregateInput> = z.strictObject({
-  id: z.lazy(() => SortOrderSchema).optional(),
-  city: z.lazy(() => SortOrderSchema).optional(),
-  street: z.lazy(() => SortOrderSchema).optional(),
-  houseNumber: z.lazy(() => SortOrderSchema).optional(),
-});
-
-export const AddressAvgOrderByAggregateInputSchema: z.ZodType<Prisma.AddressAvgOrderByAggregateInput> = z.strictObject({
-  id: z.lazy(() => SortOrderSchema).optional(),
-  houseNumber: z.lazy(() => SortOrderSchema).optional(),
-});
-
-export const AddressMaxOrderByAggregateInputSchema: z.ZodType<Prisma.AddressMaxOrderByAggregateInput> = z.strictObject({
-  id: z.lazy(() => SortOrderSchema).optional(),
-  city: z.lazy(() => SortOrderSchema).optional(),
-  street: z.lazy(() => SortOrderSchema).optional(),
-  houseNumber: z.lazy(() => SortOrderSchema).optional(),
-});
-
-export const AddressMinOrderByAggregateInputSchema: z.ZodType<Prisma.AddressMinOrderByAggregateInput> = z.strictObject({
-  id: z.lazy(() => SortOrderSchema).optional(),
-  city: z.lazy(() => SortOrderSchema).optional(),
-  street: z.lazy(() => SortOrderSchema).optional(),
-  houseNumber: z.lazy(() => SortOrderSchema).optional(),
-});
-
-export const AddressSumOrderByAggregateInputSchema: z.ZodType<Prisma.AddressSumOrderByAggregateInput> = z.strictObject({
-  id: z.lazy(() => SortOrderSchema).optional(),
-  houseNumber: z.lazy(() => SortOrderSchema).optional(),
 });
 
 export const StringNullableFilterSchema: z.ZodType<Prisma.StringNullableFilter> = z.strictObject({
@@ -1473,6 +1402,12 @@ export const AddressCreateNestedOneWithoutUserInputSchema: z.ZodType<Prisma.Addr
   connect: z.lazy(() => AddressWhereUniqueInputSchema).optional(),
 });
 
+export const AddressUncheckedCreateNestedOneWithoutUserInputSchema: z.ZodType<Prisma.AddressUncheckedCreateNestedOneWithoutUserInput> = z.strictObject({
+  create: z.union([ z.lazy(() => AddressCreateWithoutUserInputSchema), z.lazy(() => AddressUncheckedCreateWithoutUserInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => AddressCreateOrConnectWithoutUserInputSchema).optional(),
+  connect: z.lazy(() => AddressWhereUniqueInputSchema).optional(),
+});
+
 export const StringFieldUpdateOperationsInputSchema: z.ZodType<Prisma.StringFieldUpdateOperationsInput> = z.strictObject({
   set: z.string().optional(),
 });
@@ -1503,21 +1438,17 @@ export const AddressUpdateOneWithoutUserNestedInputSchema: z.ZodType<Prisma.Addr
   update: z.union([ z.lazy(() => AddressUpdateToOneWithWhereWithoutUserInputSchema), z.lazy(() => AddressUpdateWithoutUserInputSchema), z.lazy(() => AddressUncheckedUpdateWithoutUserInputSchema) ]).optional(),
 });
 
-export const NullableIntFieldUpdateOperationsInputSchema: z.ZodType<Prisma.NullableIntFieldUpdateOperationsInput> = z.strictObject({
-  set: z.number().optional().nullable(),
-  increment: z.number().optional(),
-  decrement: z.number().optional(),
-  multiply: z.number().optional(),
-  divide: z.number().optional(),
+export const AddressUncheckedUpdateOneWithoutUserNestedInputSchema: z.ZodType<Prisma.AddressUncheckedUpdateOneWithoutUserNestedInput> = z.strictObject({
+  create: z.union([ z.lazy(() => AddressCreateWithoutUserInputSchema), z.lazy(() => AddressUncheckedCreateWithoutUserInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => AddressCreateOrConnectWithoutUserInputSchema).optional(),
+  upsert: z.lazy(() => AddressUpsertWithoutUserInputSchema).optional(),
+  disconnect: z.union([ z.boolean(),z.lazy(() => AddressWhereInputSchema) ]).optional(),
+  delete: z.union([ z.boolean(),z.lazy(() => AddressWhereInputSchema) ]).optional(),
+  connect: z.lazy(() => AddressWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => AddressUpdateToOneWithWhereWithoutUserInputSchema), z.lazy(() => AddressUpdateWithoutUserInputSchema), z.lazy(() => AddressUncheckedUpdateWithoutUserInputSchema) ]).optional(),
 });
 
 export const UserCreateNestedOneWithoutAddressInputSchema: z.ZodType<Prisma.UserCreateNestedOneWithoutAddressInput> = z.strictObject({
-  create: z.union([ z.lazy(() => UserCreateWithoutAddressInputSchema), z.lazy(() => UserUncheckedCreateWithoutAddressInputSchema) ]).optional(),
-  connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutAddressInputSchema).optional(),
-  connect: z.lazy(() => UserWhereUniqueInputSchema).optional(),
-});
-
-export const UserUncheckedCreateNestedOneWithoutAddressInputSchema: z.ZodType<Prisma.UserUncheckedCreateNestedOneWithoutAddressInput> = z.strictObject({
   create: z.union([ z.lazy(() => UserCreateWithoutAddressInputSchema), z.lazy(() => UserUncheckedCreateWithoutAddressInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutAddressInputSchema).optional(),
   connect: z.lazy(() => UserWhereUniqueInputSchema).optional(),
@@ -1533,14 +1464,12 @@ export const UserUpdateOneWithoutAddressNestedInputSchema: z.ZodType<Prisma.User
   update: z.union([ z.lazy(() => UserUpdateToOneWithWhereWithoutAddressInputSchema), z.lazy(() => UserUpdateWithoutAddressInputSchema), z.lazy(() => UserUncheckedUpdateWithoutAddressInputSchema) ]).optional(),
 });
 
-export const UserUncheckedUpdateOneWithoutAddressNestedInputSchema: z.ZodType<Prisma.UserUncheckedUpdateOneWithoutAddressNestedInput> = z.strictObject({
-  create: z.union([ z.lazy(() => UserCreateWithoutAddressInputSchema), z.lazy(() => UserUncheckedCreateWithoutAddressInputSchema) ]).optional(),
-  connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutAddressInputSchema).optional(),
-  upsert: z.lazy(() => UserUpsertWithoutAddressInputSchema).optional(),
-  disconnect: z.union([ z.boolean(),z.lazy(() => UserWhereInputSchema) ]).optional(),
-  delete: z.union([ z.boolean(),z.lazy(() => UserWhereInputSchema) ]).optional(),
-  connect: z.lazy(() => UserWhereUniqueInputSchema).optional(),
-  update: z.union([ z.lazy(() => UserUpdateToOneWithWhereWithoutAddressInputSchema), z.lazy(() => UserUpdateWithoutAddressInputSchema), z.lazy(() => UserUncheckedUpdateWithoutAddressInputSchema) ]).optional(),
+export const NullableIntFieldUpdateOperationsInputSchema: z.ZodType<Prisma.NullableIntFieldUpdateOperationsInput> = z.strictObject({
+  set: z.number().optional().nullable(),
+  increment: z.number().optional(),
+  decrement: z.number().optional(),
+  multiply: z.number().optional(),
+  divide: z.number().optional(),
 });
 
 export const ProductCreateNestedManyWithoutProducerInputSchema: z.ZodType<Prisma.ProductCreateNestedManyWithoutProducerInput> = z.strictObject({
@@ -1663,17 +1592,6 @@ export const NestedEnumUserRoleFilterSchema: z.ZodType<Prisma.NestedEnumUserRole
   not: z.union([ z.lazy(() => UserRoleSchema), z.lazy(() => NestedEnumUserRoleFilterSchema) ]).optional(),
 });
 
-export const NestedIntNullableFilterSchema: z.ZodType<Prisma.NestedIntNullableFilter> = z.strictObject({
-  equals: z.number().optional().nullable(),
-  in: z.number().array().optional().nullable(),
-  notIn: z.number().array().optional().nullable(),
-  lt: z.number().optional(),
-  lte: z.number().optional(),
-  gt: z.number().optional(),
-  gte: z.number().optional(),
-  not: z.union([ z.number(),z.lazy(() => NestedIntNullableFilterSchema) ]).optional().nullable(),
-});
-
 export const NestedIntWithAggregatesFilterSchema: z.ZodType<Prisma.NestedIntWithAggregatesFilter> = z.strictObject({
   equals: z.number().optional(),
   in: z.number().array().optional(),
@@ -1734,6 +1652,17 @@ export const NestedEnumUserRoleWithAggregatesFilterSchema: z.ZodType<Prisma.Nest
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumUserRoleFilterSchema).optional(),
   _max: z.lazy(() => NestedEnumUserRoleFilterSchema).optional(),
+});
+
+export const NestedIntNullableFilterSchema: z.ZodType<Prisma.NestedIntNullableFilter> = z.strictObject({
+  equals: z.number().optional().nullable(),
+  in: z.number().array().optional().nullable(),
+  notIn: z.number().array().optional().nullable(),
+  lt: z.number().optional(),
+  lte: z.number().optional(),
+  gt: z.number().optional(),
+  gte: z.number().optional(),
+  not: z.union([ z.number(),z.lazy(() => NestedIntNullableFilterSchema) ]).optional().nullable(),
 });
 
 export const NestedIntNullableWithAggregatesFilterSchema: z.ZodType<Prisma.NestedIntNullableWithAggregatesFilter> = z.strictObject({

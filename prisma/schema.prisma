@@ -53,13 +53,10 @@ model User {
   birthYear Int
 
   profession String
-  isMarried  Boolean @default(false)
+  isMarried  Boolean  @default(false)
+  role       UserRole @default(admin)
 
-  role UserRole @default(admin)
-
-  // Зв'язок 1 до 1 з адресою
-  address   Address? @relation(fields: [addressId], references: [id], onDelete: Cascade) //Вказуємо onDelete: Cascade, щоб запис в User видалявся разом із записом в Address
-  addressId Int?     @unique
+  address Address?
 }
 
 model Address {
@@ -68,7 +65,8 @@ model Address {
   street      String
   houseNumber Int
 
-  user User?
+  user   User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int?  @unique
 }
 
 // СХЕМИ ДЛЯ СУТНОСТІ PRODUCT

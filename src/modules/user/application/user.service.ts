@@ -109,6 +109,7 @@ export class UserService implements IUserService {
     verifyCredentials =
         async (email: string, password: string): Promise<UserResponse> => {
             const user: UserEntity | null = await this.userRepository.findByEmail(email);
+            console.log("Auth user: ", user);
             if(!user) {
                 throw new UnauthorizedError("email або пароль невірні")
             }
