@@ -10,6 +10,7 @@ import {motherboardSchema} from "./schemas/pcComponents/motherboard.schema.ts";
 import {processorSchema} from "./schemas/pcComponents/processor.schema.ts";
 import {powerSupplySchema} from "./schemas/pcComponents/power-supply.schema.ts";
 import {storageSchema} from "./schemas/pcComponents/storage.schema.ts";
+import {producerResponseSchema} from "../../producer/api/producer.dto.ts";
 
 
 
@@ -74,10 +75,7 @@ export type ProductsQuery = z.infer<typeof productsQuerySchema>;
 
 
 
-const producerResponseSchema = z.object({
-    id: z.number(),
-    name: z.string(),
-});
+
 
 
 //OUTPUT

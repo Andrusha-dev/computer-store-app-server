@@ -51,7 +51,7 @@ export const CATEGORY_INFO: Record<Category, {
 export const baseProductSchema = z.object({
     id: z.number(),
     productName: z.string(),
-    imgUrls: z.array(z.string()),
+    imgUrls: z.array(z.url()),
     price: z.coerce.number().positive(),
     description: z.string(),
     quantity: z.coerce.number().int().nonnegative({error: "Кількість товару не може бути від\'ємним числом"}),
