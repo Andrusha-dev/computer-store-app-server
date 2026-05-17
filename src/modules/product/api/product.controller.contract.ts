@@ -1,6 +1,8 @@
 import type {ProductFullResponse, ProductResponse, ProductsResponse} from "./product.dto.ts";
 import type {Request, Response} from "express";
 
+
+
 export interface IProductController {
     findById: (req: Request, res: Response<ProductResponse>) => Promise<void>;
     findFullById: (req: Request, res: Response<ProductFullResponse>) => Promise<void>;

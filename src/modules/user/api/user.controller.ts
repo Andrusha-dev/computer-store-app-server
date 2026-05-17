@@ -63,7 +63,7 @@ export class UserController implements IUserController {
     }
 
     update = async (req: Request, res: Response<UserFullResponse>): Promise<void> => {
-        const {id} = extractValidatedBodyOrThrow<UserParams>(res);
+        const {id} = extractValidatedParamsOrThrow<UserParams>(res);
         const dto: UpdateUserDto = extractValidatedBodyOrThrow<UpdateUserDto>(res);
 
         const response: UserFullResponse = await this.userService.update(id, dto);

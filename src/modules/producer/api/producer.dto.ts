@@ -1,6 +1,6 @@
 import {z} from "zod";
 import {paginationCriteriaSchema, paginationMetaSchema} from "../../../shared/schemas/pagination.schema.ts";
-import {productResponseSchema} from "../../product/api/product.dto.ts";
+import {productResponseSchema} from "../../product/index.ts";
 
 
 
@@ -18,7 +18,10 @@ const producerSchema = z.object({
 const baseProducerDtoSchema = producerSchema.omit({id: true});
 
 
-export const createProducerDtoSchema = baseProducerDtoSchema;
+export const createProducerDtoSchema = baseProducerDtoSchema
+    .extend({
+        logoUrl: producerSchema.shape.logoUrl.optional()
+    });
 export type CreateProducerDto = z.infer<typeof createProducerDtoSchema>;
 
 
@@ -55,7 +58,7 @@ export const producerResponseSchema = producerSchema;
 export type ProducerResponse = z.infer<typeof producerResponseSchema>;
 
 export const producerFullResponseSchema = producerSchema.extend({
-    products: z.array(productResponseSchema)
+    products: z.array(z.lazy(() => productResponseSchema))
 });
 export type ProducerFullResponse = z.infer<typeof producerFullResponseSchema>;
 

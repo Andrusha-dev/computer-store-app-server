@@ -10,7 +10,7 @@ import {motherboardSchema} from "./schemas/pcComponents/motherboard.schema.ts";
 import {processorSchema} from "./schemas/pcComponents/processor.schema.ts";
 import {powerSupplySchema} from "./schemas/pcComponents/power-supply.schema.ts";
 import {storageSchema} from "./schemas/pcComponents/storage.schema.ts";
-import {producerResponseSchema} from "../../producer/api/producer.dto.ts";
+import {producerResponseSchema} from "../../producer/index.ts";
 
 
 
@@ -85,7 +85,7 @@ export type ProductResponse = z.infer<typeof productResponseSchema>;
 
 //Базова схема response, що містить реляції
 const baseProductFullResponseSchema = baseProductSchema.extend({
-    producer: producerResponseSchema,
+    producer: z.lazy(() => producerResponseSchema),
 });
 export const productFullResponseSchema = z.discriminatedUnion("category", [
     baseProductFullResponseSchema.extend({category: z.literal(categorySchema.enum.PROCESSORS), details: processorSchema}),

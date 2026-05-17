@@ -11,6 +11,7 @@ import {createAppRouter} from "../../../api/routers/app.router.ts";
 import {authModuleDeps, type IAuthModuleCradle} from "../../../modules/auth/index.ts";
 import {type IUserModuleCradle, userModuleDeps} from "../../../modules/user/index.ts";
 import {type IProductModuleCradle, productModuleDeps} from "../../../modules/product/index.ts";
+import {type IProducerModuleCradle, producerModuleDeps} from "../../../modules/producer/index.ts";
 
 
 
@@ -18,7 +19,8 @@ import {type IProductModuleCradle, productModuleDeps} from "../../../modules/pro
 export interface ICradle extends
     IAuthModuleCradle,
     IUserModuleCradle,
-    IProductModuleCradle {
+    IProductModuleCradle,
+    IProducerModuleCradle {
         //global
         dbService: PrismaService;
         hashProvider: IHashProvider;
@@ -48,5 +50,6 @@ container.register({
     //modules
     ...authModuleDeps,
     ...userModuleDeps,
-    ...productModuleDeps
+    ...productModuleDeps,
+    ...producerModuleDeps,
 });
