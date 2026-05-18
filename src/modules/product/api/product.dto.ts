@@ -20,6 +20,8 @@ import {producerResponseSchema} from "../../producer/index.ts";
 //Базова схема dto для мутацій
 const baseProductDtoSchema = baseProductSchema.omit({id: true});
 
+
+//Схема dto для створення product
 export const createProductDtoSchema = z.discriminatedUnion("category", [
     baseProductDtoSchema.extend({category: z.literal(categorySchema.enum.GRAPHIC_CARDS), details: graphicCardSchema}),
     baseProductDtoSchema.extend({category: z.literal(categorySchema.enum.MEMORY), details: memorySchema}),
@@ -31,6 +33,7 @@ export const createProductDtoSchema = z.discriminatedUnion("category", [
 export type CreateProductDto = z.infer<typeof createProductDtoSchema>;
 
 
+//Схема dto для оновлення product. Всі поля опціональні окрім category
 export const updateProductDtoSchema = z.discriminatedUnion("category", [
     baseProductDtoSchema
         .extend({details: graphicCardSchema.partial()})
@@ -60,19 +63,20 @@ export const updateProductDtoSchema = z.discriminatedUnion("category", [
 export type UpdateProductDto = z.infer<typeof updateProductDtoSchema>;
 
 
+//Схема для параметрів url
 export const productParamsSchema = z.object({
     id: z.coerce.number().int().positive(),
 });
 export type ProductParams = z.infer<typeof productParamsSchema>;
 
 
+//Схема для параметрів запиту
 export const productsQuerySchema = paginationCriteriaSchema
     .extend({
         sortType: productSortTypeSchema
     })
     .extend(productFiltersSchema.shape);
 export type ProductsQuery = z.infer<typeof productsQuerySchema>;
-
 
 
 

@@ -38,14 +38,31 @@ export const toProductWhereInput =
 
         //Додаємо в where фільтри з категорії товару
         if(activeEntries.length) {
-            where.AND = activeEntries.map(([key, value]) => ({
-                details: {
-                    //Значення path обовязково має бути масивом (хоча ts і не викидає помилку, якщо це не масив),
-                    //де міститься перелік полів різного рівня вкладеності в json
-                    path: [key],
-                    equals: value
+            where.AND = activeEntries.map(([key, value]) => {
+                //Якщо значення фільтра - це масив
+                if (Array.isArray(value)) {
+                    return {
+                        OR: value.map(val => ({
+                            details: {
+                                //Значення path обовязково має бути масивом (хоча ts і не викидає помилку, якщо це не масив),
+                                //де міститься перелік полів різного рівня вкладеності в json
+                                path: [key],
+                                equals: val // Тепер порівнюємо з кожним числом окремо
+                            }
+                        }))
+                    };
                 }
-            }))
+
+                // Якщо прийшло поодиноке значення
+                return {
+                    details: {
+                        //Значення path обовязково має бути масивом (хоча ts і не викидає помилку, якщо це не масив),
+                        //де міститься перелік полів різного рівня вкладеності в json
+                        path: [key],
+                        equals: value
+                    }
+                };
+            });
         }
 
         return where;
