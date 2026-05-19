@@ -57,6 +57,8 @@ model User {
   role       UserRole @default(admin)
 
   address Address?
+  cart    Cart?
+  orders  Order[]
 }
 
 model Address {
@@ -65,8 +67,8 @@ model Address {
   street      String
   houseNumber Int
 
-  user   User? @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int?  @unique
+  user   User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // СХЕМИ ДЛЯ СУТНОСТІ PRODUCT
@@ -80,6 +82,29 @@ enum Category {
   POWER_SUPPLIES
 }
 
+//Схема для сутності Product
+model Product {
+  id          Int      @id @default(autoincrement())
+  productName String
+  imgUrls     String[]
+  price       Decimal  @db.Decimal(10, 2) // Для грошей краще Decimal, ніж Float
+  description String   @db.Text
+  quantity    Int      @default(0)
+  category    Category
+  // Характеристики (Processor, Memory тощо)
+  details     Json
+
+  producerId Int?
+  producer   Producer?   @relation(fields: [producerId], references: [id])
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  // Індекси для швидкої фільтрації
+  @@index([category])
+  @@index([price])
+  @@index([producerId])
+}
+
 //Схема для сутності Producer (виробник товару)
 model Producer {
   id       Int       @id @default(autoincrement())
@@ -89,22 +114,60 @@ model Producer {
   products Product[]
 }
 
-//Схема для сутності Product
-model Product {
-  id          Int       @id @default(autoincrement())
-  productName String
-  imgUrls     String[]
-  price       Decimal   @db.Decimal(10, 2) // Для грошей краще Decimal, ніж Float
-  description String    @db.Text
-  quantity    Int       @default(0)
-  category    Category
-  // Характеристики (Processor, Memory тощо)
-  details     Json
-  producer    Producer? @relation(fields: [producerId], references: [id])
-  producerId  Int?
+//СХЕМИ ДЛЯ СУТНОСТІ CART
+//Схема для сутності Cart
+model Cart {
+  id Int @id @default(autoincrement())
 
-  // Індекси для швидкої фільтрації
-  @@index([category])
-  @@index([price])
-  @@index([producerId])
+  items  CartItem[]
+  userId Int        @unique
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+//Схема для сутності CartItem
+model CartItem {
+  id       Int @id @default(autoincrement())
+  quantity Int @default(1)
+
+  cartId    Int
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  //Комбінація значень полів cartId та productId має бути унікально, щоб користувач не зміг в одній корзині створити
+  //різні CartItem з одним і тим же продуктом. Натомість можна змінити лише значення поля quantity
+  @@unique([cartId, productId])
+}
+
+//СХЕМИ ДЛЯ СУТНОСТІ ORDER
+//Перечислення зі статусами замовлення
+enum OrderStatus {
+  PENDING
+  PAID
+  DELIVERING
+  COMPLETED
+  CANCELLED
+}
+
+//Схема для сутності Order
+model Order {
+  id          Int         @id @default(autoincrement())
+  status      OrderStatus @default(PENDING)
+  totalAmount Decimal     @db.Decimal(10, 2)
+
+  items  OrderItem[]
+  userId Int
+  user   User        @relation(fields: [userId], references: [id])
+}
+
+//Схема для сутності OrderItem
+model OrderItem {
+  id       Int     @id @default(autoincrement())
+  quantity Int
+  price    Decimal @db.Decimal(10, 2)
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
