@@ -7,7 +7,7 @@ import {productResponseSchema} from "../../product/index.ts";
 //ОСНОВНІ СХЕМИ (БУДІВЕЛЬНІ БЛОКИ)
 //Основна схема producer
 const producerSchema = z.object({
-    id: z.number().int(),
+    id: z.number().int().positive(),
     name: z.string().min(2, {error: "Назва виробника має містити не менше 2 символів"}),
     logoUrl: z.url().nullable()
 });

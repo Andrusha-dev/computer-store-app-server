@@ -1,14 +1,12 @@
-import type {CartEntity, CartFullEntity} from "./cart.entity.ts";
-import {Prisma} from "@prisma/client";
+import type {CartFullEntity} from "./cart.entity.ts";
+
 
 
 export interface ICartRepository {
-    findById: (id: number) => Promise<CartEntity | null>;
-    findFullById: (id: number) => Promise<CartFullEntity | null>;
-    findMany: (args: Prisma.CartFindManyArgs) => Promise<CartEntity[]>;
-    count: (where?: Prisma.CartWhereInput) => Promise<number>;
-    create: (data: Prisma.CartCreateInput) => Promise<CartFullEntity>;
-    update: (id: number, data: Prisma.CartUpdateInput) => Promise<CartFullEntity>;
-    delete: (id: number) => Promise<CartFullEntity>;
+    findCartFullByUserId: (userId: number) => Promise<CartFullEntity | null>;
+    createItem: (userId: number, productId: number, quantity: number) => Promise<CartFullEntity>;
+    updateItemQuantity: (userId: number, productId: number, quantity: number) => Promise<CartFullEntity>;
+    deleteItem: (userId: number, productId: number) => Promise<CartFullEntity>;
+    clearCart: (userId: number) => Promise<CartFullEntity>;
 }
 

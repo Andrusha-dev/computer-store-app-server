@@ -1,3 +1,3 @@
 export {type IUserService} from "./application/user.service.contract.ts";
-export {type UserResponse} from "./api/user.dto.ts"
+export {type UserResponse, userResponseSchema} from "./api/user.dto.ts"
 export {type IUserModuleCradle, userModuleDeps} from "./user.module.ts";

@@ -49,7 +49,7 @@ export const CATEGORY_INFO: Record<Category, {
 
 //Базовий тип для product зі спільними полями для будь-якої категорії товару
 export const baseProductSchema = z.object({
-    id: z.number(),
+    id: z.number().int().positive(),
     productName: z.string(),
     imgUrls: z.array(z.url()),
     price: z.coerce.number().positive(),

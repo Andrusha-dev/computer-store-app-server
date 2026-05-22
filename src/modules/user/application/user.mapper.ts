@@ -50,7 +50,10 @@ export const toUserCreateInput =
         const data: Prisma.UserCreateInput = {
             ...rest,
             address: {
-                create: address // Явне перетворення реляції
+                create: address // id присвоїться таке ж, як і в User
+            },
+            cart: {
+                create: {} // id присвоїться таке ж, як і в User
             }
         }
 

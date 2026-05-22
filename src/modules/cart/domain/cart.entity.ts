@@ -5,6 +5,10 @@ export type CartEntity = Cart;
 
 export const cartInclude = {
     user: true,
-    items: true,
+    items: {
+        include: {
+            product: true,
+        }
+    },
 } satisfies Prisma.CartInclude;
 export type CartFullEntity = Prisma.CartGetPayload<{include: typeof cartInclude}>

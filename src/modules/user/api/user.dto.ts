@@ -10,7 +10,7 @@ import {userRoleSchema} from "../../../shared/schemas/user-role.schema.ts";
 //ОСНОВНІ СХЕМИ (БУДІВЕЛЬНІ БЛОКИ)
 //Основна схема користувача
 export const userSchema = z.object({
-    id: z.number().int(),
+    id: z.number().int().positive(),
     email: z.email({ message: "Невірний формат email" }),
     password: z.string().min(8, { message: "Довжина паролю має бути не менше 8 символів" }),
     username: z.string().min(6, { message: "Довжина імені користувача має бути не менше 6 символів" }),
@@ -98,7 +98,7 @@ export type UserResponse = z.infer<typeof userResponseSchema>;
 //Схема dto відповіді з реляціями
 export const userFullResponseSchema = baseUserResponseSchema
     .extend({
-        address: addressSchema.nullable()
+        address: addressSchema
     });
 export type UserFullResponse = z.infer<typeof userFullResponseSchema>;
 

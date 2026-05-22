@@ -1,7 +1,7 @@
 import type {PrismaService} from "../../../../shared/infrastructure/database/prisma.service.ts";
 import type {ICartRepository} from "../../domain/cart.repository.contract.ts";
-import {type CartEntity, type CartFullEntity, cartInclude} from "../../domain/cart.entity.ts";
-import {Prisma} from "@prisma/client";
+import {type CartFullEntity, cartInclude} from "../../domain/cart.entity.ts";
+
 
 
 
@@ -16,22 +16,11 @@ export class CartRepository implements ICartRepository {
         this.dbService = dbService;
     }
 
-    findById =
-        async (id: number): Promise<CartEntity | null> => {
-            const cart: CartEntity | null = await this.dbService.cart.findUnique({
-                where: {
-                    id: id,
-                }
-            });
-
-            return cart;
-        }
-
-    findFullById =
-        async (id: number): Promise<CartFullEntity | null> => {
+    findCartFullByUserId =
+        async (userId: number): Promise<CartFullEntity | null> => {
             const cart: CartFullEntity | null = await this.dbService.cart.findUnique({
                 where: {
-                    id: id
+                    id: userId
                 },
                 include: cartInclude
             });
@@ -39,50 +28,73 @@ export class CartRepository implements ICartRepository {
             return cart;
         }
 
-    findMany =
-        async (args: Prisma.CartFindManyArgs): Promise<CartEntity[]> => {
-            const carts: CartEntity[] = await this.dbService.cart.findMany(args);
+    createItem =
+        async (userId: number, productId: number, quantity: number): Promise<CartFullEntity> => {
+            const cart: CartFullEntity = await this.dbService.cart.update({
+                where: {id: userId},
+                data: {
+                    items: {
+                        upsert: {
+                            //Для перевірки унікальності CartItem нам потрібен саме обєкт cartId_productId, який генерує prisma, відповідно до схеми
+                            where: {cartId_productId: {cartId: userId, productId: productId}},
+                            update: {quantity: {increment: quantity}},
+                            create: {quantity: quantity, productId: productId} // cartId Prisma підставить сама
+                        }
+                    }
+                },
+                include: cartInclude
+            });
 
-            return carts;
+            return cart
         }
 
-    count =
-        async (where?: Prisma.CartWhereInput): Promise<number> => {
-            const count: number = await this.dbService.cart.count({where});
-
-            return count;
-        }
-
-    create =
-        async (data: Prisma.CartCreateInput): Promise<CartFullEntity> => {
-            const cart: CartFullEntity = await this.dbService.cart.create({
-                data: data,
+    updateItemQuantity =
+        async (userId: number, productId: number, quantity: number): Promise<CartFullEntity> => {
+            const cart: CartFullEntity = await this.dbService.cart.update({
+                where: {id: userId},
+                data: {
+                    items: {
+                        update: {
+                            //Для апдейта нам достатньо cartId_productId, тому знати id CartItem не потрібно
+                            where: {cartId_productId: {cartId: userId, productId: productId}},
+                            data: {quantity: quantity}
+                        }
+                    }
+                },
                 include: cartInclude,
             });
 
             return cart;
         }
 
-    update =
-        async (id: number, data: Prisma.CartUpdateInput): Promise<CartFullEntity> => {
+    deleteItem =
+        async (userId: number, productId: number): Promise<CartFullEntity> => {
             const cart: CartFullEntity = await this.dbService.cart.update({
-                where: {
-                    id: id,
+                where: {id: userId},
+                data: {
+                    items: {
+                        delete: {
+                            //поле delete потребує безпосередньо унікального ідентифікатора, тому cartId_productId вказуємо напряму, без where
+                            cartId_productId: {cartId: userId, productId: productId}
+                        }
+                    }
                 },
-                data: data,
-                include: cartInclude
+                include: cartInclude,
             });
 
             return cart;
         }
 
-    delete =
-        async (id: number): Promise<CartFullEntity> => {
-            const cart: CartFullEntity = await this.dbService.cart.delete({
-                where: {
-                    id: id,
+    clearCart =
+        async (userId: number): Promise<CartFullEntity> => {
+            const cart: CartFullEntity = await this.dbService.cart.update({
+                where: {id: userId},
+                data: {
+                    items: {
+                        deleteMany: {}
+                    }
                 },
-                include: cartInclude
+                include: cartInclude,
             });
 
             return cart;
