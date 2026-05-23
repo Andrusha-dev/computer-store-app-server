@@ -23,10 +23,13 @@ export const cartItemSchema = z.object({
 
 //INPUT
 export const createCartItemDtoSchema = cartItemSchema
+    //productId передаємо в тілі запиту, а не в параметрі url, бо це post запит
     .pick({productId: true, quantity: true});
 export type CreateCartItemDto = z.infer<typeof createCartItemDtoSchema>;
 
 export const updateCartItemDtoSchema = cartItemSchema
+    //productId передаємо через параметри url, бо це patch запит.
+    //Оновлення CartItem передбачає лише оновлення поля quantity
     .pick({quantity: true});
 export type UpdateCartItemDto = z.infer<typeof updateCartItemDtoSchema>;
 
@@ -48,6 +51,7 @@ export const cartFullResponseSchema = cartSchema.extend({
     items: z.array(cartItemFullResponseSchema),
     user: userResponseSchema,
 });
+export type CartFullResponse = z.infer<typeof cartFullResponseSchema>;
 
 
 
