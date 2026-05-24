@@ -12,7 +12,7 @@ import {
 
 
 
-export interface Dependencies {
+interface Dependencies {
     cartService: ICartService;
     productService: IProductService
 }

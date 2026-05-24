@@ -1,6 +1,5 @@
 import {z} from "zod";
 import {productResponseSchema} from "../../product/index.ts";
-import {userResponseSchema} from "../../user/index.ts";
 
 
 
@@ -48,8 +47,7 @@ const cartItemFullResponseSchema = cartItemSchema
     });
 
 export const cartFullResponseSchema = cartSchema.extend({
-    items: z.array(cartItemFullResponseSchema),
-    user: userResponseSchema,
+    items: z.array(cartItemFullResponseSchema)
 });
 export type CartFullResponse = z.infer<typeof cartFullResponseSchema>;
 

@@ -4,7 +4,8 @@ import {type Cart, Prisma} from "@prisma/client";
 export type CartEntity = Cart;
 
 export const cartInclude = {
-    user: true,
+    //реляція user для cart, зазвичай не потрібна, а якщо раптом знадобиться то user можна отримати через id cart, або з tokenPayload
+    //реляція items для cart повинна підтягувати власну реляцію product. Це критично важливо для фронтенда
     items: {
         include: {
             product: true,
