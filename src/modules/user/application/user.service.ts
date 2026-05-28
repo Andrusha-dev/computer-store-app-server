@@ -15,7 +15,7 @@ import type {
 import {NotFoundError, UnauthorizedError} from "../../../shared/error/custom.errors.ts";
 import {toUserFullResponse, toUserResponse, toUsersResponse} from "../api/user.mapper.ts";
 import {Prisma} from "@prisma/client";
-import {toUserCreateInput, toUserFindManyArgs, toUserUpdateInput, toUserWhereInput} from "./user.mapper.ts";
+import {toUserCreateInput, toUserFindManyArgs, toUserUpdateInput} from "./user.mapper.ts";
 import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts";
 import {createPaginationMeta} from "../../../shared/utils/pagination.utils.ts";
 
@@ -85,18 +85,16 @@ export class UserService implements IUserService {
     //Сервісний метод для отримання списку користувачів без реляцій. Використовується в адмінці
     findMany =
         async (query: UsersQuery): Promise<UsersResponse> => {
-            const {pageNo, pageSize, sortType, sortOrder, ...filters} = query;
-
             const args: Prisma.UserFindManyArgs = toUserFindManyArgs(query);
-            const where: Prisma.UserWhereInput = toUserWhereInput(filters);
 
             const [users, totalElements] = await Promise.all([
                 this.userRepository.findMany(args),
-                this.userRepository.count(where)
+                //where дістаємо з args, щоб фільтри для findMany та count були синхронізовані
+                this.userRepository.count(args.where)
             ]);
 
             const content: UserResponse[] = users.map(toUserResponse);
-            const meta: PaginationMeta = createPaginationMeta(pageNo, pageSize, totalElements);
+            const meta: PaginationMeta = createPaginationMeta(query.pageNo, query.pageSize, totalElements);
 
             const response: UsersResponse = toUsersResponse(content, meta);
 

@@ -15,4 +15,6 @@ export interface IProductService {
     create: (dto: CreateProductDto) => Promise<ProductFullResponse>
     update: (id: number, dto: UpdateProductDto) => Promise<ProductFullResponse>
     delete: (id: number) => Promise<ProductFullResponse>;
+    decreaseQuantity: (id: number, count: number) => Promise<ProductFullResponse>;
+    increaseQuantity: (id: number, count: number) => Promise<ProductFullResponse>;
 }

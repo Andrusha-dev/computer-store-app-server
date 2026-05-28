@@ -8,14 +8,13 @@ import {
     type ProductsResponse, type UpdateProductDto
 } from "../api/product.dto.ts";
 import type {ProductEntity, ProductFullEntity} from "../domain/product.entity.ts";
-import {NotFoundError} from "../../../shared/error/custom.errors.ts";
+import {BadRequestError, NotFoundError} from "../../../shared/error/custom.errors.ts";
 import {toProductFullResponse, toProductResponse, toProductsResponse} from "../api/product.mapper.ts";
 import {Prisma} from "@prisma/client";
 import {
     toProductCreateInput,
     toProductFindManyArgs,
     toProductUpdateInput,
-    toProductWhereInput
 } from "./product.mapper.ts";
 import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts";
 import {createPaginationMeta} from "../../../shared/utils/pagination.utils.ts";
@@ -60,18 +59,15 @@ export class ProductService implements IProductService {
 
     findMany =
         async (query: ProductsQuery): Promise<ProductsResponse> => {
-            const {pageNo, pageSize, sortType, sortOrder, ...filters} = query;
-
-            const where: Prisma.ProductWhereInput = toProductWhereInput(filters);
             const args: Prisma.ProductFindManyArgs = toProductFindManyArgs(query);
 
             const [products, totalElements] = await Promise.all([
                 this.productRepository.findMany(args),
-                this.productRepository.count(where)
+                this.productRepository.count(args.where)
             ]);
 
             const content: ProductResponse[] = products.map(toProductResponse);
-            const meta: PaginationMeta = createPaginationMeta(pageNo, pageSize, totalElements);
+            const meta: PaginationMeta = createPaginationMeta(query.pageNo, query.pageSize, totalElements);
 
             const response: ProductsResponse = toProductsResponse(content, meta);
 
@@ -121,5 +117,42 @@ export class ProductService implements IProductService {
             const response: ProductFullResponse = toProductFullResponse(product);
 
             return response;
+        }
+
+    //Метод для зменшення кількості товару (списання). Використовується під час оформлення замовлення
+    decreaseQuantity =
+        async (id: number, count: number): Promise<ProductFullResponse> => {
+            const product: ProductResponse = await this.findById(id); // Отримуємо поточний продукт
+
+            if (product.quantity < count) {
+                throw new BadRequestError(`Неможливо списати товар з ID ${id}: недостатньо на складі`);
+            }
+
+            // Вираховуємо нову кількість
+            const newQuantity = product.quantity - count;
+
+            // Викликаємо репозиторій для оновлення лише одного поля baseProductSchema
+            const updatedProduct: ProductFullResponse = await this.update(id, {
+                quantity: newQuantity,
+                category: product.category
+            });
+
+            return updatedProduct;
+        }
+
+    //Метод для відкату списання товару, у випадку, якщо під час створення замовлення виникла помилка
+    increaseQuantity =
+        async (id: number, count: number): Promise<ProductFullResponse> => {
+            const product: ProductResponse = await this.findById(id);
+
+            //Розраховуємо кількість товару, яка була до списання
+            const newQuantity: number = product.quantity + count;
+
+            const updatedProduct: ProductFullResponse = await this.update(id, {
+                quantity: newQuantity,
+                category: product.category
+            });
+
+            return updatedProduct;
         }
 }

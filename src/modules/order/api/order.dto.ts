@@ -30,9 +30,8 @@ export const orderItemSchema = z.object({
 
 
 //INPUT
-export const createOrderDtoSchema = z.object({
-    items: z.array(orderItemSchema.pick({productId: true, quantity: true}))
-});
+//При створенні замовлення dto міститиме дані про оплату та доставку, але вони будуть створені пізніше
+export const createOrderDtoSchema = z.object({});
 export type CreateOrderDto = z.infer<typeof createOrderDtoSchema>;
 
 export const updateOrderDtoSchema = orderSchema.pick({status: true});
@@ -44,7 +43,6 @@ export const orderParamsSchema = z.object({
 export type OrderParams = z.infer<typeof orderParamsSchema>;
 
 export const orderFiltersSchema = z.object({
-    //userId: z.coerce.number().int().positive().optional(),
     status: orderStatusSchema.optional()
 });
 export type OrderFilters = z.infer<typeof orderFiltersSchema>;

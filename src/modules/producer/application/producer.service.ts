@@ -15,7 +15,6 @@ import {
     toProducerCreateInput,
     toProducerFindManyArgs,
     toProducerUpdateInput,
-    toProducerWhereInput
 } from "./producer.mapper.ts";
 import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts";
 import {createPaginationMeta} from "../../../shared/utils/pagination.utils.ts";
@@ -61,18 +60,15 @@ export class ProducerService implements IProducerService {
 
     findMany =
         async (query: ProducersQuery): Promise<ProducersResponse> => {
-            const {pageNo, pageSize, sortType, sortOrder, ...filters} = query;
-
             const args: Prisma.ProducerFindManyArgs = toProducerFindManyArgs(query);
-            const where: Prisma.ProducerWhereInput = toProducerWhereInput(filters);
 
             const [producers, totalElements] = await Promise.all([
                 this.producerRepository.findMany(args),
-                this.producerRepository.count(where),
+                this.producerRepository.count(args.where),
             ]);
 
             const content: ProducerResponse[] = producers.map(toProducerResponse);
-            const meta: PaginationMeta = createPaginationMeta(pageNo, pageSize, totalElements);
+            const meta: PaginationMeta = createPaginationMeta(query.pageNo, query.pageSize, totalElements);
 
             const producersResponse: ProducersResponse = toProducersResponse(content, meta);
 

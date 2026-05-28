@@ -1,5 +1,8 @@
-import {type Cart, Prisma} from "@prisma/client";
+import {type Cart, type CartItem, Prisma} from "@prisma/client";
 
+
+
+export type CartItemEntity = CartItem;
 
 export type CartEntity = Cart;
 
