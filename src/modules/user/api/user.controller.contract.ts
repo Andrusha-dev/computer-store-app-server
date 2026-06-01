@@ -1,5 +1,9 @@
 import type {Request, Response} from "express";
-import type {UserFullResponse, UserResponse, UsersResponse} from "./user.dto.ts";
+import type {
+    UserFullResponse,
+    UserResponse,
+    UsersResponse
+} from "./user.dto.ts";
 
 export interface IUserController {
     findById: (req: Request, res: Response<UserResponse>) => Promise<void>;

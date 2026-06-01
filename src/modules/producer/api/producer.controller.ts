@@ -2,18 +2,17 @@ import type {Request, Response} from "express";
 import type {IProducerService} from "../application/producer.service.contract.ts";
 import type {
     CreateProducerDto,
-    ProducerFullResponse,
-    ProducerParams,
+    ProducerFullResponse, ProducerParams,
     ProducerResponse,
     ProducersQuery,
     ProducersResponse, UpdateProducerDto
 } from "./producer.dto.ts";
+import type {IProducerController} from "./producer.controller.contract.ts";
 import {
     extractValidatedBodyOrThrow,
     extractValidatedParamsOrThrow,
     extractValidatedQueryOrThrow
 } from "../../../api/helpers/http.helpers.ts";
-import type {IProducerController} from "./producer.controller.contract.ts";
 
 
 
@@ -31,7 +30,8 @@ export class ProducerController implements IProducerController {
 
     findById =
         async (req: Request, res: Response<ProducerResponse>): Promise<void> => {
-            const {id} = extractValidatedParamsOrThrow<ProducerParams>(res);
+            const {id} = extractValidatedParamsOrThrow<ProducerParams>(req);
+            //const {id} = req.valid.params;
 
             const response: ProducerResponse = await this.producerService.findById(id);
 
@@ -40,7 +40,8 @@ export class ProducerController implements IProducerController {
 
     findFullById =
         async (req: Request, res: Response<ProducerFullResponse>): Promise<void> => {
-            const {id} = extractValidatedParamsOrThrow<ProducerParams>(res);
+            const {id} = extractValidatedParamsOrThrow<ProducerParams>(req);
+            //const {id} = req.valid.params;
 
             const response: ProducerFullResponse = await this.producerService.findFullById(id);
 
@@ -49,7 +50,8 @@ export class ProducerController implements IProducerController {
 
     findMany =
         async (req: Request, res: Response<ProducersResponse>): Promise<void> => {
-            const query: ProducersQuery = extractValidatedQueryOrThrow<ProducersQuery>(res);
+            const query: ProducersQuery = extractValidatedQueryOrThrow<ProducersQuery>(req);
+            //const query: ProducersQuery = req.valid.query;
 
             const response: ProducersResponse = await this.producerService.findMany(query);
 
@@ -58,7 +60,8 @@ export class ProducerController implements IProducerController {
 
     create =
         async (req: Request, res: Response<ProducerFullResponse>): Promise<void> => {
-            const dto: CreateProducerDto = extractValidatedBodyOrThrow<CreateProducerDto>(res);
+            const dto: CreateProducerDto = extractValidatedBodyOrThrow<CreateProducerDto>(req);
+            //const dto: CreateProducerDto = req.valid.body;
 
             const response: ProducerFullResponse = await this.producerService.create(dto);
 
@@ -67,8 +70,10 @@ export class ProducerController implements IProducerController {
 
     update =
         async (req: Request, res: Response<ProducerFullResponse>): Promise<void> => {
-            const {id} = extractValidatedParamsOrThrow<ProducerParams>(res);
-            const dto: UpdateProducerDto = extractValidatedBodyOrThrow<UpdateProducerDto>(res);
+            const {id} = extractValidatedParamsOrThrow<ProducerParams>(req);
+            const dto: UpdateProducerDto = extractValidatedBodyOrThrow<UpdateProducerDto>(req);
+            //const {id} = req.valid.params;
+            //const dto: UpdateProducerDto = req.valid.body;
 
             const response: ProducerFullResponse = await this.producerService.update(id, dto);
 
@@ -77,7 +82,8 @@ export class ProducerController implements IProducerController {
 
     delete =
         async (req: Request, res: Response<ProducerFullResponse>): Promise<void> => {
-            const {id} = extractValidatedParamsOrThrow<ProducerParams>(res);
+            const {id} = extractValidatedParamsOrThrow<ProducerParams>(req);
+            //const {id} = req.valid.params;
 
             const response: ProducerFullResponse = await this.producerService.delete(id);
 

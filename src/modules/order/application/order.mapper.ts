@@ -1,5 +1,5 @@
 import {Prisma} from "@prisma/client";
-import type {OrderFilters, OrdersQuery} from "../api/order.dto.ts";
+import type {OrderFilters, OrdersQuery, UpdateOrderStatusDto} from "../api/order.dto.ts";
 import {orderInclude} from "../domain/order.entity.ts";
 
 
@@ -34,4 +34,33 @@ export const toOrderFindManyArgs =
         }
 
         return args;
+    }
+
+export const toOrderCreateInput =
+    (
+        userId: number,
+        totalAmount: number,
+        orderItems: Prisma.OrderItemCreateWithoutOrderInput[]
+    ): Prisma.OrderCreateInput => {
+        const data: Prisma.OrderCreateInput = {
+            status: "PENDING",
+            totalAmount: totalAmount,
+            items: {
+                create: orderItems
+            },
+            user: {
+                connect: {id: userId}
+            }
+        }
+
+        return data;
+    }
+
+export const toOrderUpdateInput =
+    (dto: UpdateOrderStatusDto): Prisma.OrderUpdateInput => {
+        const data: Prisma.OrderUpdateInput = {
+            ...dto
+        }
+
+        return data;
     }

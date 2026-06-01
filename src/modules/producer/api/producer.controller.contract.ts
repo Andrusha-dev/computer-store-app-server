@@ -1,5 +1,9 @@
 import type {Request, Response} from "express";
-import type {ProducerFullResponse, ProducerResponse, ProducersResponse} from "./producer.dto.ts";
+import type {
+    ProducerFullResponse,
+    ProducerResponse,
+    ProducersResponse
+} from "./producer.dto.ts";
 
 
 

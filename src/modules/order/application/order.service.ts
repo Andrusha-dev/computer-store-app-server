@@ -1,21 +1,26 @@
 import type {IOrderService} from "./order.service.contract.ts";
 import type {IOrderRepository} from "../domain/order.repository.contract.ts";
-import type {CreateOrderDto, OrderFullResponse, OrdersQuery, OrdersResponse} from "../api/order.dto.ts";
-import type {OrderFullEntity, OrderItemEntity} from "../domain/order.entity.ts";
+import type {
+    CreateOrderDto,
+    OrderFullResponse,
+    OrdersQuery,
+    OrdersResponse, UpdateOrderStatusDto
+} from "../api/order.dto.ts";
+import type {OrderFullEntity} from "../domain/order.entity.ts";
 import {
     BadRequestError,
     ForbiddenError,
-    InternalServerError,
     NotFoundError
 } from "../../../shared/error/custom.errors.ts";
 import {toOrderFullResponse, toOrdersResponse} from "../api/order.mapper.ts";
 import {Prisma} from "@prisma/client";
-import {toOrderFindManyArgs, toOrderWhereInput} from "./order.mapper.ts";
+import {toOrderCreateInput, toOrderFindManyArgs, toOrderUpdateInput} from "./order.mapper.ts";
 import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts";
 import {createPaginationMeta} from "../../../shared/utils/pagination.utils.ts";
-import type {CartFullResponse} from "../../cart/api/cart.dto.ts";
+import type {CartFullResponse, CartItemFullResponse} from "../../cart/api/cart.dto.ts";
 import type {IProductService, ProductResponse} from "../../product/index.ts";
 import type {ICartService} from "../../cart/index.ts";
+
 
 
 
@@ -109,10 +114,33 @@ export class OrderService implements IOrderService {
     create =
         async (userId: number, dto: CreateOrderDto): Promise<OrderFullResponse>  => {
             const cart: CartFullResponse = await this.cartService.findCartFullByUserId(userId);
-            if(!cart || !cart.items.length) {
+            if(!cart.items.length) {
                 throw new BadRequestError("Неможливо створити замовлення: кошик порожній");
             }
 
+            const {totalAmount, orderItems} = this.prepareOrderDetails(cart)
+
+            const data: Prisma.OrderCreateInput = toOrderCreateInput(userId, totalAmount, orderItems);
+
+            const response: OrderFullResponse = await this.executeOrderTransactionsGroup(userId, cart.items, data);
+
+            return response;
+        }
+
+    updateStatus =
+        async (id: number, dto: UpdateOrderStatusDto): Promise<OrderFullResponse> => {
+            const data: Prisma.OrderUpdateInput = toOrderUpdateInput(dto);
+            const order: OrderFullEntity = await this.orderRepository.update(id, data);
+            const response: OrderFullResponse = toOrderFullResponse(order);
+
+            return response;
+        }
+
+
+
+    //Приватний метод для формування загальної суми замовлення (totalAmount) та списку елементів замовлення (items)
+    private prepareOrderDetails =
+        (cart: CartFullResponse) => {
             let totalAmount: number = 0;
             //Тип Prisma.OrderItemCreateWithoutOrderInput[], тому, що Order іще не існує, тому поле order в OrderItem створювати не потрібно
             const orderItems: Prisma.OrderItemCreateWithoutOrderInput[] = [];
@@ -142,32 +170,32 @@ export class OrderService implements IOrderService {
                 orderItems.push(orderItem);
             }
 
-
-
-            const data: Prisma.OrderCreateInput = {
-                status: "PENDING",
+            return {
                 totalAmount: totalAmount,
-                items: {
-                    create: orderItems
-                },
-                user: {
-                    connect: {id: userId}
-                }
+                orderItems: orderItems
             }
+        }
 
-
-            //Список з успішно списаними товарами
-            const successfullyDecreasedItems: Pick<OrderItemEntity, "productId" | "quantity">[] = [];
+    //Приватний метод для виконання групи транзакцій замовлення: списання кількості продуктів, створення замовлення та очищення кошика
+    //з можливістю відкату (компенсації) у випадку, якщо перші дві транзакції завершились помилкою
+    private executeOrderTransactionsGroup =
+        async (
+            userId: number,
+            cartItems: CartItemFullResponse[],
+            orderData: Prisma.OrderCreateInput
+        ): Promise<OrderFullResponse> => {
+            //Список з успішно списаними товарами. quantity - це списана кількість товару
+            const successfullyDecreasedItems: {id: number, count: number}[] = [];
 
             try {
                 //Списуємо товари зі складу один за одним
-                for (const cartItem of cart.items) {
+                for (const cartItem of cartItems) {
                     await this.productService.decreaseQuantity(cartItem.productId, cartItem.quantity);
-                    //Якщо списання пройшло успішно — запам'ятовуємо цей товар
-                    successfullyDecreasedItems.push({productId: cartItem.productId, quantity: cartItem.quantity});
+                    //Якщо списання пройшло успішно — запам'ятовуємо id товару та списану кількість
+                    successfullyDecreasedItems.push({id: cartItem.productId, count: cartItem.quantity});
                 }
                 //Створюємо замовлення в БД
-                const order: OrderFullEntity = await this.orderRepository.create(data);
+                const order: OrderFullEntity = await this.orderRepository.create(orderData);
                 //І врешті очищуємо кошик
                 await this.cartService.clearCart(userId);
 
@@ -180,9 +208,9 @@ export class OrderService implements IOrderService {
                 //повертаємо назад ЛИШЕ ТІ товари, які встигли списати
                 for (const item of successfullyDecreasedItems) {
                     try {
-                        await this.productService.increaseQuantity(item.productId, item.quantity);
+                        await this.productService.increaseQuantity(item.id, item.count);
                     } catch (rollbackError) {
-                        console.error(`Критична помилка відкату для товару ${item.productId}:`, rollbackError);
+                        console.error(`Критична помилка відкату для товару ${item.id}:`, rollbackError);
                     }
                 }
 

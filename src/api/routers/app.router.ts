@@ -8,10 +8,11 @@ interface Dependencies {
     userRouter: Router;
     productRouter: Router;
     producerRouter: Router;
-    cartRouter: Router
+    cartRouter: Router;
+    orderRouter: Router;
 }
 
-export const createAppRouter  = ({authRouter, userRouter, productRouter, producerRouter, cartRouter}: Dependencies): Router => {
+export const createAppRouter  = ({authRouter, userRouter, productRouter, producerRouter, cartRouter, orderRouter}: Dependencies): Router => {
     const router = Router();
 
     router.use("/users", userRouter);
@@ -19,6 +20,7 @@ export const createAppRouter  = ({authRouter, userRouter, productRouter, produce
     router.use("/products", productRouter);
     router.use("/producers", producerRouter);
     router.use("/cart", cartRouter);
+    router.use("/orders", orderRouter)
     //Решта маршрутів будуть додаватись далі
 
     return router;

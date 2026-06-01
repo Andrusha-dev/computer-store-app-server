@@ -26,11 +26,11 @@ export const createCartItemDtoSchema = cartItemSchema
     .pick({productId: true, quantity: true});
 export type CreateCartItemDto = z.infer<typeof createCartItemDtoSchema>;
 
-export const updateCartItemDtoSchema = cartItemSchema
+export const updateCartItemQuantityDtoSchema = cartItemSchema
     //productId передаємо через параметри url, бо це patch запит.
     //Оновлення CartItem передбачає лише оновлення поля quantity
     .pick({quantity: true});
-export type UpdateCartItemDto = z.infer<typeof updateCartItemDtoSchema>;
+export type UpdateCartItemQuantityDto = z.infer<typeof updateCartItemQuantityDtoSchema>;
 
 export const cartItemParamsSchema = z.object({
     productId: z.coerce.number().int().positive()
@@ -41,10 +41,11 @@ export type CartItemParams = z.infer<typeof cartItemParamsSchema>;
 
 //OUTPUT
 //Тип для повернення cartItem, який має містити реляцію product, щоб фронтенд на сторінці кошика міг відобразити дані про товар
-const cartItemFullResponseSchema = cartItemSchema
+export const cartItemFullResponseSchema = cartItemSchema
     .extend({
         product: productResponseSchema
     });
+export type CartItemFullResponse = z.infer<typeof cartItemFullResponseSchema>;
 
 export const cartFullResponseSchema = cartSchema.extend({
     items: z.array(cartItemFullResponseSchema)

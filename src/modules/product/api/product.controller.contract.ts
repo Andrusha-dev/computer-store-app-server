@@ -1,4 +1,8 @@
-import type {ProductFullResponse, ProductResponse, ProductsResponse} from "./product.dto.ts";
+import type {
+    ProductFullResponse,
+    ProductResponse,
+    ProductsResponse
+} from "./product.dto.ts";
 import type {Request, Response} from "express";
 
 

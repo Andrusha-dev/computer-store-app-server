@@ -32,14 +32,14 @@ export class  AuthMiddleware implements IAuthMiddleware {
 
         console.log("EXTRACTED PAYLOAD: ", payload);
 
-        res.locals.tokenPayload = payload;
+        req.tokenPayload = payload;
 
         next();
     }
 
     authorize = (allowedRoles: UserRole[]) =>
         (req: Request, res: Response, next: NextFunction): void => {
-            const tokenPayload = extractTokenPayloadOrThrow(res);
+            const tokenPayload = extractTokenPayloadOrThrow(req);
 
             const hasAccess =  allowedRoles.includes(tokenPayload.role);
 

@@ -82,5 +82,38 @@ export class ProductRepository implements IProductRepository {
         return product;
     }
 
+    //Метод, для зменшення кількості товару, якщо кількість товару на складі це дозволяє
+    decreaseQuantityWithCheck =
+        async (id: number, count: number): Promise<boolean> => {
+            //Використовуємо саме updateMany, бо звичайний update шукає лише по унікальних полях, а quantity не є унікальним
+            const updateResult = await this.dbService.product.updateMany({
+                where: {
+                    id: id,
+                    quantity: {gte: count}
+                },
+                data: {
+                    quantity: {decrement: count}
+                }
+            });
 
+            const isUpdated: boolean = updateResult.count > 0;
+
+            return isUpdated;
+        }
+
+    //Метод для збільшення кількості товару, у випадку, якщо під час оформлення замовлення сталася помилка
+    increaseQuantity =
+        async (id: number, count: number): Promise<ProductFullEntity> => {
+            const product: ProductFullEntity = await this.dbService.product.update({
+                where: {
+                    id: id
+                },
+                data: {
+                    quantity: {increment: count}
+                },
+                include: productInclude
+            });
+
+            return product;
+        }
 }

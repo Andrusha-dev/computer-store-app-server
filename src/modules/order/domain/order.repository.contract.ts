@@ -1,5 +1,5 @@
 import type {OrderFullEntity} from "./order.entity.ts";
-import {type OrderStatus, Prisma} from "@prisma/client";
+import {Prisma} from "@prisma/client";
 
 
 export interface IOrderRepository {
@@ -7,5 +7,5 @@ export interface IOrderRepository {
     findMany: (args: Prisma.OrderFindManyArgs) => Promise<OrderFullEntity[]>;
     count: (where?: Prisma.OrderWhereInput) => Promise<number>;
     create: (data: Prisma.OrderCreateInput) => Promise<OrderFullEntity>;
-    updateStatus: (id: number, status: OrderStatus) => Promise<OrderFullEntity>
+    update: (id: number, data: Prisma.OrderUpdateInput) => Promise<OrderFullEntity>
 }

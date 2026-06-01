@@ -122,37 +122,24 @@ export class ProductService implements IProductService {
     //Метод для зменшення кількості товару (списання). Використовується під час оформлення замовлення
     decreaseQuantity =
         async (id: number, count: number): Promise<ProductFullResponse> => {
-            const product: ProductResponse = await this.findById(id); // Отримуємо поточний продукт
+            const isUpdated: boolean = await this.productRepository.decreaseQuantityWithCheck(id, count);
 
-            if (product.quantity < count) {
+            if(!isUpdated) {
                 throw new BadRequestError(`Неможливо списати товар з ID ${id}: недостатньо на складі`);
             }
 
-            // Вираховуємо нову кількість
-            const newQuantity = product.quantity - count;
+            const response: ProductFullResponse = await this.findFullById(id);
 
-            // Викликаємо репозиторій для оновлення лише одного поля baseProductSchema
-            const updatedProduct: ProductFullResponse = await this.update(id, {
-                quantity: newQuantity,
-                category: product.category
-            });
-
-            return updatedProduct;
+            return response;
         }
 
     //Метод для відкату списання товару, у випадку, якщо під час створення замовлення виникла помилка
     increaseQuantity =
         async (id: number, count: number): Promise<ProductFullResponse> => {
-            const product: ProductResponse = await this.findById(id);
+            const product: ProductFullEntity = await this.productRepository.increaseQuantity(id, count);
 
-            //Розраховуємо кількість товару, яка була до списання
-            const newQuantity: number = product.quantity + count;
+            const response: ProductFullResponse = toProductFullResponse(product);
 
-            const updatedProduct: ProductFullResponse = await this.update(id, {
-                quantity: newQuantity,
-                category: product.category
-            });
-
-            return updatedProduct;
+            return response;
         }
 }

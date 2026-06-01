@@ -10,9 +10,11 @@ export interface QueryParams {
 
 //Тип для res.locals
 //Поле payload було змінене на user
-export interface AppRequestContext {
+export interface AppRequest {
     tokenPayload?: TokenPayload;
-    validatedBody?: unknown;
-    validatedQuery?: unknown;
-    validatedParams?: unknown;
+    valid?: {
+        body?: unknown;
+        query?: unknown;
+        params?: unknown;
+    }
 }

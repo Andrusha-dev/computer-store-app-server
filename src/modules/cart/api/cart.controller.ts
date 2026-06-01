@@ -1,12 +1,10 @@
 import type {Request, Response} from "express";
 import type {ICartService} from "../application/cart.service.contract.ts";
-import type {IProductService, ProductResponse} from "../../product";
+import type {IProductService} from "../../product";
 import type {ICartController} from "./cart.controller.contract.ts";
-import type {CartFullResponse, CartItemParams, CreateCartItemDto, UpdateCartItemDto} from "./cart.dto.ts";
+import type {CartFullResponse, CartItemParams, CreateCartItemDto, UpdateCartItemQuantityDto} from "./cart.dto.ts";
 import {
-    extractTokenPayloadOrThrow,
-    extractValidatedBodyOrThrow,
-    extractValidatedParamsOrThrow
+    extractTokenPayloadOrThrow, extractValidatedBodyOrThrow, extractValidatedParamsOrThrow
 } from "../../../api/helpers/http.helpers.ts";
 
 
@@ -28,7 +26,7 @@ export class CartController implements ICartController {
 
     findCartFullByUserId =
         async (req: Request, res: Response<CartFullResponse>): Promise<void> => {
-            const {id} = extractTokenPayloadOrThrow(res);
+            const {id} = extractTokenPayloadOrThrow(req);
 
             const response: CartFullResponse = await this.cartService.findCartFullByUserId(id);
 
@@ -37,37 +35,41 @@ export class CartController implements ICartController {
 
     createItem =
         async (req: Request, res: Response<CartFullResponse>): Promise<void> => {
-            const {id} = extractTokenPayloadOrThrow(res);
-            const {productId, quantity} = extractValidatedBodyOrThrow<CreateCartItemDto>(res);
+            const {id} = extractTokenPayloadOrThrow(req);
+            const dto: CreateCartItemDto = extractValidatedBodyOrThrow<CreateCartItemDto>(req);
+            //const dto: CreateCartItemDto = req.valid.body;
 
-            //Переконуємося, що product з отриманим id справді існує
-            const product: ProductResponse = await this.productService.findById(productId);
+            //Переконуємося, що product з отриманим productId справді існує. Інакше генерується помилка
+            await this.productService.findById(dto.productId);
 
-            const response: CartFullResponse = await this.cartService.createItem(id, product.id, quantity);
+            const response: CartFullResponse = await this.cartService.createItem(id, dto);
 
             res.json(response);
         }
 
     updateItemQuantity =
         async (req: Request, res: Response<CartFullResponse>): Promise<void> => {
-            const {id} = extractTokenPayloadOrThrow(res);
-            const {productId} = extractValidatedParamsOrThrow<CartItemParams>(res);
-            const {quantity} = extractValidatedBodyOrThrow<UpdateCartItemDto>(res);
+            const {id} = extractTokenPayloadOrThrow(req);
+            const {productId} = extractValidatedParamsOrThrow<CartItemParams>(req);
+            const dto: UpdateCartItemQuantityDto = extractValidatedBodyOrThrow<UpdateCartItemQuantityDto>(req);
+            //const {productId} = req.valid.params;
+            //const dto: UpdateCartItemQuantityDto = req.valid.body;
 
-            const product: ProductResponse = await this.productService.findById(productId);
+            //Переконуємося, що product за отриманим productId справді існує. Інакше генерується помилка
+            await this.productService.findById(productId);
 
-            const response: CartFullResponse = await this.cartService.updateItemQuantity(id, product.id, quantity);
+            const response: CartFullResponse = await this.cartService.updateItemQuantity(id, productId, dto);
 
             res.json(response);
         }
 
     deleteItem =
         async (req: Request, res: Response<CartFullResponse>): Promise<void> => {
-            const {id} = extractTokenPayloadOrThrow(res);
-            const {productId} = extractValidatedParamsOrThrow<CartItemParams>(res);
+            const {id} = extractTokenPayloadOrThrow(req);
+            const {productId} = extractValidatedParamsOrThrow<CartItemParams>(req);
+            //const {productId} = req.valid.params;
 
             //Для видалення CartItem нам не потрібно знати чи існує товар з необхідним id
-
             const response: CartFullResponse = await this.cartService.deleteItem(id, productId);
 
             res.json(response);
@@ -75,10 +77,9 @@ export class CartController implements ICartController {
 
     clearCart =
         async (req: Request, res: Response<CartFullResponse>): Promise<void> => {
-            const {id} = extractTokenPayloadOrThrow(res);
+            const {id} = extractTokenPayloadOrThrow(req);
 
-            const response: CartFullResponse = await this.cartService
-                .clearCart(id);
+            const response: CartFullResponse = await this.cartService.clearCart(id);
 
             res.json(response);
         }

@@ -2,7 +2,7 @@ import type {ICartController} from "./cart.controller.contract.ts";
 import type {IAuthMiddleware} from "../../../shared/contracts/auth.middleware.contract.ts";
 import {Router} from "express";
 import {validate} from "../../../api/middlewares/validation.middleware.ts";
-import {createCartItemDtoSchema, updateCartItemDtoSchema} from "./cart.dto.ts";
+import {createCartItemDtoSchema, updateCartItemQuantityDtoSchema} from "./cart.dto.ts";
 
 
 interface Dependencies {
@@ -29,7 +29,7 @@ export const createCartRouter = ({authMiddleware, cartController}: Dependencies)
     router.patch(
         "/items/:productId",
         authMiddleware.authenticate,
-        validate({body: updateCartItemDtoSchema}),
+        validate({body: updateCartItemQuantityDtoSchema}),
         cartController.updateItemQuantity,
     );
 

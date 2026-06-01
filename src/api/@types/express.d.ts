@@ -1,6 +1,17 @@
-import type {AppRequestContext} from "../types/http.types.ts";
+import type {AppRequest} from "../types/http.types.ts";
 
 
+
+declare global {
+    namespace Express {
+        interface Request extends AppRequest {}
+    }
+}
+
+export {};
+
+
+/*
 // Виносимо інтерфейс, щоб він був доступний глобально
 declare global {
     namespace Express {
@@ -10,3 +21,4 @@ declare global {
 }
 
 export {}; // Робимо файл модулем
+*/

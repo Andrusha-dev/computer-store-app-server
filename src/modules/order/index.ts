@@ -1,0 +1,1 @@
+export {type IOrderModuleCradle, orderModuleDeps} from "./order.module.ts";

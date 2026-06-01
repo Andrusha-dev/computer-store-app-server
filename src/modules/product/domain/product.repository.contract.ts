@@ -11,4 +11,6 @@ export interface  IProductRepository {
     create(data: Prisma.ProductCreateInput): Promise<ProductFullEntity>;
     update(id: number, data: Prisma.ProductUpdateInput): Promise<ProductFullEntity>;
     delete(id: number): Promise<ProductFullEntity>;
+    decreaseQuantityWithCheck(id: number, count: number): Promise<boolean>;
+    increaseQuantity(id: number, count: number): Promise<ProductFullEntity>;
 }

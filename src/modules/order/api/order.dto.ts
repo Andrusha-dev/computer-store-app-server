@@ -34,8 +34,8 @@ export const orderItemSchema = z.object({
 export const createOrderDtoSchema = z.object({});
 export type CreateOrderDto = z.infer<typeof createOrderDtoSchema>;
 
-export const updateOrderDtoSchema = orderSchema.pick({status: true});
-export type UpdateOrderDto = z.infer<typeof updateOrderDtoSchema>;
+export const updateOrderStatusDtoSchema = orderSchema.pick({status: true});
+export type UpdateOrderStatusDto = z.infer<typeof updateOrderStatusDtoSchema>;
 
 export const orderParamsSchema = z.object({
     id: z.coerce.number().int().positive(),
@@ -60,12 +60,12 @@ export type OrdersQuery = z.infer<typeof ordersQuerySchema>;
 
 
 //OUTPUT
-const orderItemResponseSchema = orderItemSchema.extend({
+const orderItemFullResponseSchema = orderItemSchema.extend({
     product: productResponseSchema
 });
 
 export const orderFullResponseSchema = orderSchema.extend({
-    items: z.array(orderItemResponseSchema)
+    items: z.array(orderItemFullResponseSchema)
 });
 export type OrderFullResponse = z.infer<typeof orderFullResponseSchema>;
 

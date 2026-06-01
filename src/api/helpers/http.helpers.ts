@@ -1,4 +1,4 @@
-import type {Request, Response} from "express";
+import type {Request} from "express";
 import type {TokenPayload} from "../../shared/schemas/token-payload.schema.ts";
 import {InternalServerError, UnauthorizedError} from "../../shared/error/custom.errors.ts";
 import type {QueryParams} from "../types/http.types.ts";
@@ -19,8 +19,8 @@ export const extractAccessTokenOrThrow = (req: Request): string => {
 }
 
 //Метод для екстракції TokenPayload після спрацювання AuthMiddleware
-export const extractTokenPayloadOrThrow = (res: Response): TokenPayload => {
-    const tokenPayload = res.locals.tokenPayload;
+export const extractTokenPayloadOrThrow = (req: Request): TokenPayload => {
+    const tokenPayload = req.tokenPayload;
 
     if (!tokenPayload) {
         throw new InternalServerError("payload з даними користувача відсутній");
@@ -29,31 +29,45 @@ export const extractTokenPayloadOrThrow = (res: Response): TokenPayload => {
 };
 
 //Метод для екстрації звалідованого тіла запиту після спрацювання мідлвари validate
-export const extractValidatedBodyOrThrow = <T>(res: Response): T => {
-    const validatedBody = res.locals.validatedBody;
+export const extractValidatedBodyOrThrow = <T>(req: Request): T => {
+    if(!req.valid) {
+        throw new InternalServerError("Будь-які звалідовані дані відсутні");
+    }
+
+    const validatedBody = req.valid.body;
     if (!validatedBody) {
         throw new InternalServerError("Звалідоване тіло запиту відсутнє");
     }
+
     return validatedBody as T;
 };
 
 //Метод для екстрації звалідованих параметрів запиту після спрацювання мідлвари validate
-export const extractValidatedQueryOrThrow = <V>(res: Response): V => {
-    const validatedQuery = res.locals.validatedQuery;
+export const extractValidatedQueryOrThrow = <T>(req: Request): T => {
+    if(!req.valid) {
+        throw new InternalServerError("Будь-які звалідовані дані відсутні");
+    }
+
+    const validatedQuery = req.valid.query;
 
     if (!validatedQuery) {
         throw new InternalServerError("Звалідовані параметри запиту відсутні");
     }
-    return validatedQuery as V;
+
+    return validatedQuery as T;
 };
 
 //Метод для екстрації звалідованих параметрів url після спрацювання мідлвари validate
-export const extractValidatedParamsOrThrow = <P>(res: Response): P => {
-    const validatedParams = res.locals.validatedParams;
+export const extractValidatedParamsOrThrow = <T>(req: Request): T => {
+    if(!req.valid) {
+        throw new InternalServerError("Будь-які звалідовані дані відсутні");
+    }
+
+    const validatedParams = req.valid.params;
     if (!validatedParams) {
         throw new InternalServerError("Звалідовані параметри url запиту відсутні");
     }
-    return validatedParams as P;
+    return validatedParams as T;
 };
 
 
