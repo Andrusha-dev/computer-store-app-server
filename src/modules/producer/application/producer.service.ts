@@ -1,15 +1,14 @@
 import type {IProducerService} from "./producer.service.contract.ts";
 import type {
     CreateProducerDto,
-    ProducerFullResponse,
     ProducerResponse,
     ProducersQuery,
     ProducersResponse, UpdateProducerDto
 } from "../api/producer.dto.ts";
-import type {ProducerEntity, ProducerFullEntity} from "../domain/producer.entity.ts";
+import type {ProducerEntity} from "../domain/producer.entity.ts";
 import type {IProducerRepository} from "../domain/producer.repository.contract.ts";
 import {NotFoundError} from "../../../shared/error/custom.errors.ts";
-import {toProducerFullResponse, toProducerResponse, toProducersResponse} from "../api/producer.mapper.ts";
+import {toProducerResponse, toProducersResponse} from "../api/producer.mapper.ts";
 import {Prisma} from "@prisma/client";
 import {
     toProducerCreateInput,
@@ -45,19 +44,6 @@ export class ProducerService implements IProducerService {
             return response;
         }
 
-    findFullById =
-        async (id: number): Promise<ProducerFullResponse> => {
-            const producer: ProducerFullEntity | null = await this.producerRepository.findFullById(id);
-
-            if(!producer) {
-                throw new NotFoundError(`Виробника з ID ${id} не знайдено`)
-            }
-
-            const response: ProducerFullResponse = toProducerFullResponse(producer);
-
-            return response;
-        }
-
     findMany =
         async (query: ProducersQuery): Promise<ProducersResponse> => {
             const args: Prisma.ProducerFindManyArgs = toProducerFindManyArgs(query);
@@ -76,32 +62,32 @@ export class ProducerService implements IProducerService {
         }
 
     create =
-        async (dto: CreateProducerDto): Promise<ProducerFullResponse> => {
+        async (dto: CreateProducerDto): Promise<ProducerResponse> => {
             const data: Prisma.ProducerCreateInput = toProducerCreateInput(dto);
 
-            const producer: ProducerFullEntity = await this.producerRepository.create(data);
+            const producer: ProducerEntity = await this.producerRepository.create(data);
 
-            const response: ProducerFullResponse = toProducerFullResponse(producer);
+            const response: ProducerResponse = toProducerResponse(producer);
 
             return response;
         }
 
     update =
-        async (id: number, dto: UpdateProducerDto): Promise<ProducerFullResponse> => {
+        async (id: number, dto: UpdateProducerDto): Promise<ProducerResponse> => {
             const data: Prisma.ProducerUpdateInput = toProducerUpdateInput(dto);
 
-            const producer: ProducerFullEntity = await this.producerRepository.update(id, data);
+            const producer: ProducerEntity = await this.producerRepository.update(id, data);
 
-            const response: ProducerFullResponse = toProducerFullResponse(producer);
+            const response: ProducerResponse = toProducerResponse(producer);
 
             return response;
         }
 
     delete =
-        async (id: number): Promise<ProducerFullResponse> => {
-            const producer: ProducerFullEntity = await this.producerRepository.delete(id);
+        async (id: number): Promise<ProducerResponse> => {
+            const producer: ProducerEntity = await this.producerRepository.delete(id);
 
-            const response: ProducerFullResponse = toProducerFullResponse(producer);
+            const response: ProducerResponse = toProducerResponse(producer);
 
             return response;
         }

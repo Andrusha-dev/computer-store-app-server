@@ -30,7 +30,6 @@ export class UserController implements IUserController {
 
     findById = async (req: Request, res: Response<UserResponse>): Promise<void> => {
         const {id} = extractValidatedParamsOrThrow<UserParams>(req);
-        //const {id} = req.valid.params
 
         const response: UserResponse = await this.userService.findById(id);
 
@@ -47,8 +46,6 @@ export class UserController implements IUserController {
 
     findMany = async (req: Request, res: Response<UsersResponse>): Promise<void> => {
         const query: UsersQuery = extractValidatedQueryOrThrow<UsersQuery>(req);
-        //const query: UsersQuery = req.valid.query
-        console.log("Users query: ", query);
 
         const response: UsersResponse = await this.userService.findMany(query);
 
@@ -57,7 +54,6 @@ export class UserController implements IUserController {
 
     create = async (req: Request, res: Response<UserFullResponse>): Promise<void> => {
         const dto: CreateUserDto = extractValidatedBodyOrThrow<CreateUserDto>(req);
-        //const dto: CreateUserDto = req.valid.body;
 
         const response: UserFullResponse = await this.userService.create(dto);
 
@@ -67,8 +63,6 @@ export class UserController implements IUserController {
     update = async (req: Request, res: Response<UserFullResponse>): Promise<void> => {
         const {id} = extractValidatedParamsOrThrow<UserParams>(req);
         const dto: UpdateUserDto = extractValidatedBodyOrThrow<UpdateUserDto>(req);
-        //const {id} = req.valid.params;
-        //const dto: UpdateUserDto = req.valid.body;
 
         const response: UserFullResponse = await this.userService.update(id, dto);
 
@@ -77,7 +71,6 @@ export class UserController implements IUserController {
 
     delete = async (req: Request, res: Response<UserFullResponse>): Promise<void> => {
         const {id} = extractValidatedParamsOrThrow<UserParams>(req);
-        //const {id} = req.valid.params;
 
         const response: UserFullResponse = await this.userService.delete(id);
 

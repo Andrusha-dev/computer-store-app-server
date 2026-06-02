@@ -54,7 +54,7 @@ export const createOrderRouter = ({orderController, authMiddleware}: Dependencie
         "/:id/status",
         authMiddleware.authenticate,
         authMiddleware.authorize(["admin"]),
-        validate({body: updateOrderStatusDtoSchema}),
+        validate({params: orderParamsSchema, body: updateOrderStatusDtoSchema}),
         orderController.updateStatus
     );
 

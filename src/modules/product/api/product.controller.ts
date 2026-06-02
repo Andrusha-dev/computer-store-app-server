@@ -29,7 +29,6 @@ export class ProductController implements IProductController {
 
     findById = async (req: Request, res: Response<ProductResponse>): Promise<void> => {
         const {id} = extractValidatedParamsOrThrow<ProductParams>(req);
-        //const {id} = req.valid.params;
 
         const response: ProductResponse = await this.productService.findById(id);
 
@@ -38,7 +37,6 @@ export class ProductController implements IProductController {
 
     findFullById = async (req: Request, res: Response<ProductFullResponse>): Promise<void> => {
         const {id} = extractValidatedParamsOrThrow<ProductParams>(req);
-        //const {id} = req.valid.params;
 
         const response: ProductFullResponse = await this.productService.findFullById(id);
 
@@ -47,7 +45,6 @@ export class ProductController implements IProductController {
 
     findMany = async (req: Request, res: Response<ProductsResponse>): Promise<void> => {
         const query: ProductsQuery = extractValidatedQueryOrThrow<ProductsQuery>(req);
-        //const query: ProductsQuery = req.valid.query;
 
         const response: ProductsResponse = await this.productService.findMany(query);
 
@@ -56,7 +53,6 @@ export class ProductController implements IProductController {
 
     create = async (req: Request, res: Response<ProductFullResponse>): Promise<void> => {
         const dto: CreateProductDto = extractValidatedBodyOrThrow<CreateProductDto>(req);
-        //const dto: CreateProductDto = req.valid.body;
 
         const response: ProductFullResponse = await this.productService.create(dto);
 
@@ -66,8 +62,6 @@ export class ProductController implements IProductController {
     update = async (req: Request, res: Response<ProductFullResponse>): Promise<void> => {
         const {id} = extractValidatedParamsOrThrow<ProductParams>(req);
         const dto: UpdateProductDto = extractValidatedBodyOrThrow<UpdateProductDto>(req);
-        //const {id} = req.valid.params;
-        //const dto: UpdateProductDto = req.valid.body;
 
         const response: ProductFullResponse = await this.productService.update(id, dto);
 
@@ -76,7 +70,6 @@ export class ProductController implements IProductController {
 
     delete = async (req: Request, res: Response<ProductFullResponse>): Promise<void> => {
         const {id} = extractValidatedParamsOrThrow<ProductParams>(req);
-        //const {id} = req.valid.params;
 
         const response: ProductFullResponse = await this.productService.delete(id);
 

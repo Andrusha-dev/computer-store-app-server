@@ -1,7 +1,5 @@
-import type {ProducerEntity, ProducerFullEntity} from "../domain/producer.entity.ts";
+import type {ProducerEntity} from "../domain/producer.entity.ts";
 import {
-    type ProducerFullResponse,
-    producerFullResponseSchema,
     type ProducerResponse,
     producerResponseSchema, type ProducersResponse, producersResponseSchema
 } from "./producer.dto.ts";
@@ -18,17 +16,6 @@ export const toProducerResponse =
         const validatedResponse: ProducerResponse = producerResponseSchema.parse(transformedProducer);
 
         return validatedResponse;
-    }
-
-export const toProducerFullResponse =
-    (producer: ProducerFullEntity): ProducerFullResponse => {
-        const transformedProducer = {
-            ...producer
-        }
-
-        const response: ProducerFullResponse = producerFullResponseSchema.parse(transformedProducer);
-
-        return response;
     }
 
 export const toProducersResponse =

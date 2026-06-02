@@ -1,6 +1,6 @@
 import {z} from "zod";
 import {paginationCriteriaSchema, paginationMetaSchema} from "../../../shared/schemas/pagination.schema.ts";
-import {productResponseSchema} from "../../product/index.ts";
+
 
 
 
@@ -57,10 +57,7 @@ export type ProducersQuery = z.infer<typeof producersQuerySchema>;
 export const producerResponseSchema = producerSchema;
 export type ProducerResponse = z.infer<typeof producerResponseSchema>;
 
-export const producerFullResponseSchema = producerSchema.extend({
-    products: z.array(z.lazy(() => productResponseSchema))
-});
-export type ProducerFullResponse = z.infer<typeof producerFullResponseSchema>;
+//producerFullResponseSchema не потрібен, бо контракти response не вимагають наявності в них реляції products
 
 export const producersResponseSchema = z.object({
     content: z.array(producerResponseSchema),

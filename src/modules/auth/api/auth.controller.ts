@@ -20,9 +20,8 @@ export class AuthController implements IAuthController {
 
     login = async (req: Request, res: Response<AuthResponse>): Promise<void> => {
         console.log("starting login");
-        const dto = extractValidatedBodyOrThrow<LoginDto>(req);
+        const dto: LoginDto = extractValidatedBodyOrThrow<LoginDto>(req);
 
-        //const dto: LoginDto = req.valid.body;
         console.log("LoginDto", dto)
         const response = await this.authService.login(dto);
 
@@ -30,8 +29,7 @@ export class AuthController implements IAuthController {
     }
 
     refresh = async (req: Request, res: Response<AuthResponse>): Promise<void> => {
-        const dto = extractValidatedBodyOrThrow<RefreshAllTokensDto>(req);
-        //const dto: RefreshAllTokensDto = req.valid.body;
+        const dto: RefreshAllTokensDto = extractValidatedBodyOrThrow<RefreshAllTokensDto>(req);
 
         const response = this.authService.refreshAllTokens(dto);
 

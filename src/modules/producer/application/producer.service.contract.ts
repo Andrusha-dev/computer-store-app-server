@@ -1,6 +1,5 @@
 import type {
     CreateProducerDto,
-    ProducerFullResponse,
     ProducerResponse,
     ProducersQuery,
     ProducersResponse, UpdateProducerDto
@@ -9,9 +8,8 @@ import type {
 
 export interface IProducerService {
     findById: (id: number) => Promise<ProducerResponse>;
-    findFullById: (id: number) => Promise<ProducerFullResponse>;
     findMany: (query: ProducersQuery) => Promise<ProducersResponse>;
-    create: (dto: CreateProducerDto) => Promise<ProducerFullResponse>;
-    update: (id: number, dto: UpdateProducerDto) => Promise<ProducerFullResponse>;
-    delete: (id: number) => Promise<ProducerFullResponse>;
+    create: (dto: CreateProducerDto) => Promise<ProducerResponse>;
+    update: (id: number, dto: UpdateProducerDto) => Promise<ProducerResponse>;
+    delete: (id: number) => Promise<ProducerResponse>;
 }

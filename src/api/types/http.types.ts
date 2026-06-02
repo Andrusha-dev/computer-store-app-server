@@ -8,8 +8,7 @@ export interface QueryParams {
     [key: string]: string | string[] | undefined;
 }
 
-//Тип для res.locals
-//Поле payload було змінене на user
+//Інтерфейс для розширення інтерфейсу Request
 export interface AppRequest {
     tokenPayload?: TokenPayload;
     valid?: {

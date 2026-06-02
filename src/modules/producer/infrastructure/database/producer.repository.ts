@@ -1,6 +1,6 @@
 import type {IProducerRepository} from "../../domain/producer.repository.contract.ts";
 import type {PrismaService} from "../../../../shared/infrastructure/database/prisma.service.ts";
-import {type ProducerEntity, type ProducerFullEntity, producerInclude} from "../../domain/producer.entity.ts";
+import {type ProducerEntity} from "../../domain/producer.entity.ts";
 import {Prisma} from "@prisma/client";
 
 
@@ -26,18 +26,6 @@ export class ProducerRepository implements IProducerRepository {
             return producer;
         }
 
-    findFullById =
-        async (id: number): Promise<ProducerFullEntity | null> => {
-            const producer: ProducerFullEntity | null = await this.dbService.producer.findUnique({
-                where: {
-                    id: id
-                },
-                include: producerInclude
-            });
-
-            return producer;
-        }
-
     findMany =
         async (args: Prisma.ProducerFindManyArgs): Promise<ProducerEntity[]> => {
             const producers: ProducerEntity[] = await this.dbService.producer.findMany(args);
@@ -53,35 +41,35 @@ export class ProducerRepository implements IProducerRepository {
         }
 
     create =
-        async (data: Prisma.ProducerCreateInput): Promise<ProducerFullEntity> => {
-            const producer: ProducerFullEntity = await this.dbService.producer.create({
+        async (data: Prisma.ProducerCreateInput): Promise<ProducerEntity> => {
+            const producer: ProducerEntity = await this.dbService.producer.create({
                 data: data,
-                include: producerInclude
+                //include не потрібен бо producer не потребує реляції products
             });
 
             return producer;
         }
 
     update =
-        async (id: number, data: Prisma.ProducerUpdateInput): Promise<ProducerFullEntity> => {
-            const producer: ProducerFullEntity = await this.dbService.producer.update({
+        async (id: number, data: Prisma.ProducerUpdateInput): Promise<ProducerEntity> => {
+            const producer: ProducerEntity = await this.dbService.producer.update({
                 where: {
                     id: id
                 },
                 data: data,
-                include: producerInclude
+                //include не потрібен бо producer не потребує реляції products
             });
 
             return producer;
         }
 
     delete =
-        async (id: number): Promise<ProducerFullEntity> => {
-            const producer: ProducerFullEntity = await this.dbService.producer.delete({
+        async (id: number): Promise<ProducerEntity> => {
+            const producer: ProducerEntity = await this.dbService.producer.delete({
                 where: {
                     id: id
                 },
-                include: producerInclude
+                //include не потрібен бо producer не потребує реляції products
             });
 
             return producer;

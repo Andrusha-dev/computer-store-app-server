@@ -20,13 +20,6 @@ export const createProducerRouter = ({producerController, authMiddleware}: Depen
     const router =  Router();
 
     router.get(
-        "/:id/full",
-        authMiddleware.authenticate,
-        validate({params: producerParamsSchema}),
-        producerController.findFullById
-    );
-
-    router.get(
         "/:id",
         authMiddleware.authenticate,
         validate({params: producerParamsSchema}),
