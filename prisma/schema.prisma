@@ -150,9 +150,12 @@ model Order {
   status      OrderStatus @default(PENDING)
   totalAmount Decimal     @db.Decimal(10, 2)
 
-  items  OrderItem[]
-  userId Int
-  user   User        @relation(fields: [userId], references: [id])
+  items    OrderItem[]
+  userId   Int
+  user     User        @relation(fields: [userId], references: [id])
+  //поля payment та delivery опціональні, щоб запобігти зацикленості при створення всіх трьох сутностей
+  payment  Payment?
+  delivery Delivery?
 }
 
 //Схема для сутності OrderItem
@@ -165,4 +168,58 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
   orderId   Int
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+//СХЕМИ ДЛЯ СУТНОСТІ PAYMENT
+//Перечислення з методами оплати
+enum PaymentMethod {
+  CARD
+  CASH
+}
+
+//Перечислення зі статусами оплати
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  MONOBANK
+  LIQPAY
+  INTERNAL // Для замовлень із сумою 0 або оплати бонусами
+}
+
+//Схема Paymant (оплата)
+model Payment {
+  id         Int             @id @default(autoincrement())
+  status     PaymentStatus   @default(PENDING)
+  method     PaymentMethod
+  amount     Decimal         @db.Decimal(10, 2)
+  provider   PaymentProvider
+  externalId String? //ID інвойсу в платіжній системі
+
+  orderId Int   @unique
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+//СХЕМИ ДЛЯ СУТНОСТІ DELIVERY
+//Перечислення з методами доставки
+enum DeliveryMethod {
+  NOVA_POSHTA
+  UKRPOSHTA
+  COURIER
+}
+
+//Схема Delivery (доставка)
+model Delivery {
+  id             Int            @id @default(autoincrement())
+  method         DeliveryMethod
+  price          Decimal        @default(0) @db.Decimal(10, 2) //значення 0 за змовчуванням, якщо магазин розрховує лише суму завмовлення, а суму доставки клієнт бачитиме вже в сервісі служби доставки
+  trackingNumber String? // Номер ТТН для відстеження
+  details        Json // Сховище для JSON даних (місто, склад, телефон тощо)
+
+  orderId Int   @unique
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
