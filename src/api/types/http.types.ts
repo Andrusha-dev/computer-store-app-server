@@ -10,10 +10,14 @@ export interface QueryParams {
 
 //Інтерфейс для розширення інтерфейсу Request
 export interface AppRequest {
+    //Поле для payload jwt токена
     tokenPayload?: TokenPayload;
+    //Поле для звалідованих вхідних даних
     valid?: {
         body?: unknown;
         query?: unknown;
         params?: unknown;
-    }
+    };
+    //Поле для сирого тіла запиту (до парсинга express)
+    rawBody?: Buffer
 }

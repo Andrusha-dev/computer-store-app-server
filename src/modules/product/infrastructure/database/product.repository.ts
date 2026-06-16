@@ -84,9 +84,11 @@ export class ProductRepository implements IProductRepository {
 
     //Метод, для зменшення кількості товару, якщо кількість товару на складі це дозволяє
     decreaseQuantityWithCheck =
-        async (id: number, count: number): Promise<boolean> => {
+        async (id: number, count: number, tx?: Prisma.TransactionClient): Promise<boolean> => {
+            const client = tx ?? this.dbService;
+
             //Використовуємо саме updateMany, бо звичайний update шукає лише по унікальних полях, а quantity не є унікальним
-            const updateResult = await this.dbService.product.updateMany({
+            const updateResult = await client.product.updateMany({
                 where: {
                     id: id,
                     quantity: {gte: count}
@@ -101,6 +103,7 @@ export class ProductRepository implements IProductRepository {
             return isUpdated;
         }
 
+    /*
     //Метод для збільшення кількості товару, у випадку, якщо під час оформлення замовлення сталася помилка
     increaseQuantity =
         async (id: number, count: number): Promise<ProductFullEntity> => {
@@ -116,4 +119,5 @@ export class ProductRepository implements IProductRepository {
 
             return product;
         }
+    */
 }

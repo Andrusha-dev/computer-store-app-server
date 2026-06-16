@@ -4,6 +4,7 @@ import type {CartFullEntity} from "../domain/cart.entity.ts";
 import {toCartFullResponse} from "../api/cart.mapper.ts";
 import {NotFoundError} from "../../../shared/error/custom.errors.ts";
 import type {ICartService} from "./cart.service.contract.ts";
+import {Prisma} from "@prisma/client";
 
 
 
@@ -61,12 +62,8 @@ export class CartService implements ICartService {
         }
 
     clearCart =
-        async (userId: number): Promise<CartFullResponse> => {
-            const cart: CartFullEntity = await this.cartRepository.clearCart(userId);
-
-            const response: CartFullResponse = toCartFullResponse(cart);
-
-            return response;
+        async (userId: number, tx?: Prisma.TransactionClient): Promise<void> => {
+            await this.cartRepository.clearCart(userId, tx);
         }
 }
 

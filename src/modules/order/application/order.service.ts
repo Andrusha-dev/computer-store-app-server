@@ -1,45 +1,60 @@
 import type {IOrderService} from "./order.service.contract.ts";
 import type {IOrderRepository} from "../domain/order.repository.contract.ts";
 import type {
+    CheckoutResponse,
     CreateOrderDto,
     OrderFullResponse,
     OrdersQuery,
-    OrdersResponse, UpdateOrderStatusDto
+    OrdersResponse, RetryPaymentResponse, UpdateOrderStatusDto
 } from "../api/order.dto.ts";
 import type {OrderFullEntity} from "../domain/order.entity.ts";
 import {
+    BadGatewayError,
     BadRequestError,
     ForbiddenError,
     NotFoundError
 } from "../../../shared/error/custom.errors.ts";
 import {toOrderFullResponse, toOrdersResponse} from "../api/order.mapper.ts";
 import {Prisma} from "@prisma/client";
-import {toOrderCreateInput, toOrderFindManyArgs, toOrderUpdateInput} from "./order.mapper.ts";
+import {toOrderCreateInput, toOrderFindManyArgs} from "./order.mapper.ts";
 import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts";
 import {createPaginationMeta} from "../../../shared/utils/pagination.utils.ts";
 import type {CartFullResponse, CartItemFullResponse} from "../../cart/api/cart.dto.ts";
 import type {IProductService, ProductResponse} from "../../product/index.ts";
 import type {ICartService} from "../../cart/index.ts";
+import type {PrismaService} from "../../../shared/infrastructure/database/prisma.service.ts";
+import type {IPaymentService} from "../../payment/domain/payment.service.contract.ts";
+import type {IDeliveryService} from "../../delivery/application/delivery.service.contract.ts";
+import type {CreateInvoiceResponse} from "../../payment/api/payment.dto.ts";
 
 
 
 
 
 interface Dependencies {
+    dbService: PrismaService;
     orderRepository: IOrderRepository;
     cartService: ICartService,
-    productService: IProductService
+    productService: IProductService,
+    paymentService: IPaymentService,
+    deliveryService: IDeliveryService
 }
 
 export class OrderService implements IOrderService {
+    private readonly dbService: PrismaService;
     private readonly orderRepository: IOrderRepository;
     private readonly cartService: ICartService;
     private readonly productService: IProductService;
+    private readonly paymentService: IPaymentService;
+    private readonly deliveryService: IDeliveryService;
 
-    constructor({orderRepository, cartService, productService}: Dependencies) {
+    constructor({dbService, orderRepository, cartService, productService, paymentService, deliveryService}: Dependencies) {
+        this.dbService = dbService;
         this.orderRepository = orderRepository;
         this.cartService = cartService;
         this.productService = productService;
+        this.paymentService = paymentService;
+        this.deliveryService = deliveryService;
     }
 
     findMyFullById =
@@ -112,30 +127,104 @@ export class OrderService implements IOrderService {
         }
 
     create =
-        async (userId: number, dto: CreateOrderDto): Promise<OrderFullResponse>  => {
+        async (userId: number, dto: CreateOrderDto): Promise<CheckoutResponse>  => {
             const cart: CartFullResponse = await this.cartService.findCartFullByUserId(userId);
             if(!cart.items.length) {
                 throw new BadRequestError("Неможливо створити замовлення: кошик порожній");
             }
 
             const {totalAmount, orderItems} = this.prepareOrderDetails(cart)
+            const data: Prisma.OrderCreateInput = toOrderCreateInput(userId, totalAmount, orderItems, dto);
 
-            const data: Prisma.OrderCreateInput = toOrderCreateInput(userId, totalAmount, orderItems);
+            const orderFullEntity: OrderFullEntity = await this.executeOrderCreationTransaction(userId, cart.items, data);
+            const orderFullResponse: OrderFullResponse = toOrderFullResponse(orderFullEntity);
 
-            const response: OrderFullResponse = await this.executeOrderTransactionsGroup(userId, cart.items, data);
+            let paymentUrl: string | null = null;
+
+            try {
+                paymentUrl = await this.initiateOrderPayment(orderFullResponse);
+            } catch (error) {
+                //Гасимо помилку, щоб повернути клієнту успішно створене замовлення з paymentUrl: null
+                if (error instanceof BadGatewayError) {
+                    //Якщо це помилка банку
+                    console.error(`[BANK_DOWN] Монобанк не відповів для замовлення ${orderFullResponse.id}`);
+                } else if (!(error instanceof BadRequestError)) {
+                    //Помилку BadRequestError ми не логуємо, бо це зайве. Методом виключення логуємо помилку бд
+                    console.error(`[CRITICAL_DATABASE_ERROR] Інвойс в банку створено, але не вдалося оновити externalId для платежу замовлення ${orderFullResponse.id}. Помилка:`, error);
+                }
+            }
+
+            //Якщо замовлення успішно створено, то, незалежно від того чи була помилка під час створення інвойсу,
+            //чи метод оплати "CASH", відповідь має містити поле paymentUrl, тому ми повертаємо
+            const response: CheckoutResponse = {
+                order: orderFullResponse,
+                paymentUrl: paymentUrl
+            }
 
             return response;
         }
 
+    //Метод для повторної спроби генерації інвойсу (для користувача). Використовується для випадків, коли це не вдалось під час створення замовлення
+    retryPayment =
+        async (orderId: number, userId: number): Promise<RetryPaymentResponse> => {
+            const order: OrderFullResponse = await this.findMyFullById(userId, orderId);
+
+            try {
+                const paymentUrl: string = await this.initiateOrderPayment(order);
+                const retryPaymentResponse: RetryPaymentResponse = {
+                    paymentUrl: paymentUrl
+                }
+
+                return  retryPaymentResponse;
+            } catch (error) {
+                if (error instanceof BadGatewayError) {
+                    //Якщо це помилка банку BadGatewayError — логуємо.
+                    console.error(`[BANK_DOWN] Монобанк не відповів під час повторної оплати замовлення ${order.id}`);
+                } else if (!(error instanceof BadRequestError)) {
+                    //Помилку BadRequestError ми не логуємо, бо це зайве. Методом виключення логуємо помилку бд
+                    console.error(`[CRITICAL_DATABASE_ERROR] Під час повторної оплати інвойс створено, але не оновлено externalId для замовлення ${order.id}. Помилка:`, error);
+                }
+
+                // Прокидуємо далі, щоб клієнт отримав чесний статус (502 або 500)
+                throw error;
+            }
+        }
+
+    //Онвлення статусу замовлення (для адмінів)
     updateStatus =
         async (id: number, dto: UpdateOrderStatusDto): Promise<OrderFullResponse> => {
-            const data: Prisma.OrderUpdateInput = toOrderUpdateInput(dto);
+            const data: Prisma.OrderUpdateInput = {status: dto.status}//toOrderUpdateInput(dto);
             const order: OrderFullEntity = await this.orderRepository.update(id, data);
             const response: OrderFullResponse = toOrderFullResponse(order);
 
             return response;
         }
 
+    // Додавання номеру декларації для payment та відповідна зміна статусу замовлення на DELIVERING (метод для адмінів)
+    setTrackingNumber = async (id: number, trackingNumber: string): Promise<OrderFullResponse> => {
+        const order: OrderFullEntity | null = await this.orderRepository.findFullById(id);
+        if (!order) {
+            throw new NotFoundError(`Замовлення з ID ${id} не знайдено`);
+        }
+
+        return await this.dbService.$transaction(async (tx) => {
+            //Перевіряємо доставку на null
+            if (!order.delivery) {
+                throw new BadRequestError(`Для замовлення з ID ${id} не знайдено інформації про доставку`);
+            }
+
+            //Викликаємо сервіс доставки, щоб він оновив ТТН у своїй таблиці
+            await this.deliveryService.updateTrackingNumber(order.delivery.id, trackingNumber, tx);
+
+            const data: Prisma.OrderUpdateInput = {status: "DELIVERING"}
+            // Також змінюємо статус самого замовлення, бо його вже відправлено!
+            const updatedOrder: OrderFullEntity = await this.orderRepository.update(id, data, tx);
+
+            const response: OrderFullResponse = toOrderFullResponse(updatedOrder);
+
+            return response;
+        });
+    }
 
 
     //Приватний метод для формування загальної суми замовлення (totalAmount) та списку елементів замовлення (items)
@@ -178,43 +267,42 @@ export class OrderService implements IOrderService {
 
     //Приватний метод для виконання групи транзакцій замовлення: списання кількості продуктів, створення замовлення та очищення кошика
     //з можливістю відкату (компенсації) у випадку, якщо перші дві транзакції завершились помилкою
-    private executeOrderTransactionsGroup =
+    private executeOrderCreationTransaction =
         async (
             userId: number,
             cartItems: CartItemFullResponse[],
             orderData: Prisma.OrderCreateInput
-        ): Promise<OrderFullResponse> => {
-            //Список з успішно списаними товарами. quantity - це списана кількість товару
-            const successfullyDecreasedItems: {id: number, count: number}[] = [];
-
-            try {
-                //Списуємо товари зі складу один за одним
+        ): Promise<OrderFullEntity> => {
+            return await this.dbService.$transaction(async (tx) => {
                 for (const cartItem of cartItems) {
-                    await this.productService.decreaseQuantity(cartItem.productId, cartItem.quantity);
-                    //Якщо списання пройшло успішно — запам'ятовуємо id товару та списану кількість
-                    successfullyDecreasedItems.push({id: cartItem.productId, count: cartItem.quantity});
-                }
-                //Створюємо замовлення в БД
-                const order: OrderFullEntity = await this.orderRepository.create(orderData);
-                //І врешті очищуємо кошик
-                await this.cartService.clearCart(userId);
-
-                const response: OrderFullResponse = toOrderFullResponse(order);
-
-                return response;
-            } catch (error) {
-                //КОМПЕНСАЦІЙНА ДІЯ (Архітектурний відкат)
-                //Якщо щось пішло не так під час циклу або створення замовлення,
-                //повертаємо назад ЛИШЕ ТІ товари, які встигли списати
-                for (const item of successfullyDecreasedItems) {
-                    try {
-                        await this.productService.increaseQuantity(item.id, item.count);
-                    } catch (rollbackError) {
-                        console.error(`Критична помилка відкату для товару ${item.id}:`, rollbackError);
-                    }
+                    await this.productService.decreaseQuantity(cartItem.productId, cartItem.quantity, tx);
                 }
 
-                throw error;
+                const orderFullEntity: OrderFullEntity = await this.orderRepository.create(orderData, tx);
+
+                await this.cartService.clearCart(userId, tx);
+
+                return orderFullEntity;
+            });
+        }
+
+    //Приватний метод для створення інвойсу. Викликається в методі create після створення замовлення, та в методі retryPayment.
+    private initiateOrderPayment =
+        async (order: OrderFullResponse): Promise<string> => {
+            if(order.payment.method !== "CARD") {
+                throw new BadRequestError(`Замовлення з ID ${order.id} не передбачає оплату карткою`);
             }
+
+            if(order.payment.status === "PAID") {
+                throw new BadRequestError(`Замовлення з ID ${order.id} вже оплачене`);
+            }
+
+            const createInvoiceResponse: CreateInvoiceResponse = await this.paymentService.createInvoice(
+                order.id,
+                order.payment.id,
+                order.payment.amount,
+            );
+
+            return createInvoiceResponse.paymentUrl;
         }
 }

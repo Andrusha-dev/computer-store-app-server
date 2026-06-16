@@ -1,6 +1,8 @@
 import {z} from "zod";
 import {paginationCriteriaSchema, paginationMetaSchema} from "../../../shared/schemas/pagination.schema.ts";
 import {productResponseSchema} from "../../product/index.ts";
+import {createPaymentDtoSchema, paymentResponseSchema} from "../../payment/api/payment.dto.ts";
+import {createDeliveryDtoSchema, deliveryResponseSchema} from "../../delivery/api/delivery.dto.ts";
 
 
 
@@ -31,7 +33,10 @@ export const orderItemSchema = z.object({
 
 //INPUT
 //При створенні замовлення dto міститиме дані про оплату та доставку, але вони будуть створені пізніше
-export const createOrderDtoSchema = z.object({});
+export const createOrderDtoSchema = z.object({
+    payment: createPaymentDtoSchema,
+    delivery: createDeliveryDtoSchema
+});
 export type CreateOrderDto = z.infer<typeof createOrderDtoSchema>;
 
 export const updateOrderStatusDtoSchema = orderSchema.pick({status: true});
@@ -58,6 +63,12 @@ export const ordersQuerySchema = paginationCriteriaSchema
     .extend(orderFiltersSchema.shape);
 export type OrdersQuery = z.infer<typeof ordersQuerySchema>;
 
+//Тип для оновлення поля trackingNumber в таблиці Delivery
+export const setTrackingNumberDtoSchema = z.object({
+    trackingNumber: z.string().min(1, "Номер ТТН не може бути порожнім")
+});
+export type SetTrackingNumberDto = z.infer<typeof setTrackingNumberDtoSchema>;
+
 
 //OUTPUT
 const orderItemFullResponseSchema = orderItemSchema.extend({
@@ -65,9 +76,25 @@ const orderItemFullResponseSchema = orderItemSchema.extend({
 });
 
 export const orderFullResponseSchema = orderSchema.extend({
-    items: z.array(orderItemFullResponseSchema)
+    items: z.array(orderItemFullResponseSchema),
+    payment: paymentResponseSchema,
+    delivery: deliveryResponseSchema,
 });
 export type OrderFullResponse = z.infer<typeof orderFullResponseSchema>;
+
+
+// Окремий тип для чекауту, який додатково повертає посилання на оплату банку
+export const checkoutResponseSchema = z.object({
+    order: orderFullResponseSchema,
+    paymentUrl: z.url().nullable()
+});
+export type CheckoutResponse = z.infer<typeof checkoutResponseSchema>;
+
+//Тип для url оплати після повторної генерації інвойсу
+export const retryPaymentResponseSchema = z.object({
+    paymentUrl: z.url()
+});
+export type RetryPaymentResponse = z.infer<typeof retryPaymentResponseSchema>;
 
 export const ordersResponseSchema = z.object({
     content: z.array(orderFullResponseSchema),

@@ -198,7 +198,7 @@ model Payment {
   method     PaymentMethod
   amount     Decimal         @db.Decimal(10, 2)
   provider   PaymentProvider
-  externalId String? //ID інвойсу в платіжній системі
+  externalId String?         @unique //ID інвойсу в платіжній системі
 
   orderId Int   @unique
   order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)

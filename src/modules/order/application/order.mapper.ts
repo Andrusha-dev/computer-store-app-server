@@ -1,6 +1,8 @@
 import {Prisma} from "@prisma/client";
-import type {OrderFilters, OrdersQuery, UpdateOrderStatusDto} from "../api/order.dto.ts";
+import type {CreateOrderDto, OrderFilters, OrdersQuery, UpdateOrderStatusDto} from "../api/order.dto.ts";
 import {orderInclude} from "../domain/order.entity.ts";
+import {toPaymentCreateWithoutOrderInput} from "../../payment/application/payment.mapper.ts";
+import {toDeliveryCreateWithoutOrderInput} from "../../delivery/application/delivery.mapper.ts";
 
 
 
@@ -40,7 +42,8 @@ export const toOrderCreateInput =
     (
         userId: number,
         totalAmount: number,
-        orderItems: Prisma.OrderItemCreateWithoutOrderInput[]
+        orderItems: Prisma.OrderItemCreateWithoutOrderInput[],
+        dto: CreateOrderDto
     ): Prisma.OrderCreateInput => {
         const data: Prisma.OrderCreateInput = {
             status: "PENDING",
@@ -50,6 +53,12 @@ export const toOrderCreateInput =
             },
             user: {
                 connect: {id: userId}
+            },
+            payment: {
+                create: toPaymentCreateWithoutOrderInput(totalAmount, dto.payment)
+            },
+            delivery: {
+                create: toDeliveryCreateWithoutOrderInput(totalAmount, dto.delivery, )
             }
         }
 

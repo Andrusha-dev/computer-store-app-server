@@ -2,7 +2,13 @@ import type {IOrderController} from "./order.controller.contract.ts";
 import type {IAuthMiddleware} from "../../../shared/contracts/auth.middleware.contract.ts";
 import {Router} from "express";
 import {validate} from "../../../api/middlewares/validation.middleware.ts";
-import {createOrderDtoSchema, orderParamsSchema, ordersQuerySchema, updateOrderStatusDtoSchema} from "./order.dto.ts";
+import {
+    createOrderDtoSchema,
+    orderParamsSchema,
+    ordersQuerySchema,
+    setTrackingNumberDtoSchema,
+    updateOrderStatusDtoSchema
+} from "./order.dto.ts";
 
 
 interface Dependencies {
@@ -51,11 +57,26 @@ export const createOrderRouter = ({orderController, authMiddleware}: Dependencie
     );
 
     router.patch(
+        "/:id/retry-payment",
+        authMiddleware.authenticate,
+        validate({params: orderParamsSchema}),
+        orderController.retryPayment
+    );
+
+    router.patch(
         "/:id/status",
         authMiddleware.authenticate,
         authMiddleware.authorize(["admin"]),
         validate({params: orderParamsSchema, body: updateOrderStatusDtoSchema}),
         orderController.updateStatus
+    );
+
+    router.patch(
+        "/:id/tracking-number",
+        authMiddleware.authenticate,
+        authMiddleware.authorize(["admin"]),
+        validate({params: orderParamsSchema, body: setTrackingNumberDtoSchema}),
+        orderController.setTrackingNumber
     );
 
     return router;

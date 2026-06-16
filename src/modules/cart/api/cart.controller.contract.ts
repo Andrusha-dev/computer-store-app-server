@@ -8,5 +8,5 @@ export interface ICartController {
     createItem: (req: Request, res: Response<CartFullResponse>) => Promise<void>;
     updateItemQuantity: (req: Request, res: Response<CartFullResponse>) => Promise<void>;
     deleteItem: (req: Request, res: Response<CartFullResponse>) => Promise<void>;
-    clearCart: (req: Request, res: Response<CartFullResponse>) => Promise<void>;
+    clearCart: (req: Request, res: Response) => Promise<void>;
 }

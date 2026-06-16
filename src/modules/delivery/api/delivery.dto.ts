@@ -47,7 +47,6 @@ const deliverySchema = z.discriminatedUnion("method", [
         details: courierDetailsSchema
     })
 ]);
-export type Delivery = z.infer<typeof deliverySchema>;
 
 
 //INPUT

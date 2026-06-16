@@ -2,11 +2,12 @@ import type {IOrderService} from "../application/order.service.contract.ts";
 import type {IOrderController} from "./order.controller.contract.ts";
 import type {Request, Response} from "express";
 import type {
+    CheckoutResponse,
     CreateOrderDto,
     OrderFullResponse,
     OrderParams,
     OrdersQuery,
-    OrdersResponse,
+    OrdersResponse, RetryPaymentResponse, SetTrackingNumberDto,
     UpdateOrderStatusDto
 } from "./order.dto.ts";
 import {
@@ -15,6 +16,7 @@ import {
     extractValidatedQueryOrThrow
 } from "../../../api/helpers/http.helpers.ts";
 import type {TokenPayload} from "../../../shared/schemas/token-payload.schema.ts";
+
 
 
 
@@ -68,23 +70,48 @@ export class OrderController implements IOrderController {
         }
 
     create =
-        async (req: Request, res: Response<OrderFullResponse>): Promise<void> => {
+        async (req: Request, res: Response<CheckoutResponse>): Promise<void> => {
             const {id} = extractTokenPayloadOrThrow(req);
             const dto: CreateOrderDto = extractValidatedBodyOrThrow<CreateOrderDto>(req);
 
-            const response: OrderFullResponse = await this.orderService.create(id, dto);
+            const response: CheckoutResponse = await this.orderService.create(id, dto);
 
             res.json(response)
         }
 
+    //Повторна спроба ініціалізації оплати в Монобанку (для користувача)
+    retryPayment =
+        async (req: Request, res: Response<RetryPaymentResponse>): Promise<void> => {
+            const {id} = extractValidatedParamsOrThrow<OrderParams>(req);
+            const tokenPayload: TokenPayload = extractTokenPayloadOrThrow(req);
+
+            const response: RetryPaymentResponse = await this.orderService.retryPayment(id, tokenPayload.id);
+
+            res.json(response);
+        }
+
+
     updateStatus =
         async (req: Request, res: Response<OrderFullResponse>): Promise<void> => {
-        const {id} = extractValidatedParamsOrThrow<OrderParams>(req);
+            const {id} = extractValidatedParamsOrThrow<OrderParams>(req);
             const dto: UpdateOrderStatusDto = extractValidatedBodyOrThrow<UpdateOrderStatusDto>(req);
 
             const response: OrderFullResponse = await this.orderService.updateStatus(id, dto);
 
             res.json(response);
         }
+
+    //Додавання ТТН та переведення замовлення в статус DELIVERING (для адмінів)
+    setTrackingNumber =
+        async (req: Request, res: Response<OrderFullResponse>): Promise<void> => {
+            const {id} = extractValidatedParamsOrThrow<OrderParams>(req);
+            const {trackingNumber} = extractValidatedBodyOrThrow<SetTrackingNumberDto>(req);
+
+            const response: OrderFullResponse = await this.orderService.setTrackingNumber(id, trackingNumber);
+
+            res.json(response);
+        }
+
+
 }
 

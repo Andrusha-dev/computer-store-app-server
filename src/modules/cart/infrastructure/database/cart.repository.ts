@@ -1,6 +1,7 @@
 import type {PrismaService} from "../../../../shared/infrastructure/database/prisma.service.ts";
 import type {ICartRepository} from "../../domain/cart.repository.contract.ts";
 import {type CartFullEntity, cartInclude} from "../../domain/cart.entity.ts";
+import {Prisma} from "@prisma/client";
 
 
 
@@ -86,18 +87,18 @@ export class CartRepository implements ICartRepository {
         }
 
     clearCart =
-        async (userId: number): Promise<CartFullEntity> => {
-            const cart: CartFullEntity = await this.dbService.cart.update({
+        async (userId: number, tx?: Prisma.TransactionClient): Promise<void> => {
+            const client = tx ?? this.dbService;
+
+            await client.cart.update({
                 where: {id: userId},
                 data: {
                     items: {
                         deleteMany: {}
                     }
-                },
-                include: cartInclude,
+                }
+                //include не потрібен, бо результат, що повертається нас не цікавить
             });
-
-            return cart;
         }
 }
 

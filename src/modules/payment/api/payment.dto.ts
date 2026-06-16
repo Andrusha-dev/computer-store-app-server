@@ -36,7 +36,21 @@ export const paymentSchema = z.object({
 export const createPaymentDtoSchema = paymentSchema.pick({method: true});
 export type CreatePaymentDto = z.infer<typeof createPaymentDtoSchema>;
 
+//Тип вхідних даних для вебхука монобанку
+export const monobankWebhookDtoSchema = z.object({
+    invoiceId: z.string(),
+    status: z.string(),
+});
+export type MonobankWebhookDto = z.infer<typeof monobankWebhookDtoSchema>;
+
 
 //OUTPUT
 export const paymentResponseSchema = paymentSchema;
 export type PaymentResponse = z.infer<typeof paymentResponseSchema>;
+
+//Схема відповіді з даними про invoice (обєкт PaymentResponse та url оплати);
+export const createInvoiceResponseSchema = z.object({
+    payment: paymentResponseSchema,
+    paymentUrl: z.url()
+});
+export type CreateInvoiceResponse = z.infer<typeof createInvoiceResponseSchema>;

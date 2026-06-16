@@ -29,7 +29,7 @@ export const errorHandler = (
                 // розміщуються в обєкті err.meta.target який має тип string[]
                 const targets: string[] = (err.meta?.target as string[]) || [];
                 const fields: string = targets.length > 0 ? targets.join(', ') : "";
-                const details = config.isDev ? {fields: targets} : undefined;
+                const details = config.isProduction ? undefined : {fields: targets};
 
                 finalError = new ConflictError(fields, details);
                 break;

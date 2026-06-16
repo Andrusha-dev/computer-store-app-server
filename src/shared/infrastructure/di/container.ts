@@ -14,6 +14,7 @@ import {type IProductModuleCradle, productModuleDeps} from "../../../modules/pro
 import {type IProducerModuleCradle, producerModuleDeps} from "../../../modules/producer/index.ts";
 import {cartModuleDeps, type ICartModuleCradle} from "../../../modules/cart/index.ts";
 import {type IOrderModuleCradle, orderModuleDeps} from "../../../modules/order/index.ts";
+import {type IPaymentModuleCradle, paymentModuleDeps} from "../../../modules/payment/index.ts";
 
 
 
@@ -24,7 +25,9 @@ export interface ICradle extends
     IProductModuleCradle,
     IProducerModuleCradle,
     ICartModuleCradle,
-    IOrderModuleCradle {
+    IOrderModuleCradle,
+    IPaymentModuleCradle,
+    IPaymentModuleCradle {
         //global
         dbService: PrismaService;
         hashProvider: IHashProvider;
@@ -39,9 +42,7 @@ export const container = createContainer<ICradle>({
     injectionMode: InjectionMode.PROXY,
 });
 
-/**
- * 2. Реєстрація залежностей.
- */
+//Реєстрація залежностей у контейнері
 container.register({
     //global
     dbService: asClass(PrismaService).singleton(),
@@ -57,5 +58,7 @@ container.register({
     ...productModuleDeps,
     ...producerModuleDeps,
     ...cartModuleDeps,
-    ...orderModuleDeps
+    ...orderModuleDeps,
+    ...paymentModuleDeps,
+    ...paymentModuleDeps
 });

@@ -45,8 +45,10 @@ export class OrderRepository implements IOrderRepository {
         }
 
     create =
-        async (data: Prisma.OrderCreateInput): Promise<OrderFullEntity> => {
-            const order: OrderFullEntity = await this.dbService.order.create({
+        async (data: Prisma.OrderCreateInput, tx?: Prisma.TransactionClient): Promise<OrderFullEntity> => {
+            const client = tx ?? this.dbService;
+
+            const order: OrderFullEntity = await client.order.create({
                 data: data,
                 include: orderInclude
             });
@@ -55,8 +57,10 @@ export class OrderRepository implements IOrderRepository {
         }
 
     update =
-        async (id: number, data: Prisma.OrderUpdateInput): Promise<OrderFullEntity> => {
-            const order: OrderFullEntity = await this.dbService.order.update({
+        async (id: number, data: Prisma.OrderUpdateInput, tx?: Prisma.TransactionClient): Promise<OrderFullEntity> => {
+            const client = tx ?? this.dbService;
+
+            const order: OrderFullEntity = await client.order.update({
                 where: {id: id},
                 data: data,
                 include: orderInclude

@@ -72,11 +72,11 @@ export class CartController implements ICartController {
         }
 
     clearCart =
-        async (req: Request, res: Response<CartFullResponse>): Promise<void> => {
+        async (req: Request, res: Response): Promise<void> => {
             const {id} = extractTokenPayloadOrThrow(req);
 
-            const response: CartFullResponse = await this.cartService.clearCart(id);
+            await this.cartService.clearCart(id);
 
-            res.json(response);
+            res.status(200);
         }
 }

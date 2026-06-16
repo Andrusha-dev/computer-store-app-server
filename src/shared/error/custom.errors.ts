@@ -84,3 +84,14 @@ export class InternalServerError extends AppError {
         });
     }
 }
+
+//502 - Bad Gateway Error. Помилка зовнішнього сервісу
+export class BadGatewayError extends AppError {
+    constructor (message: string = 'Зовнішній сервіс повернув некоректну відповідь або недоступний') {
+        super({
+            message,
+            code: 'BAD_GATEWAY_ERROR',
+            statusCode: 502,
+        });
+    }
+}

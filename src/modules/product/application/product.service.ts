@@ -121,18 +121,15 @@ export class ProductService implements IProductService {
 
     //Метод для зменшення кількості товару (списання). Використовується під час оформлення замовлення
     decreaseQuantity =
-        async (id: number, count: number): Promise<ProductFullResponse> => {
-            const isUpdated: boolean = await this.productRepository.decreaseQuantityWithCheck(id, count);
+        async (id: number, count: number, tx?: Prisma.TransactionClient): Promise<void> => {
+            const isUpdated: boolean = await this.productRepository.decreaseQuantityWithCheck(id, count, tx);
 
             if(!isUpdated) {
                 throw new BadRequestError(`Неможливо списати товар з ID ${id}: недостатньо на складі`);
             }
-
-            const response: ProductFullResponse = await this.findFullById(id);
-
-            return response;
         }
 
+    /*
     //Метод для відкату списання товару, у випадку, якщо під час створення замовлення виникла помилка
     increaseQuantity =
         async (id: number, count: number): Promise<ProductFullResponse> => {
@@ -142,4 +139,5 @@ export class ProductService implements IProductService {
 
             return response;
         }
+    */
 }
