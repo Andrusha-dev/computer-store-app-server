@@ -1,6 +1,6 @@
 import {type NextFunction, type Request, type Response} from "express";
-import {config} from "../../shared/infrastructure/config";
-import {BadRequestError, ForbiddenError} from "../../shared/error/custom.errors.ts";
+import {config} from "../../../shared/infrastructure/config/index.ts";
+import {BadRequestError, ForbiddenError} from "../../../shared/error/custom.errors.ts";
 import crypto from "crypto"
 
 

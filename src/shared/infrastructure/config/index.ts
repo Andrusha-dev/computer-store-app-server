@@ -36,6 +36,7 @@ const envSchema = z.object({
     // ... інші змінні
 });
 
+
 const env = envSchema.parse(process.env); // Якщо хоч однієї змінної немає — сервер навіть не спробує запуститися
 
 export const config = {

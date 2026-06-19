@@ -18,4 +18,5 @@ export interface IOrderService {
     retryPayment: (orderId: number, userId: number) => Promise<RetryPaymentResponse>;
     updateStatus: (id: number, dto: UpdateOrderStatusDto) => Promise<OrderFullResponse>;//Метод для адмінів
     setTrackingNumber: (id: number, trackingNumber: string) => Promise<OrderFullResponse>;//Метод для адмінів
+    cancelOrder: (id: number) => Promise<OrderFullResponse>;
 }

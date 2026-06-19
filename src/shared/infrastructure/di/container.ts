@@ -15,6 +15,7 @@ import {type IProducerModuleCradle, producerModuleDeps} from "../../../modules/p
 import {cartModuleDeps, type ICartModuleCradle} from "../../../modules/cart/index.ts";
 import {type IOrderModuleCradle, orderModuleDeps} from "../../../modules/order/index.ts";
 import {type IPaymentModuleCradle, paymentModuleDeps} from "../../../modules/payment/index.ts";
+import {deliveryModuleDeps, type IDeliveryModuleCradle} from "../../../modules/delivery/index.ts";
 
 
 
@@ -27,7 +28,7 @@ export interface ICradle extends
     ICartModuleCradle,
     IOrderModuleCradle,
     IPaymentModuleCradle,
-    IPaymentModuleCradle {
+    IDeliveryModuleCradle {
         //global
         dbService: PrismaService;
         hashProvider: IHashProvider;
@@ -60,5 +61,5 @@ container.register({
     ...cartModuleDeps,
     ...orderModuleDeps,
     ...paymentModuleDeps,
-    ...paymentModuleDeps
+    ...deliveryModuleDeps
 });

@@ -17,5 +17,5 @@ export interface IProductService {
     update: (id: number, dto: UpdateProductDto) => Promise<ProductFullResponse>
     delete: (id: number) => Promise<ProductFullResponse>;
     decreaseQuantity: (id: number, count: number, tx?: Prisma.TransactionClient) => Promise<void>;
-    //increaseQuantity: (id: number, count: number) => Promise<ProductFullResponse>;
+    increaseQuantity: (id: number, count: number, tx?: Prisma.TransactionClient) => Promise<ProductFullResponse>;
 }

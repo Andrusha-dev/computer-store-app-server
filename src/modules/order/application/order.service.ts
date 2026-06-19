@@ -41,25 +41,15 @@ interface Dependencies {
 }
 
 export class OrderService implements IOrderService {
-    private readonly dbService: PrismaService;
-    private readonly orderRepository: IOrderRepository;
-    private readonly cartService: ICartService;
-    private readonly productService: IProductService;
-    private readonly paymentService: IPaymentService;
-    private readonly deliveryService: IDeliveryService;
+    private readonly deps: Dependencies;
 
-    constructor({dbService, orderRepository, cartService, productService, paymentService, deliveryService}: Dependencies) {
-        this.dbService = dbService;
-        this.orderRepository = orderRepository;
-        this.cartService = cartService;
-        this.productService = productService;
-        this.paymentService = paymentService;
-        this.deliveryService = deliveryService;
+    constructor(dependencies: Dependencies) {
+        this.deps = dependencies;
     }
 
     findMyFullById =
         async (userId: number, id: number): Promise<OrderFullResponse> => {
-            const order: OrderFullEntity | null = await this.orderRepository.findFullById(id);
+            const order: OrderFullEntity | null = await this.deps.orderRepository.findFullById(id);
 
             //Перевіряєм чи існує замовлення
             if(!order) {
@@ -78,7 +68,7 @@ export class OrderService implements IOrderService {
 
     findFullById =
         async (id: number): Promise<OrderFullResponse> => {
-            const order: OrderFullEntity | null = await this.orderRepository.findFullById(id);
+            const order: OrderFullEntity | null = await this.deps.orderRepository.findFullById(id);
 
             //Перевіряєм чи існує замовлення
             if(!order) {
@@ -95,9 +85,9 @@ export class OrderService implements IOrderService {
             const args: Prisma.OrderFindManyArgs = toOrderFindManyArgs(query, userId);
 
             const [orders, totalElements] = await Promise.all([
-                this.orderRepository.findMany(args),
+                this.deps.orderRepository.findMany(args),
                 //where дістаємо з args, щоб фільтри для findMany та count були синхронізовані
-                this.orderRepository.count(args.where)
+                this.deps.orderRepository.count(args.where)
             ]);
 
             const content: OrderFullResponse[] = orders.map(toOrderFullResponse);
@@ -113,9 +103,9 @@ export class OrderService implements IOrderService {
             const args: Prisma.OrderFindManyArgs = toOrderFindManyArgs(query);
 
             const [orders, totalElements] = await Promise.all([
-                this.orderRepository.findMany(args),
+                this.deps.orderRepository.findMany(args),
                 //where дістаємо з args, щоб фільтри для findMany та count були синхронізовані
-                this.orderRepository.count(args.where)
+                this.deps.orderRepository.count(args.where)
             ]);
 
             const content: OrderFullResponse[] = orders.map(toOrderFullResponse);
@@ -128,7 +118,7 @@ export class OrderService implements IOrderService {
 
     create =
         async (userId: number, dto: CreateOrderDto): Promise<CheckoutResponse>  => {
-            const cart: CartFullResponse = await this.cartService.findCartFullByUserId(userId);
+            const cart: CartFullResponse = await this.deps.cartService.findCartFullByUserId(userId);
             if(!cart.items.length) {
                 throw new BadRequestError("Неможливо створити замовлення: кошик порожній");
             }
@@ -194,7 +184,7 @@ export class OrderService implements IOrderService {
     updateStatus =
         async (id: number, dto: UpdateOrderStatusDto): Promise<OrderFullResponse> => {
             const data: Prisma.OrderUpdateInput = {status: dto.status}//toOrderUpdateInput(dto);
-            const order: OrderFullEntity = await this.orderRepository.update(id, data);
+            const order: OrderFullEntity = await this.deps.orderRepository.update(id, data);
             const response: OrderFullResponse = toOrderFullResponse(order);
 
             return response;
@@ -202,29 +192,57 @@ export class OrderService implements IOrderService {
 
     // Додавання номеру декларації для payment та відповідна зміна статусу замовлення на DELIVERING (метод для адмінів)
     setTrackingNumber = async (id: number, trackingNumber: string): Promise<OrderFullResponse> => {
-        const order: OrderFullEntity | null = await this.orderRepository.findFullById(id);
+        const order: OrderFullEntity | null = await this.deps.orderRepository.findFullById(id);
         if (!order) {
             throw new NotFoundError(`Замовлення з ID ${id} не знайдено`);
         }
 
-        return await this.dbService.$transaction(async (tx) => {
+        return await this.deps.dbService.$transaction(async (tx) => {
             //Перевіряємо доставку на null
             if (!order.delivery) {
                 throw new BadRequestError(`Для замовлення з ID ${id} не знайдено інформації про доставку`);
             }
 
             //Викликаємо сервіс доставки, щоб він оновив ТТН у своїй таблиці
-            await this.deliveryService.updateTrackingNumber(order.delivery.id, trackingNumber, tx);
+            await this.deps.deliveryService.updateTrackingNumber(order.delivery.id, trackingNumber, tx);
 
             const data: Prisma.OrderUpdateInput = {status: "DELIVERING"}
             // Також змінюємо статус самого замовлення, бо його вже відправлено!
-            const updatedOrder: OrderFullEntity = await this.orderRepository.update(id, data, tx);
+            const updatedOrder: OrderFullEntity = await this.deps.orderRepository.update(id, data, tx);
 
             const response: OrderFullResponse = toOrderFullResponse(updatedOrder);
 
             return response;
         });
     }
+
+    //Метод для скасування замовлення (використовується в PaymentService, коли платіж зафейлився, або користувач не вчасно не оплатив його)
+    cancelOrder =
+        async (id: number): Promise<OrderFullResponse> => {
+            const {status, items} = await this.findFullById(id);
+
+            //Запобіжник. Не можна скасувати замовлення, яке вже оплачене, або яке вже передане перевізнику
+            if(status === "PAID" || status === "DELIVERING") {
+                throw new BadRequestError(`Неможливо скасувати замовлення в статусі ${status}`)
+            }
+
+            return await this.deps.dbService.$transaction(async (tx) => {
+                //Повертаємо товари на склад
+                for (const item of items) {
+                    console.log(`[ORDER_SERVICE] Повертаємо товар ${item.productId} на склад у кількості ${item.quantity}`);
+                    await this.deps.productService.increaseQuantity(item.productId, item.quantity, tx);
+                }
+
+                //Змінюємо статус замовлення на CANCELLED
+                const data: Prisma.OrderUpdateInput = {status: "CANCELLED"}
+                const orderFullEntity: OrderFullEntity = await this.deps.orderRepository.update(id, data, tx);
+
+                console.log(`[ORDER_SERVICE] Замовлення з ID ${id} успішно скасовано, товар повернуто.`);
+                const response: OrderFullResponse = toOrderFullResponse(orderFullEntity);
+
+                return response;
+            })
+        }
 
 
     //Приватний метод для формування загальної суми замовлення (totalAmount) та списку елементів замовлення (items)
@@ -273,14 +291,14 @@ export class OrderService implements IOrderService {
             cartItems: CartItemFullResponse[],
             orderData: Prisma.OrderCreateInput
         ): Promise<OrderFullEntity> => {
-            return await this.dbService.$transaction(async (tx) => {
+            return await this.deps.dbService.$transaction(async (tx) => {
                 for (const cartItem of cartItems) {
-                    await this.productService.decreaseQuantity(cartItem.productId, cartItem.quantity, tx);
+                    await this.deps.productService.decreaseQuantity(cartItem.productId, cartItem.quantity, tx);
                 }
 
-                const orderFullEntity: OrderFullEntity = await this.orderRepository.create(orderData, tx);
+                const orderFullEntity: OrderFullEntity = await this.deps.orderRepository.create(orderData, tx);
 
-                await this.cartService.clearCart(userId, tx);
+                await this.deps.cartService.clearCart(userId, tx);
 
                 return orderFullEntity;
             });
@@ -297,7 +315,7 @@ export class OrderService implements IOrderService {
                 throw new BadRequestError(`Замовлення з ID ${order.id} вже оплачене`);
             }
 
-            const createInvoiceResponse: CreateInvoiceResponse = await this.paymentService.createInvoice(
+            const createInvoiceResponse: CreateInvoiceResponse = await this.deps.paymentService.createInvoice(
                 order.id,
                 order.payment.id,
                 order.payment.amount,

@@ -3,7 +3,7 @@ import type {
     CreateInvoiceOutput,
     IPaymentProvider
 } from "../../../domain/payment.provider.contract.ts";
-import {config} from "../../../../../shared/infrastructure/config";
+import {config} from "../../../../../shared/infrastructure/config/index.ts";
 import {BadGatewayError} from "../../../../../shared/error/custom.errors.ts";
 import {z} from "zod";
 import {AppError} from "../../../../../shared/error/app.error.ts";
@@ -30,6 +30,13 @@ export class MonobankProvider implements IPaymentProvider {
 
     createInvoice =
         async (input: CreateInvoiceInput): Promise<CreateInvoiceOutput> => {
+            /*
+            //Цей блок слід розкоментувати коли потрібно зімітувати помилку сервера монобанку
+            if(input.orderId > 0) {
+                throw new BadGatewayError("Монобанк тимчасово недоступний (тестова помилка)");
+            }
+            */
+
             if(this.isSandbox) {
                 console.log(`[Monobank Sandbox] Створення інвойсу для замовлення з ID ${input.orderId} на суму ${input.amount} грн`);
                 //Якщо ми в режимі sandbox, то повертаємо результат-заглушку

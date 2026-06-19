@@ -14,6 +14,6 @@ export interface IDeliveryModuleCradle {
 
 
 export const deliveryModuleDeps = {
-    deliveryRepository: asClass(DeliveryRepository),
-    deliveryService: asClass(DeliveryService)
+    deliveryRepository: asClass(DeliveryRepository).singleton(),
+    deliveryService: asClass(DeliveryService).singleton()
 }

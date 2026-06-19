@@ -17,14 +17,10 @@ interface Dependencies {
 }
 
 export class PaymentService implements IPaymentService {
-    private readonly paymentRepository: IPaymentRepository;
-    private readonly paymentProvider: IPaymentProvider;
-    private readonly orderService: IOrderService;
+    private readonly deps: Dependencies;
 
-    constructor({paymentRepository, paymentProvider, orderService}: Dependencies) {
-        this.paymentRepository = paymentRepository;
-        this.paymentProvider = paymentProvider;
-        this.orderService = orderService;
+    constructor(dependencies: Dependencies) {
+        this.deps = dependencies;
     }
 
     createInvoice =
@@ -33,7 +29,7 @@ export class PaymentService implements IPaymentService {
 
             try {
                 //Стукаємо в Монобанк за лінком
-                invoice = await this.paymentProvider.createInvoice({
+                invoice = await this.deps.paymentProvider.createInvoice({
                     orderId: orderId,
                     amount: amount,
                 });
@@ -43,7 +39,7 @@ export class PaymentService implements IPaymentService {
 
             //Оновлюємо поле externalId
             const data: Prisma.PaymentUpdateInput = { externalId: invoice.invoiceId };
-            const payment: PaymentEntity = await this.paymentRepository.update(paymentId, data);
+            const payment: PaymentEntity = await this.deps.paymentRepository.update(paymentId, data);
 
             console.log(`[PAYMENT_SERVICE] Отримано інвойс ${invoice.invoiceId} від банку та оновлено платіж ID ${paymentId}`);
 
@@ -57,33 +53,24 @@ export class PaymentService implements IPaymentService {
             return response;
         }
 
-    /*
-    updateExternalId =
-        async (id: number, externalId: string): Promise<PaymentResponse> => {
-            const data: Prisma.PaymentUpdateInput = {externalId: externalId}
-
-            const payment: PaymentEntity = await this.paymentRepository.update(id, data);
-            console.log(`[PAYMENT_SERVICE] Збережено externalId ${externalId} для платежу з ID${id}`);
-
-            const response: PaymentResponse = toPaymentResponse(payment);
-
-            return response;
-        }
-    */
-
     //Оновлення статусів Order та Payment (Викликається вебхуком монобанку)
     updateStatusByExternalId =
         async (externalId: string, status: Extract<PaymentStatus, "PAID" | "FAILED">): Promise<PaymentResponse> => {
             const data: Prisma.PaymentUpdateInput = {status: status}
 
             //Оновлюємо статус самого платежу в модулі payment
-            const payment: PaymentEntity = await this.paymentRepository.updateStatusByExternalId(externalId, data);
+            const payment: PaymentEntity = await this.deps.paymentRepository.updateStatusByExternalId(externalId, data);
             console.log(`[PAYMENT_SERVICE] Статус платежу з externalId ${externalId} змінено на: ${status}`);
 
-            //Якщо оплата успішна — міняємо статус замовлення в модулі order
+
             if(status === "PAID") {
-                await this.orderService.updateStatus(payment.orderId, {status: status});
+                //Якщо оплата успішна — міняємо статус замовлення в модулі order на "PAID"
+                await this.deps.orderService.updateStatus(payment.orderId, {status: status});
                 console.log(`[PAYMENT_SERVICE] Надіслано запит в OrderService для оновлення статусу замовлення з ID${payment.orderId}`);
+            } else if (status == "FAILED") {
+                //Якщо оплата зафейлилась, або користувач не здійснив оплату вчасно, викликаємо метод скасування в OrderService
+                await this.deps.orderService.cancelOrder(payment.orderId);
+                console.log(`[PAYMENT_SERVICE] Надіслано запит на скасування замовлення ID ${payment.orderId} через провал оплати`);
             }
 
             const response: PaymentResponse = toPaymentResponse(payment);

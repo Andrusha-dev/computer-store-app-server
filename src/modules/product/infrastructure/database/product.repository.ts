@@ -103,11 +103,13 @@ export class ProductRepository implements IProductRepository {
             return isUpdated;
         }
 
-    /*
+
     //Метод для збільшення кількості товару, у випадку, якщо під час оформлення замовлення сталася помилка
     increaseQuantity =
-        async (id: number, count: number): Promise<ProductFullEntity> => {
-            const product: ProductFullEntity = await this.dbService.product.update({
+        async (id: number, count: number, tx?: Prisma.TransactionClient): Promise<ProductFullEntity> => {
+            const client = tx ?? this.dbService;
+
+            const product: ProductFullEntity = await client.product.update({
                 where: {
                     id: id
                 },
@@ -119,5 +121,4 @@ export class ProductRepository implements IProductRepository {
 
             return product;
         }
-    */
 }

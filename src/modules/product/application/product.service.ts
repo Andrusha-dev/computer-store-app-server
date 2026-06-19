@@ -129,15 +129,15 @@ export class ProductService implements IProductService {
             }
         }
 
-    /*
-    //Метод для відкату списання товару, у випадку, якщо під час створення замовлення виникла помилка
+
+    //Метод для відкату списання товару, у випадку, якщо замовлення скасовується і потрібно повернути товар з замовлення, оновивши його кількість в product
     increaseQuantity =
-        async (id: number, count: number): Promise<ProductFullResponse> => {
-            const product: ProductFullEntity = await this.productRepository.increaseQuantity(id, count);
+        async (id: number, count: number, tx?: Prisma.TransactionClient): Promise<ProductFullResponse> => {
+            const product: ProductFullEntity = await this.productRepository.increaseQuantity(id, count, tx);
 
             const response: ProductFullResponse = toProductFullResponse(product);
 
             return response;
         }
-    */
+
 }
