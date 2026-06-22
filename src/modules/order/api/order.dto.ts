@@ -39,9 +39,6 @@ export const createOrderDtoSchema = z.object({
 });
 export type CreateOrderDto = z.infer<typeof createOrderDtoSchema>;
 
-export const updateOrderStatusDtoSchema = orderSchema.pick({status: true});
-export type UpdateOrderStatusDto = z.infer<typeof updateOrderStatusDtoSchema>;
-
 export const orderParamsSchema = z.object({
     id: z.coerce.number().int().positive(),
 });

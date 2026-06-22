@@ -5,7 +5,7 @@ import type {
     CreateOrderDto,
     OrderFullResponse,
     OrdersQuery,
-    OrdersResponse, RetryPaymentResponse, UpdateOrderStatusDto
+    OrdersResponse, RetryPaymentResponse
 } from "../api/order.dto.ts";
 import type {OrderFullEntity} from "../domain/order.entity.ts";
 import {
@@ -180,16 +180,6 @@ export class OrderService implements IOrderService {
             }
         }
 
-    //Онвлення статусу замовлення (для адмінів)
-    updateStatus =
-        async (id: number, dto: UpdateOrderStatusDto): Promise<OrderFullResponse> => {
-            const data: Prisma.OrderUpdateInput = {status: dto.status}//toOrderUpdateInput(dto);
-            const order: OrderFullEntity = await this.deps.orderRepository.update(id, data);
-            const response: OrderFullResponse = toOrderFullResponse(order);
-
-            return response;
-        }
-
     // Додавання номеру декларації для payment та відповідна зміна статусу замовлення на DELIVERING (метод для адмінів)
     setTrackingNumber = async (id: number, trackingNumber: string): Promise<OrderFullResponse> => {
         const order: OrderFullEntity | null = await this.deps.orderRepository.findFullById(id);
@@ -216,16 +206,64 @@ export class OrderService implements IOrderService {
         });
     }
 
-    //Метод для скасування замовлення (використовується в PaymentService, коли платіж зафейлився, або користувач не вчасно не оплатив його)
-    cancelOrder =
+    //Онвлення статусу замовлення (для вебхуку монобанку в PaymentService)
+    updateStatusToPaid =
         async (id: number): Promise<OrderFullResponse> => {
-            const {status, items} = await this.findFullById(id);
+            const {payment, status} = await this.findFullById(id);
 
-            //Запобіжник. Не можна скасувати замовлення, яке вже оплачене, або яке вже передане перевізнику
-            if(status === "PAID" || status === "DELIVERING") {
-                throw new BadRequestError(`Неможливо скасувати замовлення в статусі ${status}`)
+            if(status !== "PENDING") {
+                throw new BadRequestError(`Неможливо оплатити замовлення в статусі ${status}`)
             }
 
+            if(payment.status !== "PAID") {
+                throw new BadRequestError(`Неможливо перевести замовлення в статус PAID, оскільки платіж у банку не підтверджено!`);
+            }
+
+            const data: Prisma.OrderUpdateInput = {status: "PAID"}
+            const order: OrderFullEntity = await this.deps.orderRepository.update(id, data);
+            console.log(`[ORDER_SERVICE] Замовлення ID ${id} успішно переведено в статус PAID.`);
+            const response: OrderFullResponse = toOrderFullResponse(order);
+
+            return response;
+        }
+
+    //Метод для адмінів. Виконує зміну статусу на "COMPLETED", коли користувач отримав замовлення
+    updateStatusToCompleted =
+        async (id: number): Promise<OrderFullResponse> => {
+            const {status} = await this.findFullById(id);
+
+            if(status !== "DELIVERING") {
+                throw new BadRequestError(`Не можна завершити замовлення зі статусом ${status}. Воно має бути спочатку відправлене`);
+            }
+
+            const data: Prisma.OrderUpdateInput = {status: "COMPLETED"}
+            const orderFullEntity: OrderFullEntity = await this.deps.orderRepository.update(id, data);
+            console.log(`[ORDER_SERVICE] Замовлення ID ${id} успішно завершено.`);
+
+            const response: OrderFullResponse = toOrderFullResponse(orderFullEntity);
+
+            return response;
+        }
+
+    //Метод для скасування замовлення (використовується в PaymentService, коли платіж зафейлився, або користувач вчасно не оплатив його, або коли відбулось повернення коштів користувачу)
+    //Викликається у відповідь на вебхук монобанк (якщо метод оплати "CARD") або адміном (якщо метод оплати "CASH") Передбачає зміну статусу замовлення на CANCELLED та повернення товару на склад
+    cancelOrder =
+        async (id: number): Promise<OrderFullResponse> => {
+            const {items, payment} = await this.findFullById(id);
+
+            //Якщо оплата картою, то можна скасувати лише замовлення статус оплати якого "FAILED" або "REFUNDED"
+            if(payment.method === "CARD") {
+                //Стандартний запобіжник для виклику за межами вебхуку. Не можна скасувати замовлення, яке вже оплачене, або яке вже передане перевізнику
+                if(payment.status !== "FAILED" && payment.status !== "REFUNDED") {
+                    throw new BadRequestError(`Неможливо скасувати замовлення, при оплаті карткою, якщо оплата не скасована`)
+                }
+            }
+
+
+            //Якщо метод оплати "CASH", то скасування замовлення можна робити при будь-якому статусі замовлення
+            //(окрім "PAID", але якщо метод оплати "CASH", то замовлення фізично не може мати статус "PAID")
+
+            //Якщо все ок - скасовуємо замовлення
             return await this.deps.dbService.$transaction(async (tx) => {
                 //Повертаємо товари на склад
                 for (const item of items) {

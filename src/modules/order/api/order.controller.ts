@@ -7,8 +7,7 @@ import type {
     OrderFullResponse,
     OrderParams,
     OrdersQuery,
-    OrdersResponse, RetryPaymentResponse, SetTrackingNumberDto,
-    UpdateOrderStatusDto
+    OrdersResponse, RetryPaymentResponse, SetTrackingNumberDto
 } from "./order.dto.ts";
 import {
     extractTokenPayloadOrThrow, extractValidatedBodyOrThrow,
@@ -90,17 +89,6 @@ export class OrderController implements IOrderController {
             res.json(response);
         }
 
-
-    updateStatus =
-        async (req: Request, res: Response<OrderFullResponse>): Promise<void> => {
-            const {id} = extractValidatedParamsOrThrow<OrderParams>(req);
-            const dto: UpdateOrderStatusDto = extractValidatedBodyOrThrow<UpdateOrderStatusDto>(req);
-
-            const response: OrderFullResponse = await this.orderService.updateStatus(id, dto);
-
-            res.json(response);
-        }
-
     //Додавання ТТН та переведення замовлення в статус DELIVERING (для адмінів)
     setTrackingNumber =
         async (req: Request, res: Response<OrderFullResponse>): Promise<void> => {
@@ -112,6 +100,24 @@ export class OrderController implements IOrderController {
             res.json(response);
         }
 
+    //Зміна статусу замовлення на COMPLETED після отримання користувачем (метод для адмінів)
+    updateStatusToCompleted =
+        async (req: Request, res: Response<OrderFullResponse>): Promise<void> => {
+            const {id} = extractValidatedParamsOrThrow<OrderParams>(req);
 
+            const response: OrderFullResponse = await this.orderService.updateStatusToCompleted(id);
+
+            res.json(response);
+        }
+
+    //Скасування замовлення (виключно для методу оплати CASH). Метод для адмінів
+    cancelOrder =
+        async (req: Request, res: Response<OrderFullResponse>): Promise<void> => {
+            const {id} = extractValidatedParamsOrThrow<OrderParams>(req);
+
+            const response: OrderFullResponse = await this.orderService.cancelOrder(id);
+
+            res.json(response);
+        }
 }
 

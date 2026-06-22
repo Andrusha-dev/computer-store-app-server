@@ -6,8 +6,7 @@ import {
     createOrderDtoSchema,
     orderParamsSchema,
     ordersQuerySchema,
-    setTrackingNumberDtoSchema,
-    updateOrderStatusDtoSchema
+    setTrackingNumberDtoSchema
 } from "./order.dto.ts";
 
 
@@ -64,20 +63,28 @@ export const createOrderRouter = ({orderController, authMiddleware}: Dependencie
     );
 
     router.patch(
-        "/:id/status",
-        authMiddleware.authenticate,
-        authMiddleware.authorize(["admin"]),
-        validate({params: orderParamsSchema, body: updateOrderStatusDtoSchema}),
-        orderController.updateStatus
-    );
-
-    router.patch(
         "/:id/tracking-number",
         authMiddleware.authenticate,
         authMiddleware.authorize(["admin"]),
         validate({params: orderParamsSchema, body: setTrackingNumberDtoSchema}),
         orderController.setTrackingNumber
     );
+
+    router.patch(
+        "/:id/status/completed",
+        authMiddleware.authenticate,
+        authMiddleware.authorize(["admin"]),
+        validate({params: orderParamsSchema}),
+        orderController.updateStatusToCompleted
+    );
+
+    router.patch(
+        "/:id/cancel",
+        authMiddleware.authenticate,
+        authMiddleware.authorize(["admin"]),
+        validate({params: orderParamsSchema}),
+        orderController.cancelOrder
+    )
 
     return router;
 }

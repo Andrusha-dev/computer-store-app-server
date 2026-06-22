@@ -11,6 +11,8 @@ export interface IOrderController {
     findMany: (req: Request, res: Response<OrdersResponse>) => Promise<void>;
     create: (req: Request, res: Response<CheckoutResponse>) => Promise<void>;
     retryPayment: (req: Request, res: Response<RetryPaymentResponse>) => Promise<void>;
-    updateStatus: (req: Request, res: Response<OrderFullResponse>) => Promise<void>;
+    //updateStatus: (req: Request, res: Response<OrderFullResponse>) => Promise<void>;
     setTrackingNumber: (req: Request, res: Response<OrderFullResponse>) => Promise<void>;
+    updateStatusToCompleted: (req: Request, res: Response<OrderFullResponse>) => Promise<void>;
+    cancelOrder: (req: Request, res: Response<OrderFullResponse>) => Promise<void>;
 }

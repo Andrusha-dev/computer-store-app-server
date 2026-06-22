@@ -53,9 +53,11 @@ export class PaymentService implements IPaymentService {
             return response;
         }
 
-    //Оновлення статусів Order та Payment (Викликається вебхуком монобанку)
+    //Оновлення статусів Order та Payment (Викликається вебхуком монобанку). tx можна не використовувати, бо якщо наприклад впала бд,
+    //вебхук монобанку не отримає код 200 і буде повторно надсилати запити. І коли бд відновиться, то після чергового вебхуку
+    //статуси в Order та Payment оновляться і сервер монобанку отримає статус 200
     updateStatusByExternalId =
-        async (externalId: string, status: Extract<PaymentStatus, "PAID" | "FAILED">): Promise<PaymentResponse> => {
+        async (externalId: string, status: Extract<PaymentStatus, "PAID" | "FAILED" | "REFUNDED">): Promise<PaymentResponse> => {
             const data: Prisma.PaymentUpdateInput = {status: status}
 
             //Оновлюємо статус самого платежу в модулі payment
@@ -65,10 +67,10 @@ export class PaymentService implements IPaymentService {
 
             if(status === "PAID") {
                 //Якщо оплата успішна — міняємо статус замовлення в модулі order на "PAID"
-                await this.deps.orderService.updateStatus(payment.orderId, {status: status});
+                await this.deps.orderService.updateStatusToPaid(payment.orderId);
                 console.log(`[PAYMENT_SERVICE] Надіслано запит в OrderService для оновлення статусу замовлення з ID${payment.orderId}`);
-            } else if (status == "FAILED") {
-                //Якщо оплата зафейлилась, або користувач не здійснив оплату вчасно, викликаємо метод скасування в OrderService
+            } else if (status == "FAILED" || status == "REFUNDED") {
+                //Якщо оплата зафейлилась, або користувач не здійснив оплату вчасно, чи стався збій при передачі коштів платіжній системі банком клієнта (REFUNDED), викликаємо метод скасування в OrderService
                 await this.deps.orderService.cancelOrder(payment.orderId);
                 console.log(`[PAYMENT_SERVICE] Надіслано запит на скасування замовлення ID ${payment.orderId} через провал оплати`);
             }

@@ -35,14 +35,20 @@ export class PaymentWebhookController implements IPaymentWebhookController {
             const { invoiceId, status } = result.data;
 
             //Якщо статус проміжний — логуємо, відповідаємо 200 і виходимо
-            if (status !== "success" && status !== "failure" && status !== "expired") {
+            if (status !== "success" && status !== "failure" && status !== "expired" && status !== "reversed") {
                 res.status(200).send("OK");
                 return;
             }
 
             //Мапимо статус. Якщо status "success" то systemStatus "PAID", а якщо status "failure" або "expired" - то systemStatus "FAILED"
-            const systemStatus: Extract<PaymentStatus, "PAID" | "FAILED"> =
-                status === "success" ? "PAID" : "FAILED";
+            let systemStatus: Extract<PaymentStatus, "PAID" | "FAILED" | "REFUNDED">;
+                if (status === "success") {
+                    systemStatus = "PAID";
+                } else if (status === "reversed") {
+                    systemStatus = "REFUNDED"
+                } else {
+                    systemStatus = "FAILED"
+                }
 
             // Викликаємо сервіс і завершуємо запит
             await this.paymentService.updateStatusByExternalId(invoiceId, systemStatus);
