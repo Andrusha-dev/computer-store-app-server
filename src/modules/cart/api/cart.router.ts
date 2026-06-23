@@ -16,7 +16,7 @@ export const createCartRouter = ({authMiddleware, cartController}: Dependencies)
     router.get(
         "/",
         authMiddleware.authenticate,
-        cartController.findCartFullByUserId,
+        cartController.findMyCartFullByUserId,
     );
 
     router.post(

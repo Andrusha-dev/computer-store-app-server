@@ -24,7 +24,7 @@ export class CartController implements ICartController {
         this.productService = productService;
     }
 
-    findCartFullByUserId =
+    findMyCartFullByUserId =
         async (req: Request, res: Response<CartFullResponse>): Promise<void> => {
             const {id} = extractTokenPayloadOrThrow(req);
 

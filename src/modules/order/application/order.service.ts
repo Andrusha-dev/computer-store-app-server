@@ -182,19 +182,16 @@ export class OrderService implements IOrderService {
 
     // Додавання номеру декларації для payment та відповідна зміна статусу замовлення на DELIVERING (метод для адмінів)
     setTrackingNumber = async (id: number, trackingNumber: string): Promise<OrderFullResponse> => {
-        const order: OrderFullEntity | null = await this.deps.orderRepository.findFullById(id);
-        if (!order) {
-            throw new NotFoundError(`Замовлення з ID ${id} не знайдено`);
-        }
+        const {delivery, payment} = await this.findFullById(id);
 
         return await this.deps.dbService.$transaction(async (tx) => {
-            //Перевіряємо доставку на null
-            if (!order.delivery) {
-                throw new BadRequestError(`Для замовлення з ID ${id} не знайдено інформації про доставку`);
+            //Якщо метод оплати "CARD", то перевіряємо чи замовлення оплачене
+            if(payment.method === "CARD" && payment.status !== "PAID") {
+                throw new BadRequestError(`Неможливо здійснити доставку замовлення при оплаті картою, якщо воно не оплачене. Статус оплати ${payment.status}`)
             }
 
             //Викликаємо сервіс доставки, щоб він оновив ТТН у своїй таблиці
-            await this.deps.deliveryService.updateTrackingNumber(order.delivery.id, trackingNumber, tx);
+            await this.deps.deliveryService.updateTrackingNumber(delivery.id, trackingNumber, tx);
 
             const data: Prisma.OrderUpdateInput = {status: "DELIVERING"}
             // Також змінюємо статус самого замовлення, бо його вже відправлено!

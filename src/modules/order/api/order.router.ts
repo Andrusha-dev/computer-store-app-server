@@ -63,7 +63,7 @@ export const createOrderRouter = ({orderController, authMiddleware}: Dependencie
     );
 
     router.patch(
-        "/:id/tracking-number",
+        "/:id/delivery/tracking-number",
         authMiddleware.authenticate,
         authMiddleware.authorize(["admin"]),
         validate({params: orderParamsSchema, body: setTrackingNumberDtoSchema}),
@@ -79,7 +79,7 @@ export const createOrderRouter = ({orderController, authMiddleware}: Dependencie
     );
 
     router.patch(
-        "/:id/cancel",
+        "/:id/cancel-order",
         authMiddleware.authenticate,
         authMiddleware.authorize(["admin"]),
         validate({params: orderParamsSchema}),
