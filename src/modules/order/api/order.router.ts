@@ -1,4 +1,3 @@
-import type {IOrderController} from "./order.controller.contract.ts";
 import type {IAuthMiddleware} from "../../../shared/contracts/auth.middleware.contract.ts";
 import {Router} from "express";
 import {validate} from "../../../api/middlewares/validation.middleware.ts";
@@ -8,10 +7,11 @@ import {
     ordersQuerySchema,
     setTrackingNumberDtoSchema
 } from "./order.dto.ts";
+import type {OrderController} from "./order.controller.ts";
 
 
 interface Dependencies {
-    orderController: IOrderController;
+    orderController: OrderController;
     authMiddleware: IAuthMiddleware;
 }
 
@@ -88,4 +88,6 @@ export const createOrderRouter = ({orderController, authMiddleware}: Dependencie
 
     return router;
 }
+
+export type OrderRouter = ReturnType<typeof createOrderRouter>;
 

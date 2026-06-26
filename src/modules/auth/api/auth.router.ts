@@ -1,13 +1,13 @@
-import type {IAuthController} from "./auth.controller.contract.ts";
 import {Router} from "express";
 import {validate} from "../../../api/middlewares/validation.middleware.ts";
 import {loginDtoSchema, refreshAllTokensDtoSchema} from "./auth.dto.ts";
+import type {AuthController} from "./auth.controller.ts";
 
 
 
 
 interface Dependencies {
-    authController: IAuthController;
+    authController: AuthController;
 }
 
 export const createAuthRouter = ({authController}: Dependencies): Router => {
@@ -27,3 +27,5 @@ export const createAuthRouter = ({authController}: Dependencies): Router => {
 
     return router;
 }
+
+export type AuthRouter = ReturnType<typeof createAuthRouter>;

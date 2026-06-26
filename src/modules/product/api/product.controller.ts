@@ -1,5 +1,4 @@
 import type {IProductService} from "../application/product.service.contract.ts";
-import type {IProductController} from "./product.controller.contract.ts";
 import type {
     CreateProductDto,
     ProductFullResponse, ProductParams,
@@ -20,7 +19,7 @@ interface Dependencies {
 }
 
 
-export class ProductController implements IProductController {
+export class ProductController {
     private readonly productService: IProductService;
 
     constructor({productService}: Dependencies) {

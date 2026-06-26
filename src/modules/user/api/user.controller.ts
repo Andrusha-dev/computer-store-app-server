@@ -11,7 +11,6 @@ import type {
     UsersQuery,
     UsersResponse
 } from "./user.dto.ts";
-import type {IUserController} from "./user.controller.contract.ts";
 import type {TokenPayload} from "../../../shared/schemas/token-payload.schema.ts";
 
 
@@ -21,7 +20,7 @@ interface Dependencies {
     userService: IUserService;
 }
 
-export class UserController implements IUserController {
+export class UserController {
     private readonly userService: IUserService;
 
     constructor({userService}: Dependencies) {

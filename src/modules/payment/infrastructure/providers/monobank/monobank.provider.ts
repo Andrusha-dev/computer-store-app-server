@@ -3,7 +3,7 @@ import type {
     CreateInvoiceOutput,
     IPaymentProvider
 } from "../../../domain/payment.provider.contract.ts";
-import {config} from "../../../../../shared/infrastructure/config/index.ts";
+import {type Config} from "../../../../../shared/infrastructure/config/index.ts";
 import {BadGatewayError} from "../../../../../shared/error/custom.errors.ts";
 import {z} from "zod";
 import {AppError} from "../../../../../shared/error/app.error.ts";
@@ -15,17 +15,24 @@ const monobankInvoiceResponseSchema = z.object({
     pageUrl: z.url(),
 });
 
+interface Dependencies {
+    config: Config;
+}
+
 export class MonobankProvider implements IPaymentProvider {
     private readonly token: string;
     private readonly baseUrl: string;
     private readonly isSandbox: boolean;
+    private readonly allowedOriginUrl: string;
 
-    constructor() {
+    constructor({config}: Dependencies) {
         this.token = config.monoApi.token;
         this.baseUrl = config.monoApi.url;
         //sandbox передбачає обовязково наявність режиму, відмінного від production і значення "mock-token" для token.
         //Якщо хоча б одна умова не виконується - здійснюється повноцінна взаємодія з api монобанку, в тому числі, якщо token згенерований в тестовому режимі монобанку
         this.isSandbox = !config.isProduction && this.token === "mock-token";
+        this.allowedOriginUrl = config.allowedOrigin.url;
+
     }
 
     createInvoice =
@@ -60,8 +67,8 @@ export class MonobankProvider implements IPaymentProvider {
                         amount: Math.round(input.amount * 100),
                         ccy: 980, // Код валюти: Гривня (UAH)
                         merchantInvoice: String(input.orderId),
-                        redirectUrl: `${config.allowedOrigin.url}/orders/${input.orderId}/payment-success`, //Куди повернути клієнта після оплати
-                        webHookUrl: `${config.allowedOrigin.url}/api/payments/webhook/monobank`, //Сюди Моно пришле сповіщення про успішну оплату
+                        redirectUrl: `${this.allowedOriginUrl}/orders/${input.orderId}/payment-success`, //Куди повернути клієнта після оплати
+                        webHookUrl: `${this.allowedOriginUrl}/api/payments/webhook/monobank`, //Сюди Моно пришле сповіщення про успішну оплату
                     }),
                 });
 

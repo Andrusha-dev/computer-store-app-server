@@ -218,7 +218,6 @@ export class OrderService implements IOrderService {
 
             const data: Prisma.OrderUpdateInput = {status: "PAID"}
             const order: OrderFullEntity = await this.deps.orderRepository.update(id, data);
-            console.log(`[ORDER_SERVICE] Замовлення ID ${id} успішно переведено в статус PAID.`);
             const response: OrderFullResponse = toOrderFullResponse(order);
 
             return response;
@@ -235,7 +234,6 @@ export class OrderService implements IOrderService {
 
             const data: Prisma.OrderUpdateInput = {status: "COMPLETED"}
             const orderFullEntity: OrderFullEntity = await this.deps.orderRepository.update(id, data);
-            console.log(`[ORDER_SERVICE] Замовлення ID ${id} успішно завершено.`);
 
             const response: OrderFullResponse = toOrderFullResponse(orderFullEntity);
 
@@ -264,7 +262,6 @@ export class OrderService implements IOrderService {
             return await this.deps.dbService.$transaction(async (tx) => {
                 //Повертаємо товари на склад
                 for (const item of items) {
-                    console.log(`[ORDER_SERVICE] Повертаємо товар ${item.productId} на склад у кількості ${item.quantity}`);
                     await this.deps.productService.increaseQuantity(item.productId, item.quantity, tx);
                 }
 
@@ -272,7 +269,6 @@ export class OrderService implements IOrderService {
                 const data: Prisma.OrderUpdateInput = {status: "CANCELLED"}
                 const orderFullEntity: OrderFullEntity = await this.deps.orderRepository.update(id, data, tx);
 
-                console.log(`[ORDER_SERVICE] Замовлення з ID ${id} успішно скасовано, товар повернуто.`);
                 const response: OrderFullResponse = toOrderFullResponse(orderFullEntity);
 
                 return response;
@@ -290,7 +286,7 @@ export class OrderService implements IOrderService {
             for (const cartItem of cart.items) {
                 const product: ProductResponse = cartItem.product;
 
-                //Первіряємо чи відповідає кількість замовленого товару фактичній кількості на складі
+                //Перевіряємо чи відповідає кількість замовленого товару фактичній кількості на складі
                 if (product.quantity < cartItem.quantity) {
                     throw new BadRequestError(`Не достатньо товару ${product.productName} на складі. Доступно ${product.quantity}`);
                 }
@@ -339,7 +335,7 @@ export class OrderService implements IOrderService {
             });
         }
 
-    //Приватний метод для створення інвойсу. Викликається в методі create після створення замовлення, та в методі retryPayment.
+    //Приватний метод для створення інвойсу. Викликається в методі create після створення замовлення, та в методі retryPayment (якщо після створення замовлення не вдалось створити інвойс).
     private initiateOrderPayment =
         async (order: OrderFullResponse): Promise<string> => {
             if(order.payment.method !== "CARD") {

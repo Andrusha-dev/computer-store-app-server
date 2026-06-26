@@ -7,7 +7,6 @@ import type {
     ProducersQuery,
     ProducersResponse, UpdateProducerDto
 } from "./producer.dto.ts";
-import type {IProducerController} from "./producer.controller.contract.ts";
 import {
     extractValidatedBodyOrThrow,
     extractValidatedParamsOrThrow,
@@ -21,7 +20,7 @@ interface Dependencies {
     producerService: IProducerService;
 }
 
-export class ProducerController implements IProducerController {
+export class ProducerController {
     private readonly producerService: IProducerService;
 
     constructor({producerService}: Dependencies) {

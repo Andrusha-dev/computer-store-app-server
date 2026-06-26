@@ -1,5 +1,4 @@
 import type {IOrderService} from "../application/order.service.contract.ts";
-import type {IOrderController} from "./order.controller.contract.ts";
 import type {Request, Response} from "express";
 import type {
     CheckoutResponse,
@@ -23,7 +22,7 @@ interface Dependencies {
     orderService: IOrderService;
 }
 
-export class OrderController implements IOrderController {
+export class OrderController {
     private readonly orderService: IOrderService;
 
     constructor({orderService}: Dependencies) {

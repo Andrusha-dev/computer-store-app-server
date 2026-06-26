@@ -1,7 +1,6 @@
 import type {Request, Response} from "express";
 import type {ICartService} from "../application/cart.service.contract.ts";
 import type {IProductService} from "../../product";
-import type {ICartController} from "./cart.controller.contract.ts";
 import type {CartFullResponse, CartItemParams, CreateCartItemDto, UpdateCartItemQuantityDto} from "./cart.dto.ts";
 import {
     extractTokenPayloadOrThrow, extractValidatedBodyOrThrow, extractValidatedParamsOrThrow
@@ -15,7 +14,7 @@ interface Dependencies {
     productService: IProductService
 }
 
-export class CartController implements ICartController {
+export class CartController {
     private readonly cartService: ICartService;
     private readonly productService: IProductService;
 

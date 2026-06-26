@@ -41,8 +41,6 @@ export class PaymentService implements IPaymentService {
             const data: Prisma.PaymentUpdateInput = { externalId: invoice.invoiceId };
             const payment: PaymentEntity = await this.deps.paymentRepository.update(paymentId, data);
 
-            console.log(`[PAYMENT_SERVICE] Отримано інвойс ${invoice.invoiceId} від банку та оновлено платіж ID ${paymentId}`);
-
             const paymentResponse: PaymentResponse = toPaymentResponse(payment);
             //Повертаємо дані платежу разом із посиланням на оплату
             const response: CreateInvoiceResponse = {
@@ -62,17 +60,13 @@ export class PaymentService implements IPaymentService {
 
             //Оновлюємо статус самого платежу в модулі payment
             const payment: PaymentEntity = await this.deps.paymentRepository.updateStatusByExternalId(externalId, data);
-            console.log(`[PAYMENT_SERVICE] Статус платежу з externalId ${externalId} змінено на: ${status}`);
-
 
             if(status === "PAID") {
                 //Якщо оплата успішна — міняємо статус замовлення в модулі order на "PAID"
                 await this.deps.orderService.updateStatusToPaid(payment.orderId);
-                console.log(`[PAYMENT_SERVICE] Надіслано запит в OrderService для оновлення статусу замовлення з ID${payment.orderId}`);
             } else if (status == "FAILED" || status == "REFUNDED") {
                 //Якщо оплата зафейлилась, або користувач не здійснив оплату вчасно, чи стався збій при передачі коштів платіжній системі банком клієнта (REFUNDED), викликаємо метод скасування в OrderService
                 await this.deps.orderService.cancelOrder(payment.orderId);
-                console.log(`[PAYMENT_SERVICE] Надіслано запит на скасування замовлення ID ${payment.orderId} через провал оплати`);
             }
 
             const response: PaymentResponse = toPaymentResponse(payment);

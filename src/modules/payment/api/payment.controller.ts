@@ -1,6 +1,5 @@
 import type {Request, Response} from "express";
 import type {IPaymentService} from "../domain/payment.service.contract.ts";
-import type {IPaymentWebhookController} from "./payment.controller.contract.ts";
 import {monobankWebhookDtoSchema, type PaymentStatus} from "./payment.dto.ts";
 
 
@@ -10,7 +9,7 @@ interface Dependencies {
     paymentService: IPaymentService;
 }
 
-export class PaymentWebhookController implements IPaymentWebhookController {
+export class PaymentWebhookController {
     private readonly paymentService: IPaymentService;
 
     constructor({paymentService}: Dependencies) {

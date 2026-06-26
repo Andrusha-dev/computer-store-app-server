@@ -1,12 +1,14 @@
 import { PrismaClient } from '@prisma/client';
-import {config} from "../config/index.ts";
+import {type Config} from "../config/index.ts";
 import type {IDatabaseService} from "../../contracts/database.contract.ts";
 
 
-
+interface Dependencies {
+    config: Config;
+}
 
 export class PrismaService extends PrismaClient implements IDatabaseService {
-    constructor() {
+    constructor({config}: Dependencies) {
         super({
             datasources: {
                 db: {

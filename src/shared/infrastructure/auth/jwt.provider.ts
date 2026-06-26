@@ -1,23 +1,30 @@
 import jwt from "jsonwebtoken";
-import {
-    config,
-} from "../config/index.ts";
+import {type Config} from "../config/index.ts";
 import type {IJwtProvider} from "../../contracts/jwt.contract.ts";
 import {type TokenPayload, tokenPayloadSchema} from "../../schemas/token-payload.schema.ts";
 
 
 
+interface Dependencies {
+    config: Config;
+}
+
+export class JwtProvider implements IJwtProvider {
+    private readonly config: Config;
+
+    constructor({config}: Dependencies) {
+        this.config = config;
+    }
 
 
-export class JwtProvider implements IJwtProvider{
     // Генерація Access Token (1 хвилина)
     signAccess = (payload: TokenPayload): string => {
         //Про всяк випадок вилучаємо iat і exp щоб спрацював expiresIn
         const { iat, exp, ...data } = payload;
         const accessToken = jwt.sign(
             data,
-            config.jwt.access.secret,
-            { expiresIn: config.jwt.access.expiresIn }
+            this.config.jwt.access.secret,
+            { expiresIn: this.config.jwt.access.expiresIn }
         );
         return accessToken;
     }
@@ -28,8 +35,8 @@ export class JwtProvider implements IJwtProvider{
         const { iat, exp, ...data } = payload;
         const refreshToken = jwt.sign(
             data,
-            config.jwt.refresh.secret,
-            { expiresIn: config.jwt.refresh.expiresIn }
+            this.config.jwt.refresh.secret,
+            { expiresIn: this.config.jwt.refresh.expiresIn }
         );
         return refreshToken;
     }
@@ -37,7 +44,7 @@ export class JwtProvider implements IJwtProvider{
     // Валідація Access Token
     verifyAccess = (token: string): TokenPayload | null => {
         try {
-            const decoded = jwt.verify(token, config.jwt.access.secret);
+            const decoded = jwt.verify(token, this.config.jwt.access.secret);
             const tokenPayload: TokenPayload = tokenPayloadSchema.parse(decoded);
             return tokenPayload;
         } catch (error) {
@@ -49,7 +56,7 @@ export class JwtProvider implements IJwtProvider{
     // Валідація Refresh Token
     verifyRefresh = (token: string): TokenPayload | null => {
         try {
-            const decoded = jwt.verify(token, config.jwt.refresh.secret);
+            const decoded = jwt.verify(token, this.config.jwt.refresh.secret);
             const tokenPayload: TokenPayload = tokenPayloadSchema.parse(decoded);
             return tokenPayload;
 

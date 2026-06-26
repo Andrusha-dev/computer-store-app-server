@@ -19,7 +19,7 @@ export const setupGracefulShutdown = (server: Server) => {
                 console.log(`\n Handle closing was finished success...`);
                 process.exit(0);
             } catch (error) {
-                console.error('💥 Shutdown error:', error);
+                console.error('Shutdown error:', error);
                 process.exit(1);
             }
         });

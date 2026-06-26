@@ -1,7 +1,6 @@
 import type {Request, Response} from "express";
 import type {IAuthService} from "../application/auth.service.contract.ts";
 import type {AuthResponse, LoginDto, RefreshAllTokensDto} from "./auth.dto.ts";
-import type {IAuthController} from "./auth.controller.contract.ts";
 import {extractValidatedBodyOrThrow} from "../../../api/helpers/http.helpers.ts";
 
 
@@ -11,7 +10,7 @@ interface Dependencies {
     authService: IAuthService;
 }
 
-export class AuthController implements IAuthController {
+export class AuthController {
     private readonly authService: IAuthService;
 
     constructor({authService}: Dependencies) {

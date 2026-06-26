@@ -1,4 +1,3 @@
-import type {IUserController} from "./user.controller.contract.ts";
 import type {IAuthMiddleware} from "../../../shared/contracts/auth.middleware.contract.ts";
 import {Router} from "express";
 import {validate} from "../../../api/middlewares/validation.middleware.ts";
@@ -6,12 +5,13 @@ import {
     createUserDtoSchema,
     updateUserDtoSchema, userParamsSchema, usersQuerySchema
 } from "./user.dto.ts";
+import type {UserController} from "./user.controller.ts";
 
 
 
 
 interface Dependencies {
-    userController: IUserController;
+    userController: UserController;
     authMiddleware: IAuthMiddleware;
 }
 
@@ -78,3 +78,5 @@ export const createUserRouter = ({userController, authMiddleware}: Dependencies)
 
     return router;
 }
+
+export type UserRouter = ReturnType<typeof createUserRouter>;

@@ -36,31 +36,3 @@ async function bootstrap() {
 
 // Виклик головної функції
 bootstrap();
-
-
-
-
-
-
-
-
-/*
-app.get(
-    "/api/processors",
-    authenticateToken,
-    validate({query: getProcessorsCatalogParamsSchema}),
-    (req: Request, res: Response) => {
-        console.log("Starting fetch processors");
-        //після валідації даних req.query за допомогою validate(z.object({query: fetchProcessorsParamsSchema})) вони
-        // точно відповідають типу FetchProcessorsParams і були передані в res.locals.validatedQuery.query
-        const getProcessorsCatalogParams = extractValidatedQueryOrThrow<GetProcessorsCatalogParams>(res);
-
-        const getProcessorsCatalogResponse = getProcessorsCatalog(getProcessorsCatalogParams);
-
-        console.log("minPrice: ", getProcessorsCatalogResponse.minPrice);
-        console.log("maxPrice: ", getProcessorsCatalogResponse.maxPrice);
-
-        return res.json(getProcessorsCatalogResponse);
-    }
-);
-*/

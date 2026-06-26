@@ -65,3 +65,5 @@ export const config = {
     },
     port: env.PORT,
 } as const; // as const робить об'єкт read-only для TypeScript
+
+export type Config = typeof config;

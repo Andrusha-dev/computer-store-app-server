@@ -1,4 +1,3 @@
-import type {IProductController} from "./product.controller.contract.ts";
 import type {IAuthMiddleware} from "../../../shared/contracts/auth.middleware.contract.ts";
 import {Router} from "express";
 import {validate} from "../../../api/middlewares/validation.middleware.ts";
@@ -8,10 +7,11 @@ import {
     productsQuerySchema,
     updateProductDtoSchema
 } from "./product.dto.ts";
+import type {ProductController} from "./product.controller.ts";
 
 
 interface Dependencies {
-    productController: IProductController;
+    productController: ProductController;
     authMiddleware: IAuthMiddleware;
 }
 
@@ -65,3 +65,5 @@ export const createProductRouter = ({productController, authMiddleware}: Depende
 
     return router;
 }
+
+export type ProductRouter = ReturnType<typeof createProductRouter>;

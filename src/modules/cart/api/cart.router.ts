@@ -1,13 +1,13 @@
-import type {ICartController} from "./cart.controller.contract.ts";
 import type {IAuthMiddleware} from "../../../shared/contracts/auth.middleware.contract.ts";
 import {Router} from "express";
 import {validate} from "../../../api/middlewares/validation.middleware.ts";
 import {cartItemParamsSchema, createCartItemDtoSchema, updateCartItemQuantityDtoSchema} from "./cart.dto.ts";
+import type {CartController} from "./cart.controller.ts";
 
 
 interface Dependencies {
     authMiddleware: IAuthMiddleware;
-    cartController: ICartController;
+    cartController: CartController;
 }
 
 export const createCartRouter = ({authMiddleware, cartController}: Dependencies) => {
@@ -48,3 +48,5 @@ export const createCartRouter = ({authMiddleware, cartController}: Dependencies)
 
     return router;
 }
+
+export type CartRouter = ReturnType<typeof createCartRouter>;
