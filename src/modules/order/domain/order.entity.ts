@@ -1,4 +1,6 @@
-import {type Order, type OrderItem, Prisma} from "@prisma/client";
+import {type Order, type OrderItem, Prisma} from "../../../../prisma/generated/client.ts";
+
+
 
 
 export type OrderItemEntity = OrderItem;

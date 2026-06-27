@@ -1,21 +1,26 @@
-import { PrismaClient } from '@prisma/client';
-import {type Config} from "../config/index.ts";
+//import { PrismaClient } from '@prisma/client';
 import type {IDatabaseService} from "../../contracts/database.contract.ts";
+import {Pool} from "pg";
+import {PrismaPg} from "@prisma/adapter-pg";
+import {PrismaClient} from "../../../../prisma/generated/client.ts";
 
 
-interface Dependencies {
-    config: Config;
-}
+
+
+
 
 export class PrismaService extends PrismaClient implements IDatabaseService {
-    constructor({config}: Dependencies) {
-        super({
-            datasources: {
-                db: {
-                    url: config.database.url,
-                },
-            }
+    constructor() {
+        // Створюємо пул підключень нативного драйвера pg
+        const pool = new Pool({
+            connectionString: process.env.DATABASE_URL
         });
+
+        // Створюємо адаптер для Prisma 7
+        const adapter = new PrismaPg(pool);
+
+        // Передаємо адаптер у базовий клас PrismaClient
+        super({ adapter });
     }
 
     async connect(): Promise<void> {

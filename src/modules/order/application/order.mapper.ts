@@ -1,8 +1,9 @@
-import {Prisma} from "@prisma/client";
-import type {CreateOrderDto, OrderFilters, OrdersQuery, UpdateOrderStatusDto} from "../api/order.dto.ts";
+import type {CreateOrderDto, OrderFilters, OrdersQuery} from "../api/order.dto.ts";
 import {orderInclude} from "../domain/order.entity.ts";
 import {toPaymentCreateWithoutOrderInput} from "../../payment/application/payment.mapper.ts";
 import {toDeliveryCreateWithoutOrderInput} from "../../delivery/application/delivery.mapper.ts";
+import {Prisma} from "../../../../prisma/generated/client.ts";
+
 
 
 
@@ -60,15 +61,6 @@ export const toOrderCreateInput =
             delivery: {
                 create: toDeliveryCreateWithoutOrderInput(totalAmount, dto.delivery, )
             }
-        }
-
-        return data;
-    }
-
-export const toOrderUpdateInput =
-    (dto: UpdateOrderStatusDto): Prisma.OrderUpdateInput => {
-        const data: Prisma.OrderUpdateInput = {
-            ...dto
         }
 
         return data;

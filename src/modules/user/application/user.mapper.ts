@@ -1,5 +1,5 @@
-import {Prisma} from "@prisma/client";
 import type {CreateUserDto, UpdateUserDto, UserFilters, UsersQuery} from "../api/user.dto.ts";
+import {Prisma} from "../../../../prisma/generated/client.ts";
 
 
 

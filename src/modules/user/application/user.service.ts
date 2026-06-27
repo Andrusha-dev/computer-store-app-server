@@ -14,10 +14,10 @@ import type {
 } from "../api/user.dto.ts";
 import {NotFoundError, UnauthorizedError} from "../../../shared/error/custom.errors.ts";
 import {toUserFullResponse, toUserResponse, toUsersResponse} from "../api/user.mapper.ts";
-import {Prisma} from "@prisma/client";
 import {toUserCreateInput, toUserFindManyArgs, toUserUpdateInput} from "./user.mapper.ts";
 import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts";
 import {createPaginationMeta} from "../../../shared/utils/pagination.utils.ts";
+import {Prisma} from "../../../../prisma/generated/client.ts";
 
 
 

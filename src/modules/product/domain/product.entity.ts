@@ -1,4 +1,6 @@
-import {Prisma, type Product} from "@prisma/client";
+import {Prisma, type Product} from "../../../../prisma/generated/client.ts";
+
+
 
 
 export type ProductEntity = Product;

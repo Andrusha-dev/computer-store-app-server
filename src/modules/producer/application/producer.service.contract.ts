@@ -6,6 +6,7 @@ import type {
 } from "../api/producer.dto.ts";
 
 
+
 export interface IProducerService {
     findById: (id: number) => Promise<ProducerResponse>;
     findMany: (query: ProducersQuery) => Promise<ProducersResponse>;

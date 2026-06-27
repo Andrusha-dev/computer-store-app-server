@@ -5,16 +5,17 @@
     "moduleResolution": "node",
     "allowImportingTsExtensions": true,
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDirs": ["src", "prisma/generated"],
     "strict": true,
     "noImplicitReturns": true,     // Щоб не забути return (як у Java)
     "noUnusedLocals": true,        // Чистота коду
     "esModuleInterop": true,
     "sourceMap": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "prisma/generated/**/*"
   ],
   "exclude": [
     "node_modules"

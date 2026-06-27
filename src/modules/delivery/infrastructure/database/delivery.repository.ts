@@ -1,7 +1,7 @@
 import type {PrismaService} from "../../../../shared/infrastructure/database/prisma.service.ts";
 import type {IDeliveryRepository} from "../../domain/delivery.repository.contract.ts";
-import {Prisma} from "@prisma/client";
 import type {DeliveryEntity} from "../../domain/delivery.entity.ts";
+import {Prisma} from "../../../../../prisma/generated/client.ts";
 
 
 interface Dependencies {

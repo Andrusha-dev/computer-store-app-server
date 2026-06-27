@@ -9,7 +9,6 @@ import type {ProducerEntity} from "../domain/producer.entity.ts";
 import type {IProducerRepository} from "../domain/producer.repository.contract.ts";
 import {NotFoundError} from "../../../shared/error/custom.errors.ts";
 import {toProducerResponse, toProducersResponse} from "../api/producer.mapper.ts";
-import {Prisma} from "@prisma/client";
 import {
     toProducerCreateInput,
     toProducerFindManyArgs,
@@ -17,6 +16,8 @@ import {
 } from "./producer.mapper.ts";
 import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts";
 import {createPaginationMeta} from "../../../shared/utils/pagination.utils.ts";
+import {Prisma} from "../../../../prisma/generated/client.ts";
+
 
 
 

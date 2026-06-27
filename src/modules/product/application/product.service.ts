@@ -10,7 +10,6 @@ import {
 import type {ProductEntity, ProductFullEntity} from "../domain/product.entity.ts";
 import {BadRequestError, NotFoundError} from "../../../shared/error/custom.errors.ts";
 import {toProductFullResponse, toProductResponse, toProductsResponse} from "../api/product.mapper.ts";
-import {Prisma} from "@prisma/client";
 import {
     toProductCreateInput,
     toProductFindManyArgs,
@@ -18,6 +17,7 @@ import {
 } from "./product.mapper.ts";
 import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts";
 import {createPaginationMeta} from "../../../shared/utils/pagination.utils.ts";
+import {Prisma} from "../../../../prisma/generated/client.ts";
 
 
 interface Dependencies {

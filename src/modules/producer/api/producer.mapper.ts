@@ -7,6 +7,7 @@ import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts"
 
 
 
+
 export const toProducerResponse =
     (producer: ProducerEntity): ProducerResponse => {
         const transformedProducer = {

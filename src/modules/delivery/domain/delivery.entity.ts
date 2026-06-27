@@ -1,4 +1,5 @@
-import type {Delivery} from "@prisma/client";
+import type {Delivery} from "../../../../prisma/generated/client.ts";
+
 
 
 export type DeliveryEntity = Delivery;

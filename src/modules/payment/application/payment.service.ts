@@ -2,11 +2,11 @@ import type {IPaymentRepository} from "../domain/payment.repository.contract.ts"
 import type {IOrderService} from "../../order/application/order.service.contract.ts";
 import type {IPaymentService} from "../domain/payment.service.contract.ts";
 import type {PaymentEntity} from "../domain/payment.entity.ts";
-import {Prisma} from "@prisma/client";
 import {toPaymentResponse} from "../api/payment.mapper.ts";
 import type {CreateInvoiceResponse, PaymentResponse, PaymentStatus} from "../api/payment.dto.ts";
 import type {CreateInvoiceOutput, IPaymentProvider} from "../domain/payment.provider.contract.ts";
 import {BadGatewayError} from "../../../shared/error/custom.errors.ts";
+import {Prisma} from "../../../../prisma/generated/client.ts";
 
 
 

@@ -4,7 +4,8 @@ import type {CartFullEntity} from "../domain/cart.entity.ts";
 import {toCartFullResponse} from "../api/cart.mapper.ts";
 import {NotFoundError} from "../../../shared/error/custom.errors.ts";
 import type {ICartService} from "./cart.service.contract.ts";
-import {Prisma} from "@prisma/client";
+import {Prisma} from "../../../../prisma/generated/client.ts";
+
 
 
 

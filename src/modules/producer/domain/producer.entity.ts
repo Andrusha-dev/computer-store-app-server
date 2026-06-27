@@ -1,4 +1,6 @@
-import {type Producer} from "@prisma/client";
+import type {Producer} from "../../../../prisma/generated/client.ts";
+
+
 
 
 export type ProducerEntity = Producer;

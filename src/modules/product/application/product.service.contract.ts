@@ -5,7 +5,8 @@ import type {
     ProductsResponse,
     UpdateProductDto
 } from "../api/product.dto.ts";
-import {Prisma} from "@prisma/client";
+import {Prisma} from "../../../../prisma/generated/client.ts";
+
 
 
 

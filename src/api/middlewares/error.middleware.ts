@@ -3,7 +3,8 @@ import {z} from "zod";
 import {AppError} from "../../shared/error/app.error.ts";
 import {config} from "../../shared/infrastructure/config/index.ts";
 import {ConflictError, InternalServerError, NotFoundError, ValidationError} from "../../shared/error/custom.errors.ts";
-import {Prisma} from "@prisma/client";
+import {Prisma} from "../../../prisma/generated/client.ts";
+
 
 
 

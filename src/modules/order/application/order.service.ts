@@ -15,7 +15,7 @@ import {
     NotFoundError
 } from "../../../shared/error/custom.errors.ts";
 import {toOrderFullResponse, toOrdersResponse} from "../api/order.mapper.ts";
-import {Prisma} from "@prisma/client";
+//import {Prisma} from "@prisma/client";
 import {toOrderCreateInput, toOrderFindManyArgs} from "./order.mapper.ts";
 import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts";
 import {createPaginationMeta} from "../../../shared/utils/pagination.utils.ts";
@@ -26,6 +26,7 @@ import type {PrismaService} from "../../../shared/infrastructure/database/prisma
 import type {IPaymentService} from "../../payment/domain/payment.service.contract.ts";
 import type {IDeliveryService} from "../../delivery/application/delivery.service.contract.ts";
 import type {CreateInvoiceResponse} from "../../payment/api/payment.dto.ts";
+import {Prisma} from "../../../../prisma/generated/client.ts";
 
 
 
@@ -346,10 +347,12 @@ export class OrderService implements IOrderService {
                 throw new BadRequestError(`Замовлення з ID ${order.id} вже оплачене`);
             }
 
+            //const totalAmount: number = order.payment.amount + order.delivery.price; //Якщо доставка курєром то загальна сума оплати має включати суму замовлення та суму доставки
+
             const createInvoiceResponse: CreateInvoiceResponse = await this.deps.paymentService.createInvoice(
                 order.id,
                 order.payment.id,
-                order.payment.amount,
+                order.payment.amount, //Тут соріш за все потрібно буде вказати саме totalAmount
             );
 
             return createInvoiceResponse.paymentUrl;
