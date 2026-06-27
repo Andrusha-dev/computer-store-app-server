@@ -1,5 +1,5 @@
 import {z} from "zod";
-import {arrayPreprocess} from "../../../../../shared/utils/validation.utils.ts";
+import {arrayPreprocess} from "../../../../../shared/utils/validation.utils";
 
 
 //export const POWER_SUPPLY_PRODUCERS = ["GIGABYTE", "SEASONIC", "CHIEFTEC", "COOLER_MASTER", "DEEP_COOL"] as const;

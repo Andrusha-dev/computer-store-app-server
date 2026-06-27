@@ -1,10 +1,10 @@
-import type {ICartRepository} from "../domain/cart.repository.contract.ts";
-import type {CartFullResponse, CreateCartItemDto, UpdateCartItemQuantityDto} from "../api/cart.dto.ts";
-import type {CartFullEntity} from "../domain/cart.entity.ts";
-import {toCartFullResponse} from "../api/cart.mapper.ts";
-import {NotFoundError} from "../../../shared/error/custom.errors.ts";
-import type {ICartService} from "./cart.service.contract.ts";
-import {Prisma} from "../../../../prisma/generated/client.ts";
+import type {ICartRepository} from "../domain/cart.repository.contract";
+import type {CartFullResponse, CreateCartItemDto, UpdateCartItemQuantityDto} from "../api/cart.dto";
+import type {CartFullEntity} from "../domain/cart.entity";
+import {toCartFullResponse} from "../api/cart.mapper";
+import {NotFoundError} from "../../../shared/error/custom.errors";
+import type {ICartService} from "./cart.service.contract";
+import {Prisma} from "../../../../prisma/generated/client";
 
 
 

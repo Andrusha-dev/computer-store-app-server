@@ -1,5 +1,5 @@
-import type {PaymentEntity} from "./payment.entity.ts";
-import {Prisma} from "../../../../prisma/generated/client.ts";
+import type {PaymentEntity} from "./payment.entity";
+import {Prisma} from "../../../../prisma/generated/client";
 
 
 export interface IPaymentRepository {

@@ -1,9 +1,9 @@
-import type {IUserService} from "./user.service.contract.ts";
+import type {IUserService} from "./user.service.contract";
 import {
     type UserEntity, type UserFullEntity,
-} from "../domain/user.entity.ts";
-import type {IUserRepository} from "../domain/user.repository.contract.ts";
-import type {IHashProvider} from "../../../shared/contracts/hash.contract.ts";
+} from "../domain/user.entity";
+import type {IUserRepository} from "../domain/user.repository.contract";
+import type {IHashProvider} from "../../../shared/contracts/hash.contract";
 import type {
     CreateUserDto,
     UpdateUserDto,
@@ -11,13 +11,13 @@ import type {
     UserResponse,
     UsersQuery,
     UsersResponse
-} from "../api/user.dto.ts";
-import {NotFoundError, UnauthorizedError} from "../../../shared/error/custom.errors.ts";
-import {toUserFullResponse, toUserResponse, toUsersResponse} from "../api/user.mapper.ts";
-import {toUserCreateInput, toUserFindManyArgs, toUserUpdateInput} from "./user.mapper.ts";
-import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts";
-import {createPaginationMeta} from "../../../shared/utils/pagination.utils.ts";
-import {Prisma} from "../../../../prisma/generated/client.ts";
+} from "../api/user.dto";
+import {NotFoundError, UnauthorizedError} from "../../../shared/error/custom.errors";
+import {toUserFullResponse, toUserResponse, toUsersResponse} from "../api/user.mapper";
+import {toUserCreateInput, toUserFindManyArgs, toUserUpdateInput} from "./user.mapper";
+import type {PaginationMeta} from "../../../shared/schemas/pagination.schema";
+import {createPaginationMeta} from "../../../shared/utils/pagination.utils";
+import {Prisma} from "../../../../prisma/generated/client";
 
 
 

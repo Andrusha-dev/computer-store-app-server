@@ -1,7 +1,7 @@
 import type {Request} from "express";
-import type {TokenPayload} from "../../shared/schemas/token-payload.schema.ts";
-import {InternalServerError, UnauthorizedError} from "../../shared/error/custom.errors.ts";
-import type {QueryParams} from "../types/http.types.ts";
+import type {TokenPayload} from "../../shared/schemas/token-payload.schema";
+import {InternalServerError, UnauthorizedError} from "../../shared/error/custom.errors";
+import type {QueryParams} from "../types/http.types";
 
 
 

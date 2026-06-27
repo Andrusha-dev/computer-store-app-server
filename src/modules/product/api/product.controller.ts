@@ -1,17 +1,18 @@
-import type {IProductService} from "../application/product.service.contract.ts";
+import type {IProductService} from "../application/product.service.contract";
 import type {
     CreateProductDto,
     ProductFullResponse, ProductParams,
     ProductResponse,
     ProductsQuery,
     ProductsResponse, UpdateProductDto
-} from "./product.dto.ts";
+} from "./product.dto";
 import type {Request, Response} from "express";
 import {
     extractValidatedBodyOrThrow,
     extractValidatedParamsOrThrow,
     extractValidatedQueryOrThrow
-} from "../../../api/helpers/http.helpers.ts";
+} from "../../../api/helpers/http.helpers";
+
 
 
 interface Dependencies {

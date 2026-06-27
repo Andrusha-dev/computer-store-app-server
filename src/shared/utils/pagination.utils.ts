@@ -1,4 +1,4 @@
-import {type PaginationMeta} from "../schemas/pagination.schema.ts";
+import {type PaginationMeta} from "../schemas/pagination.schema";
 
 
 

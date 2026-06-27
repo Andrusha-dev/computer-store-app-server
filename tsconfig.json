@@ -3,9 +3,7 @@
     "target": "es6",
     "module": "commonjs",
     "moduleResolution": "node",
-    "allowImportingTsExtensions": true,
     "outDir": "dist",
-    "rootDirs": ["src", "prisma/generated"],
     "strict": true,
     "noImplicitReturns": true,     // Щоб не забути return (як у Java)
     "noUnusedLocals": true,        // Чистота коду

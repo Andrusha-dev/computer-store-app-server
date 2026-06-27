@@ -1,7 +1,8 @@
 import {type NextFunction, type Request, type Response} from "express";
-import {type Config} from "../../../shared/infrastructure/config/index.ts";
-import {BadRequestError, ForbiddenError} from "../../../shared/error/custom.errors.ts";
+import {type Config} from "../../../shared/infrastructure/config/index";
+import {BadRequestError, ForbiddenError} from "../../../shared/error/custom.errors";
 import crypto from "crypto"
+
 
 
 export interface IMonobankMiddleware {

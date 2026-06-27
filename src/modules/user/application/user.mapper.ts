@@ -1,5 +1,5 @@
-import type {CreateUserDto, UpdateUserDto, UserFilters, UsersQuery} from "../api/user.dto.ts";
-import {Prisma} from "../../../../prisma/generated/client.ts";
+import type {CreateUserDto, UpdateUserDto, UserFilters, UsersQuery} from "../api/user.dto";
+import {Prisma} from "../../../../prisma/generated/client";
 
 
 

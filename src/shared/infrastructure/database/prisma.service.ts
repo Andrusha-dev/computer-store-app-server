@@ -1,8 +1,7 @@
-//import { PrismaClient } from '@prisma/client';
-import type {IDatabaseService} from "../../contracts/database.contract.ts";
+import type {IDatabaseService} from "../../contracts/database.contract";
 import {Pool} from "pg";
 import {PrismaPg} from "@prisma/adapter-pg";
-import {PrismaClient} from "../../../../prisma/generated/client.ts";
+import {PrismaClient} from "../../../../prisma/generated/client";
 
 
 

@@ -1,5 +1,5 @@
-import type {PaymentEntity} from "../domain/payment.entity.ts";
-import {type PaymentResponse, paymentResponseSchema} from "./payment.dto.ts";
+import type {PaymentEntity} from "../domain/payment.entity";
+import {type PaymentResponse, paymentResponseSchema} from "./payment.dto";
 
 
 

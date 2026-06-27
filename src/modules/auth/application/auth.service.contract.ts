@@ -1,4 +1,4 @@
-import type {AuthResponse, LoginDto, RefreshAllTokensDto} from "../api/auth.dto.ts";
+import type {AuthResponse, LoginDto, RefreshAllTokensDto} from "../api/auth.dto";
 
 
 //Повний контракт сервісу для використання в Controller

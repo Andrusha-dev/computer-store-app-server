@@ -1,6 +1,6 @@
 import type { Express } from "express";
-import {databaseLoader} from "./database.loader.ts";
-import {expressLoader} from "./express.loader.ts";
+import {databaseLoader} from "./database.loader";
+import {expressLoader} from "./express.loader";
 
 
 

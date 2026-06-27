@@ -1,8 +1,8 @@
 import {z} from "zod";
-import {paginationCriteriaSchema, paginationMetaSchema} from "../../../shared/schemas/pagination.schema.ts";
-import {productResponseSchema} from "../../product/index.ts";
-import {createPaymentDtoSchema, paymentResponseSchema} from "../../payment/api/payment.dto.ts";
-import {createDeliveryDtoSchema, deliveryResponseSchema} from "../../delivery/api/delivery.dto.ts";
+import {paginationCriteriaSchema, paginationMetaSchema} from "../../../shared/schemas/pagination.schema";
+import {productResponseSchema} from "../../product/index";
+import {createPaymentDtoSchema, paymentResponseSchema} from "../../payment/api/payment.dto";
+import {createDeliveryDtoSchema, deliveryResponseSchema} from "../../delivery/api/delivery.dto";
 
 
 

@@ -1,11 +1,11 @@
 import type {
     IUserRepository,
-} from "../../domain/user.repository.contract.ts";
+} from "../../domain/user.repository.contract";
 import {
     type UserEntity, type UserFullEntity, userInclude,
-} from "../../domain/user.entity.ts";
-import type {PrismaService} from "../../../../shared/infrastructure/database/prisma.service.ts";
-import {Prisma} from "../../../../../prisma/generated/client.ts";
+} from "../../domain/user.entity";
+import type {PrismaService} from "../../../../shared/infrastructure/database/prisma.service";
+import {Prisma} from "../../../../../prisma/generated/client";
 
 
 

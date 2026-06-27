@@ -1,5 +1,5 @@
 import {z} from "zod";
-import {arrayPreprocess} from "../../../../../shared/utils/validation.utils.ts";
+import {arrayPreprocess} from "../../../../../shared/utils/validation.utils";
 
 
 //export const MEMORY_PRODUCERS = ["SAMSUNG", "CORSAIR", "G.SKILL", "KINGSTON", "PNY", "TRANSCEND"] as const;

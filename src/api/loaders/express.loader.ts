@@ -1,8 +1,8 @@
 import express, {type Router} from "express";
 import type { Express} from "express";
-import {cors} from "../middlewares/cors.middleware.ts";
-import {container} from "../../shared/infrastructure/di/container.ts";
-import {errorHandler} from "../middlewares/error.middleware.ts";
+import {cors} from "../middlewares/cors.middleware";
+import {container} from "../../shared/infrastructure/di/container";
+import {errorHandler} from "../middlewares/error.middleware";
 
 
 

@@ -1,4 +1,4 @@
-import {type Cart, type CartItem, Prisma} from "../../../../prisma/generated/client.ts";
+import {type Cart, type CartItem, Prisma} from "../../../../prisma/generated/client";
 
 
 

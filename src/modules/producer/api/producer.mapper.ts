@@ -1,9 +1,9 @@
-import type {ProducerEntity} from "../domain/producer.entity.ts";
+import type {ProducerEntity} from "../domain/producer.entity";
 import {
     type ProducerResponse,
     producerResponseSchema, type ProducersResponse, producersResponseSchema
-} from "./producer.dto.ts";
-import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts";
+} from "./producer.dto";
+import type {PaginationMeta} from "../../../shared/schemas/pagination.schema";
 
 
 

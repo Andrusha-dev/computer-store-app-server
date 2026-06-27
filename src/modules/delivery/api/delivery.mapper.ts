@@ -1,5 +1,5 @@
-import type {DeliveryEntity} from "../domain/delivery.entity.ts";
-import {type DeliveryResponse, deliveryResponseSchema} from "./delivery.dto.ts";
+import type {DeliveryEntity} from "../domain/delivery.entity";
+import {type DeliveryResponse, deliveryResponseSchema} from "./delivery.dto";
 
 
 

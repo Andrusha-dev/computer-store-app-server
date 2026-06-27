@@ -1,4 +1,4 @@
-import type {AppRequest} from "../types/http.types.ts";
+import type {AppRequest} from "../types/http.types";
 
 
 

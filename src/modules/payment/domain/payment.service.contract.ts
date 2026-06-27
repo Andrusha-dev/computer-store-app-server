@@ -1,4 +1,4 @@
-import type {CreateInvoiceResponse, PaymentResponse, PaymentStatus} from "../api/payment.dto.ts";
+import type {CreateInvoiceResponse, PaymentResponse, PaymentStatus} from "../api/payment.dto";
 
 
 

@@ -1,5 +1,5 @@
 import {z} from "zod";
-import {userRoleSchema} from "./user-role.schema.ts";
+import {userRoleSchema} from "./user-role.schema";
 
 
 

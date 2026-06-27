@@ -1,4 +1,4 @@
-import type {IOrderService} from "../application/order.service.contract.ts";
+import type {IOrderService} from "../application/order.service.contract";
 import type {Request, Response} from "express";
 import type {
     CheckoutResponse,
@@ -7,13 +7,13 @@ import type {
     OrderParams,
     OrdersQuery,
     OrdersResponse, RetryPaymentResponse, SetTrackingNumberDto
-} from "./order.dto.ts";
+} from "./order.dto";
 import {
     extractTokenPayloadOrThrow, extractValidatedBodyOrThrow,
     extractValidatedParamsOrThrow,
     extractValidatedQueryOrThrow
-} from "../../../api/helpers/http.helpers.ts";
-import type {TokenPayload} from "../../../shared/schemas/token-payload.schema.ts";
+} from "../../../api/helpers/http.helpers";
+import type {TokenPayload} from "../../../shared/schemas/token-payload.schema";
 
 
 

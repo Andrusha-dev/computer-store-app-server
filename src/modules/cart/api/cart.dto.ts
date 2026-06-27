@@ -1,5 +1,5 @@
 import {z} from "zod";
-import {productResponseSchema} from "../../product/index.ts";
+import {productResponseSchema} from "../../product/index";
 
 
 

@@ -1,5 +1,5 @@
 import type {NextFunction, Request, Response} from "express";
-import {normalizeQueryParams} from "../helpers/http.helpers.ts";
+import {normalizeQueryParams} from "../helpers/http.helpers";
 import {z} from "zod";
 
 

@@ -1,4 +1,4 @@
-import {Prisma, type Product} from "../../../../prisma/generated/client.ts";
+import {Prisma, type Product} from "../../../../prisma/generated/client";
 
 
 

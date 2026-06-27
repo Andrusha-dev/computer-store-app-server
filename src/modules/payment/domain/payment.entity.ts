@@ -1,4 +1,4 @@
-import type {Payment} from "../../../../prisma/generated/client.ts";
+import type {Payment} from "../../../../prisma/generated/client";
 
 
 

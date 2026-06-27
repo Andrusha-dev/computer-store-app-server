@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import type {IHashProvider} from "../../contracts/hash.contract.ts";
+import type {IHashProvider} from "../../contracts/hash.contract";
 
 
 

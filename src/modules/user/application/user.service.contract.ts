@@ -5,7 +5,7 @@ import type {
     UserResponse,
     UsersQuery,
     UsersResponse
-} from "../api/user.dto.ts";
+} from "../api/user.dto";
 
 
 

@@ -1,9 +1,9 @@
-import type {IDeliveryRepository} from "../domain/delivery.repository.contract.ts";
-import type {IDeliveryService} from "./delivery.service.contract.ts";
-import type {DeliveryResponse} from "../api/delivery.dto.ts";
-import type {DeliveryEntity} from "../domain/delivery.entity.ts";
-import {toDeliveryResponse} from "../api/delivery.mapper.ts";
-import {Prisma} from "../../../../prisma/generated/client.ts";
+import type {IDeliveryRepository} from "../domain/delivery.repository.contract";
+import type {IDeliveryService} from "./delivery.service.contract";
+import type {DeliveryResponse} from "../api/delivery.dto";
+import type {DeliveryEntity} from "../domain/delivery.entity";
+import {toDeliveryResponse} from "../api/delivery.mapper";
+import {Prisma} from "../../../../prisma/generated/client";
 
 
 

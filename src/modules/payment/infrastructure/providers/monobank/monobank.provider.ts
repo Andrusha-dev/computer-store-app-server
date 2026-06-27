@@ -2,11 +2,11 @@ import type {
     CreateInvoiceInput,
     CreateInvoiceOutput,
     IPaymentProvider
-} from "../../../domain/payment.provider.contract.ts";
-import {type Config} from "../../../../../shared/infrastructure/config/index.ts";
-import {BadGatewayError} from "../../../../../shared/error/custom.errors.ts";
+} from "../../../domain/payment.provider.contract";
+import {type Config} from "../../../../../shared/infrastructure/config/index";
+import {BadGatewayError} from "../../../../../shared/error/custom.errors";
 import {z} from "zod";
-import {AppError} from "../../../../../shared/error/app.error.ts";
+import {AppError} from "../../../../../shared/error/app.error";
 
 
 

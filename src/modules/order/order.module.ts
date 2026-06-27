@@ -1,10 +1,11 @@
-import type {IOrderRepository} from "./domain/order.repository.contract.ts";
-import type {IOrderService} from "./application/order.service.contract.ts";
+import type {IOrderRepository} from "./domain/order.repository.contract";
+import type {IOrderService} from "./application/order.service.contract";
 import {asClass, asFunction} from "awilix";
-import {OrderService} from "./application/order.service.ts";
-import {OrderController} from "./api/order.controller.ts";
-import {createOrderRouter, type OrderRouter} from "./api/order.router.ts";
-import {OrderRepository} from "./infrastructure/database/order.repository.ts";
+import {OrderService} from "./application/order.service";
+import {OrderController} from "./api/order.controller";
+import {createOrderRouter, type OrderRouter} from "./api/order.router";
+import {OrderRepository} from "./infrastructure/database/order.repository";
+
 
 
 export interface IOrderModuleCradle {

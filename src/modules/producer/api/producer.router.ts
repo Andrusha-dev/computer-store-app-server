@@ -1,13 +1,13 @@
-import type {IAuthMiddleware} from "../../../shared/contracts/auth.middleware.contract.ts";
+import type {IAuthMiddleware} from "../../../shared/contracts/auth.middleware.contract";
 import {Router} from "express";
-import {validate} from "../../../api/middlewares/validation.middleware.ts";
+import {validate} from "../../../api/middlewares/validation.middleware";
 import {
     createProducerDtoSchema,
     producerParamsSchema,
     producersQuerySchema,
     updateProducerDtoSchema
-} from "./producer.dto.ts";
-import type {ProducerController} from "./producer.controller.ts";
+} from "./producer.dto";
+import type {ProducerController} from "./producer.controller";
 
 
 interface Dependencies {

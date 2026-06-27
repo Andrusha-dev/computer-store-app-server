@@ -4,7 +4,7 @@ import type {
     OrderFullResponse,
     OrdersQuery,
     OrdersResponse, RetryPaymentResponse,
-} from "../api/order.dto.ts";
+} from "../api/order.dto";
 
 
 

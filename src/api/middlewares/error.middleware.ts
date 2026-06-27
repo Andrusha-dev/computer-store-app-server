@@ -1,9 +1,9 @@
 import type {Request, Response, NextFunction} from "express";
 import {z} from "zod";
-import {AppError} from "../../shared/error/app.error.ts";
-import {config} from "../../shared/infrastructure/config/index.ts";
-import {ConflictError, InternalServerError, NotFoundError, ValidationError} from "../../shared/error/custom.errors.ts";
-import {Prisma} from "../../../prisma/generated/client.ts";
+import {AppError} from "../../shared/error/app.error";
+import {config} from "../../shared/infrastructure/config/index";
+import {ConflictError, InternalServerError, NotFoundError, ValidationError} from "../../shared/error/custom.errors";
+import {Prisma} from "../../../prisma/generated/client";
 
 
 

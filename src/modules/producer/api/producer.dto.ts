@@ -1,5 +1,5 @@
 import {z} from "zod";
-import {paginationCriteriaSchema, paginationMetaSchema} from "../../../shared/schemas/pagination.schema.ts";
+import {paginationCriteriaSchema, paginationMetaSchema} from "../../../shared/schemas/pagination.schema";
 
 
 

@@ -1,4 +1,4 @@
-import {type Order, type OrderItem, Prisma} from "../../../../prisma/generated/client.ts";
+import {type Order, type OrderItem, Prisma} from "../../../../prisma/generated/client";
 
 
 

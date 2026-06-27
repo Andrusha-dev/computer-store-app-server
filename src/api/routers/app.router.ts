@@ -1,11 +1,11 @@
 import {Router} from "express";
-import type {AuthRouter} from "../../modules/auth/api/auth.router.ts";
-import type {CartRouter} from "../../modules/cart/api/cart.router.ts";
-import type {OrderRouter} from "../../modules/order/api/order.router.ts";
-import type {PaymentRouter} from "../../modules/payment/api/payment.router.ts";
-import type {ProducerRouter} from "../../modules/producer/api/producer.router.ts";
-import type {ProductRouter} from "../../modules/product/api/product.router.ts";
-import type {UserRouter} from "../../modules/user/api/user.router.ts";
+import type {AuthRouter} from "../../modules/auth/api/auth.router";
+import type {CartRouter} from "../../modules/cart/api/cart.router";
+import type {OrderRouter} from "../../modules/order/api/order.router";
+import type {PaymentRouter} from "../../modules/payment/api/payment.router";
+import type {ProducerRouter} from "../../modules/producer/api/producer.router";
+import type {ProductRouter} from "../../modules/product/api/product.router";
+import type {UserRouter} from "../../modules/user/api/user.router";
 
 
 

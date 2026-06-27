@@ -1,8 +1,8 @@
-import type {IAuthMiddleware} from "../../../shared/contracts/auth.middleware.contract.ts";
+import type {IAuthMiddleware} from "../../../shared/contracts/auth.middleware.contract";
 import {Router} from "express";
-import {validate} from "../../../api/middlewares/validation.middleware.ts";
-import {cartItemParamsSchema, createCartItemDtoSchema, updateCartItemQuantityDtoSchema} from "./cart.dto.ts";
-import type {CartController} from "./cart.controller.ts";
+import {validate} from "../../../api/middlewares/validation.middleware";
+import {cartItemParamsSchema, createCartItemDtoSchema, updateCartItemQuantityDtoSchema} from "./cart.dto";
+import type {CartController} from "./cart.controller";
 
 
 interface Dependencies {

@@ -3,7 +3,7 @@ import type {
     ProducerResponse,
     ProducersQuery,
     ProducersResponse, UpdateProducerDto
-} from "../api/producer.dto.ts";
+} from "../api/producer.dto";
 
 
 

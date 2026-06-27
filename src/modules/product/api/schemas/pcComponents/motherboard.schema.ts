@@ -1,8 +1,8 @@
 import {z} from "zod";
-import {processorSocketSchema} from "./processor.schema.ts";
-import {memoryTypeSchema} from "./memory.schema.ts";
-import {pcieTypeSchema} from "./graphic-card.schema.ts";
-import {arrayPreprocess} from "../../../../../shared/utils/validation.utils.ts";
+import {processorSocketSchema} from "./processor.schema";
+import {memoryTypeSchema} from "./memory.schema";
+import {pcieTypeSchema} from "./graphic-card.schema";
+import {arrayPreprocess} from "../../../../../shared/utils/validation.utils";
 
 
 //export const MOTHERBOARD_PRODUCERS = ["ASUS", "GIGABYTE", "MSI", "ASROCK"] as const;

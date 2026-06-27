@@ -1,8 +1,8 @@
-import type {IDeliveryRepository} from "./domain/delivery.repository.contract.ts";
-import type {IDeliveryService} from "./application/delivery.service.contract.ts";
+import type {IDeliveryRepository} from "./domain/delivery.repository.contract";
+import type {IDeliveryService} from "./application/delivery.service.contract";
 import {asClass} from "awilix";
-import {DeliveryRepository} from "./infrastructure/database/delivery.repository.ts";
-import {DeliveryService} from "./application/delivery.service.ts";
+import {DeliveryRepository} from "./infrastructure/database/delivery.repository";
+import {DeliveryService} from "./application/delivery.service";
 
 
 

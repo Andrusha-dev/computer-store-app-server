@@ -1,22 +1,22 @@
-import type {IProducerService} from "./producer.service.contract.ts";
+import type {IProducerService} from "./producer.service.contract";
 import type {
     CreateProducerDto,
     ProducerResponse,
     ProducersQuery,
     ProducersResponse, UpdateProducerDto
-} from "../api/producer.dto.ts";
-import type {ProducerEntity} from "../domain/producer.entity.ts";
-import type {IProducerRepository} from "../domain/producer.repository.contract.ts";
-import {NotFoundError} from "../../../shared/error/custom.errors.ts";
-import {toProducerResponse, toProducersResponse} from "../api/producer.mapper.ts";
+} from "../api/producer.dto";
+import type {ProducerEntity} from "../domain/producer.entity";
+import type {IProducerRepository} from "../domain/producer.repository.contract";
+import {NotFoundError} from "../../../shared/error/custom.errors";
+import {toProducerResponse, toProducersResponse} from "../api/producer.mapper";
 import {
     toProducerCreateInput,
     toProducerFindManyArgs,
     toProducerUpdateInput,
-} from "./producer.mapper.ts";
-import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts";
-import {createPaginationMeta} from "../../../shared/utils/pagination.utils.ts";
-import {Prisma} from "../../../../prisma/generated/client.ts";
+} from "./producer.mapper";
+import type {PaginationMeta} from "../../../shared/schemas/pagination.schema";
+import {createPaginationMeta} from "../../../shared/utils/pagination.utils";
+import {Prisma} from "../../../../prisma/generated/client";
 
 
 

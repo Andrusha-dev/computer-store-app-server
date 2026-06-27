@@ -1,8 +1,8 @@
-import type {CreateOrderDto, OrderFilters, OrdersQuery} from "../api/order.dto.ts";
-import {orderInclude} from "../domain/order.entity.ts";
-import {toPaymentCreateWithoutOrderInput} from "../../payment/application/payment.mapper.ts";
-import {toDeliveryCreateWithoutOrderInput} from "../../delivery/application/delivery.mapper.ts";
-import {Prisma} from "../../../../prisma/generated/client.ts";
+import type {CreateOrderDto, OrderFilters, OrdersQuery} from "../api/order.dto";
+import {orderInclude} from "../domain/order.entity";
+import {toPaymentCreateWithoutOrderInput} from "../../payment/application/payment.mapper";
+import {toDeliveryCreateWithoutOrderInput} from "../../delivery/application/delivery.mapper";
+import {Prisma} from "../../../../prisma/generated/client";
 
 
 

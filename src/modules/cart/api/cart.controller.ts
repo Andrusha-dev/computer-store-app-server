@@ -1,10 +1,10 @@
 import type {Request, Response} from "express";
-import type {ICartService} from "../application/cart.service.contract.ts";
+import type {ICartService} from "../application/cart.service.contract";
 import type {IProductService} from "../../product";
-import type {CartFullResponse, CartItemParams, CreateCartItemDto, UpdateCartItemQuantityDto} from "./cart.dto.ts";
+import type {CartFullResponse, CartItemParams, CreateCartItemDto, UpdateCartItemQuantityDto} from "./cart.dto";
 import {
     extractTokenPayloadOrThrow, extractValidatedBodyOrThrow, extractValidatedParamsOrThrow
-} from "../../../api/helpers/http.helpers.ts";
+} from "../../../api/helpers/http.helpers";
 
 
 

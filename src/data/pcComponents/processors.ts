@@ -1,7 +1,7 @@
-import type {Processor} from "../../types/models/pcComponents/processor.types.js";
 
 
-export let processors: Processor[] = [
+
+let processors: any[] = [
     {
         id: 1,
         componentName: "Intel Core i5 10400",

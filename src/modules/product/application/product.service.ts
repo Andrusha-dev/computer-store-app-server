@@ -1,23 +1,24 @@
-import type {IProductService} from "./product.service.contract.ts";
-import type {IProductRepository} from "../domain/product.repository.contract.ts";
+import type {IProductService} from "./product.service.contract";
+import type {IProductRepository} from "../domain/product.repository.contract";
 import {
     type CreateProductDto,
     type ProductFullResponse,
     type ProductResponse,
     type ProductsQuery,
     type ProductsResponse, type UpdateProductDto
-} from "../api/product.dto.ts";
-import type {ProductEntity, ProductFullEntity} from "../domain/product.entity.ts";
-import {BadRequestError, NotFoundError} from "../../../shared/error/custom.errors.ts";
-import {toProductFullResponse, toProductResponse, toProductsResponse} from "../api/product.mapper.ts";
+} from "../api/product.dto";
+import type {ProductEntity, ProductFullEntity} from "../domain/product.entity";
+import {BadRequestError, NotFoundError} from "../../../shared/error/custom.errors";
+import {toProductFullResponse, toProductResponse, toProductsResponse} from "../api/product.mapper";
 import {
     toProductCreateInput,
     toProductFindManyArgs,
     toProductUpdateInput,
-} from "./product.mapper.ts";
-import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts";
-import {createPaginationMeta} from "../../../shared/utils/pagination.utils.ts";
-import {Prisma} from "../../../../prisma/generated/client.ts";
+} from "./product.mapper";
+import type {PaginationMeta} from "../../../shared/schemas/pagination.schema";
+import {createPaginationMeta} from "../../../shared/utils/pagination.utils";
+import {Prisma} from "../../../../prisma/generated/client";
+
 
 
 interface Dependencies {

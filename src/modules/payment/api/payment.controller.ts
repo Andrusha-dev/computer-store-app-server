@@ -1,6 +1,6 @@
 import type {Request, Response} from "express";
-import type {IPaymentService} from "../domain/payment.service.contract.ts";
-import {monobankWebhookDtoSchema, type PaymentStatus} from "./payment.dto.ts";
+import type {IPaymentService} from "../domain/payment.service.contract";
+import {monobankWebhookDtoSchema, type PaymentStatus} from "./payment.dto";
 
 
 

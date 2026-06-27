@@ -1,16 +1,16 @@
 import {
     baseProductSchema, categorySchema,
     productFiltersSchema, productSchema, productSortTypeSchema
-} from "./schemas/product.schema.ts";
+} from "./schemas/product.schema";
 import {z} from "zod";
-import {paginationCriteriaSchema, paginationMetaSchema} from "../../../shared/schemas/pagination.schema.ts";
-import {graphicCardSchema} from "./schemas/pcComponents/graphic-card.schema.ts";
-import {memorySchema} from "./schemas/pcComponents/memory.schema.ts";
-import {motherboardSchema} from "./schemas/pcComponents/motherboard.schema.ts";
-import {processorSchema} from "./schemas/pcComponents/processor.schema.ts";
-import {powerSupplySchema} from "./schemas/pcComponents/power-supply.schema.ts";
-import {storageSchema} from "./schemas/pcComponents/storage.schema.ts";
-import {producerResponseSchema} from "../../producer/index.ts";
+import {paginationCriteriaSchema, paginationMetaSchema} from "../../../shared/schemas/pagination.schema";
+import {graphicCardSchema} from "./schemas/pcComponents/graphic-card.schema";
+import {memorySchema} from "./schemas/pcComponents/memory.schema";
+import {motherboardSchema} from "./schemas/pcComponents/motherboard.schema";
+import {processorSchema} from "./schemas/pcComponents/processor.schema";
+import {powerSupplySchema} from "./schemas/pcComponents/power-supply.schema";
+import {storageSchema} from "./schemas/pcComponents/storage.schema";
+import {producerResponseSchema} from "../../producer/index";
 
 
 

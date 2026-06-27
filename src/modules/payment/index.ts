@@ -1,2 +1,2 @@
-export {type IPaymentModuleCradle, paymentModuleDeps} from "./payment.module.ts";
-export {PaymentService} from "./application/payment.service.ts";
+export {type IPaymentModuleCradle, paymentModuleDeps} from "./payment.module";
+export {PaymentService} from "./application/payment.service";

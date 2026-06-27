@@ -1,3 +1,3 @@
-export {type ProductResponse, productResponseSchema} from "./api/product.dto.ts"
-export {type IProductService} from "./application/product.service.contract.ts"
-export {type IProductModuleCradle, productModuleDeps} from "./product.module.ts"
+export {type ProductResponse, productResponseSchema} from "./api/product.dto"
+export {type IProductService} from "./application/product.service.contract"
+export {type IProductModuleCradle, productModuleDeps} from "./product.module"

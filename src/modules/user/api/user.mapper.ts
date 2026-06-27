@@ -1,9 +1,9 @@
 import {
     type UserFullResponse, userFullResponseSchema,
     type UserResponse, userResponseSchema, type UsersResponse, usersResponseSchema,
-} from "./user.dto.ts";
-import type {UserEntity, UserFullEntity} from "../domain/user.entity.ts";
-import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts";
+} from "./user.dto";
+import type {UserEntity, UserFullEntity} from "../domain/user.entity";
+import type {PaginationMeta} from "../../../shared/schemas/pagination.schema";
 
 
 

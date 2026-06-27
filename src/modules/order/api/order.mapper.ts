@@ -1,11 +1,11 @@
-import type {OrderFullEntity} from "../domain/order.entity.ts";
+import type {OrderFullEntity} from "../domain/order.entity";
 import {
     type OrderFullResponse,
     orderFullResponseSchema,
     type OrdersResponse,
     ordersResponseSchema
-} from "./order.dto.ts";
-import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts";
+} from "./order.dto";
+import type {PaginationMeta} from "../../../shared/schemas/pagination.schema";
 
 
 

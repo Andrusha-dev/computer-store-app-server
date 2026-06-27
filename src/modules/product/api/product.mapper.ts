@@ -1,11 +1,11 @@
-import type {ProductEntity, ProductFullEntity} from "../domain/product.entity.ts";
+import type {ProductEntity, ProductFullEntity} from "../domain/product.entity";
 import {
     type ProductFullResponse,
     productFullResponseSchema,
     type ProductResponse,
     productResponseSchema, type ProductsResponse, productsResponseSchema
-} from "./product.dto.ts";
-import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts";
+} from "./product.dto";
+import type {PaginationMeta} from "../../../shared/schemas/pagination.schema";
 
 
 export const toProductResponse = (product: ProductEntity): ProductResponse => {

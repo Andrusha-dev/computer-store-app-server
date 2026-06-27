@@ -1,11 +1,11 @@
 import {z} from "zod";
-import {processorFiltersSchema, processorSchema} from "./pcComponents/processor.schema.ts";
-import {memoryFiltersSchema, memorySchema} from "./pcComponents/memory.schema.ts";
-import {storageFiltersSchema, storageSchema} from "./pcComponents/storage.schema.ts";
-import {graphicCardFiltersSchema, graphicCardSchema} from "./pcComponents/graphic-card.schema.ts";
-import {motherboardFiltersSchema, motherboardSchema} from "./pcComponents/motherboard.schema.ts";
-import {powerSupplyFiltersSchema, powerSupplySchema} from "./pcComponents/power-supply.schema.ts";
-import {arrayPreprocess} from "../../../../shared/utils/validation.utils.ts";
+import {processorFiltersSchema, processorSchema} from "./pcComponents/processor.schema";
+import {memoryFiltersSchema, memorySchema} from "./pcComponents/memory.schema";
+import {storageFiltersSchema, storageSchema} from "./pcComponents/storage.schema";
+import {graphicCardFiltersSchema, graphicCardSchema} from "./pcComponents/graphic-card.schema";
+import {motherboardFiltersSchema, motherboardSchema} from "./pcComponents/motherboard.schema";
+import {powerSupplyFiltersSchema, powerSupplySchema} from "./pcComponents/power-supply.schema";
+import {arrayPreprocess} from "../../../../shared/utils/validation.utils";
 
 
 //БАЗОВІ СХЕМИ

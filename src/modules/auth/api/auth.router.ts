@@ -1,7 +1,7 @@
 import {Router} from "express";
-import {validate} from "../../../api/middlewares/validation.middleware.ts";
-import {loginDtoSchema, refreshAllTokensDtoSchema} from "./auth.dto.ts";
-import type {AuthController} from "./auth.controller.ts";
+import {validate} from "../../../api/middlewares/validation.middleware";
+import {loginDtoSchema, refreshAllTokensDtoSchema} from "./auth.dto";
+import type {AuthController} from "./auth.controller";
 
 
 

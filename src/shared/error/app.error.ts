@@ -1,4 +1,4 @@
-import type {ErrorCode, ErrorPayload} from "./error.types.ts";
+import type {ErrorCode, ErrorPayload} from "./error.types";
 
 
 export class AppError extends Error {

@@ -1,4 +1,4 @@
-import {type AuthResponse, authResponseSchema} from "./auth.dto.ts";
+import {type AuthResponse, authResponseSchema} from "./auth.dto";
 
 
 

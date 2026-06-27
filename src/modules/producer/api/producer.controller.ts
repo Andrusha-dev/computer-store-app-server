@@ -1,17 +1,17 @@
 import type {Request, Response} from "express";
-import type {IProducerService} from "../application/producer.service.contract.ts";
+import type {IProducerService} from "../application/producer.service.contract";
 import type {
     CreateProducerDto,
     ProducerParams,
     ProducerResponse,
     ProducersQuery,
     ProducersResponse, UpdateProducerDto
-} from "./producer.dto.ts";
+} from "./producer.dto";
 import {
     extractValidatedBodyOrThrow,
     extractValidatedParamsOrThrow,
     extractValidatedQueryOrThrow
-} from "../../../api/helpers/http.helpers.ts";
+} from "../../../api/helpers/http.helpers";
 
 
 

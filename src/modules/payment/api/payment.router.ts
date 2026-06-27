@@ -1,6 +1,6 @@
 import {Router} from "express";
-import type {IMonobankMiddleware} from "./verify-monobank-signature.middleware.ts";
-import type {PaymentWebhookController} from "./payment.controller.ts";
+import type {IMonobankMiddleware} from "./verify-monobank-signature.middleware";
+import type {PaymentWebhookController} from "./payment.controller";
 
 
 

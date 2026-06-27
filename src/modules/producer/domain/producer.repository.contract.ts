@@ -1,5 +1,5 @@
-import type {ProducerEntity} from "./producer.entity.ts";
-import {Prisma} from "../../../../prisma/generated/client.ts";
+import type {ProducerEntity} from "./producer.entity";
+import {Prisma} from "../../../../prisma/generated/client";
 
 
 

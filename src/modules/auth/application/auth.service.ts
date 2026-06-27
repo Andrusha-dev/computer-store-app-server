@@ -1,12 +1,12 @@
 import type {
     IAuthService
-} from "./auth.service.contract.ts";
-import {UnauthorizedError} from "../../../shared/error/custom.errors.ts";
-import type {IJwtProvider} from "../../../shared/contracts/jwt.contract.ts";
-import type {TokenPayload} from "../../../shared/schemas/token-payload.schema.ts";
-import type {AuthResponse, LoginDto, RefreshAllTokensDto} from "../api/auth.dto.ts";
-import type {IUserService, UserResponse} from "../../user/index.ts";
-import {toAuthResponse} from "../api/auth.mapper.ts";
+} from "./auth.service.contract";
+import {UnauthorizedError} from "../../../shared/error/custom.errors";
+import type {IJwtProvider} from "../../../shared/contracts/jwt.contract";
+import type {TokenPayload} from "../../../shared/schemas/token-payload.schema";
+import type {AuthResponse, LoginDto, RefreshAllTokensDto} from "../api/auth.dto";
+import type {IUserService, UserResponse} from "../../user/index";
+import {toAuthResponse} from "../api/auth.mapper";
 
 
 

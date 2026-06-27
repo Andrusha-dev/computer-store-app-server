@@ -1,5 +1,5 @@
 import {z} from "zod";
-import {arrayPreprocess} from "../../../../../shared/utils/validation.utils.ts";
+import {arrayPreprocess} from "../../../../../shared/utils/validation.utils";
 
 
 //export const GRAPHIC_CARD_PRODUCERS = ["NVIDIA", "AMD", "INTEL"] as const;

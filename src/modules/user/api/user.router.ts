@@ -1,11 +1,11 @@
-import type {IAuthMiddleware} from "../../../shared/contracts/auth.middleware.contract.ts";
+import type {IAuthMiddleware} from "../../../shared/contracts/auth.middleware.contract";
 import {Router} from "express";
-import {validate} from "../../../api/middlewares/validation.middleware.ts";
+import {validate} from "../../../api/middlewares/validation.middleware";
 import {
     createUserDtoSchema,
     updateUserDtoSchema, userParamsSchema, usersQuerySchema
-} from "./user.dto.ts";
-import type {UserController} from "./user.controller.ts";
+} from "./user.dto";
+import type {UserController} from "./user.controller";
 
 
 

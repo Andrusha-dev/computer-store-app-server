@@ -1,6 +1,6 @@
-import {config} from "./shared/infrastructure/config/index.ts";
-import {initLoaders} from "./api/loaders/index.ts";
-import {setupGracefulShutdown} from "./api/lifecycle/shutdown.ts";
+import {config} from "./shared/infrastructure/config/index";
+import {initLoaders} from "./api/loaders/index";
+import {setupGracefulShutdown} from "./api/lifecycle/shutdown";
 
 
 

@@ -1,8 +1,8 @@
-import type {IUserService} from "../application/user.service.contract.ts";
+import type {IUserService} from "../application/user.service.contract";
 import type {Request, Response} from "express";
 import {
     extractTokenPayloadOrThrow, extractValidatedBodyOrThrow, extractValidatedParamsOrThrow, extractValidatedQueryOrThrow
-} from "../../../api/helpers/http.helpers.ts";
+} from "../../../api/helpers/http.helpers";
 import type {
     CreateUserDto,
     UpdateUserDto,
@@ -10,8 +10,8 @@ import type {
     UserResponse,
     UsersQuery,
     UsersResponse
-} from "./user.dto.ts";
-import type {TokenPayload} from "../../../shared/schemas/token-payload.schema.ts";
+} from "./user.dto";
+import type {TokenPayload} from "../../../shared/schemas/token-payload.schema";
 
 
 

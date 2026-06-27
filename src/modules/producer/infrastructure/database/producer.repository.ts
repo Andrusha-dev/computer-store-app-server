@@ -1,7 +1,7 @@
-import type {IProducerRepository} from "../../domain/producer.repository.contract.ts";
-import type {PrismaService} from "../../../../shared/infrastructure/database/prisma.service.ts";
-import {type ProducerEntity} from "../../domain/producer.entity.ts";
-import {Prisma} from "../../../../../prisma/generated/client.ts";
+import type {IProducerRepository} from "../../domain/producer.repository.contract";
+import type {PrismaService} from "../../../../shared/infrastructure/database/prisma.service";
+import {type ProducerEntity} from "../../domain/producer.entity";
+import {Prisma} from "../../../../../prisma/generated/client";
 
 
 

@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
-import {type Config} from "../config/index.ts";
-import type {IJwtProvider} from "../../contracts/jwt.contract.ts";
-import {type TokenPayload, tokenPayloadSchema} from "../../schemas/token-payload.schema.ts";
+import {type Config} from "../config/index";
+import type {IJwtProvider} from "../../contracts/jwt.contract";
+import {type TokenPayload, tokenPayloadSchema} from "../../schemas/token-payload.schema";
 
 
 

@@ -17,7 +17,7 @@ const envSchema = z.object({
         ? z.string()
         : z.string().default("mock-token"),
     MONO_PUBLIC_KEY: process.env.NODE_ENV === 'production'
-        ? z.string().min(50, "Публічний ключ занадто короткий")
+        ? z.string()
         : z.string().default("mock-public-key"),
     ALLOWED_ORIGIN: process.env.NODE_ENV === 'production'
         ? z.url()

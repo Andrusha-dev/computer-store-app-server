@@ -1,5 +1,5 @@
-import type {CartFullEntity} from "../domain/cart.entity.ts";
-import {type CartFullResponse, cartFullResponseSchema} from "./cart.dto.ts";
+import type {CartFullEntity} from "../domain/cart.entity";
+import {type CartFullResponse, cartFullResponseSchema} from "./cart.dto";
 
 
 export const toCartFullResponse =

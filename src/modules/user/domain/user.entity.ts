@@ -1,4 +1,4 @@
-import {type Address, Prisma, type User} from "../../../../prisma/generated/client.ts";
+import {type Address, Prisma, type User} from "../../../../prisma/generated/client";
 
 
 

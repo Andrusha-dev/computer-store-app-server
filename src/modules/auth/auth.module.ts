@@ -1,8 +1,8 @@
-import type {IAuthService} from "./application/auth.service.contract.ts";
+import type {IAuthService} from "./application/auth.service.contract";
 import {asClass, asFunction} from "awilix";
-import {AuthService} from "./application/auth.service.ts";
-import {AuthController} from "./api/auth.controller.ts";
-import {type AuthRouter, createAuthRouter} from "./api/auth.router.ts";
+import {AuthService} from "./application/auth.service";
+import {AuthController} from "./api/auth.controller";
+import {type AuthRouter, createAuthRouter} from "./api/auth.router";
 
 
 

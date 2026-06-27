@@ -1,32 +1,31 @@
-import type {IOrderService} from "./order.service.contract.ts";
-import type {IOrderRepository} from "../domain/order.repository.contract.ts";
+import type {IOrderService} from "./order.service.contract";
+import type {IOrderRepository} from "../domain/order.repository.contract";
 import type {
     CheckoutResponse,
     CreateOrderDto,
     OrderFullResponse,
     OrdersQuery,
     OrdersResponse, RetryPaymentResponse
-} from "../api/order.dto.ts";
-import type {OrderFullEntity} from "../domain/order.entity.ts";
+} from "../api/order.dto";
+import type {OrderFullEntity} from "../domain/order.entity";
 import {
     BadGatewayError,
     BadRequestError,
     ForbiddenError,
     NotFoundError
-} from "../../../shared/error/custom.errors.ts";
-import {toOrderFullResponse, toOrdersResponse} from "../api/order.mapper.ts";
-//import {Prisma} from "@prisma/client";
-import {toOrderCreateInput, toOrderFindManyArgs} from "./order.mapper.ts";
-import type {PaginationMeta} from "../../../shared/schemas/pagination.schema.ts";
-import {createPaginationMeta} from "../../../shared/utils/pagination.utils.ts";
-import type {CartFullResponse, CartItemFullResponse} from "../../cart/api/cart.dto.ts";
-import type {IProductService, ProductResponse} from "../../product/index.ts";
-import type {ICartService} from "../../cart/index.ts";
-import type {PrismaService} from "../../../shared/infrastructure/database/prisma.service.ts";
-import type {IPaymentService} from "../../payment/domain/payment.service.contract.ts";
-import type {IDeliveryService} from "../../delivery/application/delivery.service.contract.ts";
-import type {CreateInvoiceResponse} from "../../payment/api/payment.dto.ts";
-import {Prisma} from "../../../../prisma/generated/client.ts";
+} from "../../../shared/error/custom.errors";
+import {toOrderFullResponse, toOrdersResponse} from "../api/order.mapper";
+import {toOrderCreateInput, toOrderFindManyArgs} from "./order.mapper";
+import type {PaginationMeta} from "../../../shared/schemas/pagination.schema";
+import {createPaginationMeta} from "../../../shared/utils/pagination.utils";
+import type {CartFullResponse, CartItemFullResponse} from "../../cart/api/cart.dto";
+import type {IProductService, ProductResponse} from "../../product/index";
+import type {ICartService} from "../../cart/index";
+import type {PrismaService} from "../../../shared/infrastructure/database/prisma.service";
+import type {IPaymentService} from "../../payment/domain/payment.service.contract";
+import type {IDeliveryService} from "../../delivery/application/delivery.service.contract";
+import type {CreateInvoiceResponse} from "../../payment/api/payment.dto";
+import {Prisma} from "../../../../prisma/generated/client";
 
 
 

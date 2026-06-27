@@ -1,7 +1,7 @@
-import type {PrismaService} from "../../../../shared/infrastructure/database/prisma.service.ts";
-import type {IPaymentRepository} from "../../domain/payment.repository.contract.ts";
-import type {PaymentEntity} from "../../domain/payment.entity.ts";
-import {Prisma} from "../../../../../prisma/generated/client.ts";
+import type {PrismaService} from "../../../../shared/infrastructure/database/prisma.service";
+import type {IPaymentRepository} from "../../domain/payment.repository.contract";
+import type {PaymentEntity} from "../../domain/payment.entity";
+import {Prisma} from "../../../../../prisma/generated/client";
 
 
 

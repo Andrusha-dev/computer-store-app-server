@@ -1,13 +1,13 @@
-import type {IAuthMiddleware} from "../../../shared/contracts/auth.middleware.contract.ts";
+import type {IAuthMiddleware} from "../../../shared/contracts/auth.middleware.contract";
 import {Router} from "express";
-import {validate} from "../../../api/middlewares/validation.middleware.ts";
+import {validate} from "../../../api/middlewares/validation.middleware";
 import {
     createOrderDtoSchema,
     orderParamsSchema,
     ordersQuerySchema,
     setTrackingNumberDtoSchema
-} from "./order.dto.ts";
-import type {OrderController} from "./order.controller.ts";
+} from "./order.dto";
+import type {OrderController} from "./order.controller";
 
 
 interface Dependencies {

@@ -1,10 +1,10 @@
-import type {IUserRepository} from "./domain/user.repository.contract.ts";
-import type {IUserService} from "./application/user.service.contract.ts";
+import type {IUserRepository} from "./domain/user.repository.contract";
+import type {IUserService} from "./application/user.service.contract";
 import {asClass, asFunction} from "awilix";
-import {UserRepository} from "./infrastructure/database/user.repository.ts";
-import {UserService} from "./application/user.service.ts";
-import {UserController} from "./api/user.controller.ts";
-import {createUserRouter, type UserRouter} from "./api/user.router.ts";
+import {UserRepository} from "./infrastructure/database/user.repository";
+import {UserService} from "./application/user.service";
+import {UserController} from "./api/user.controller";
+import {createUserRouter, type UserRouter} from "./api/user.router";
 
 
 

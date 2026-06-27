@@ -1,6 +1,6 @@
-import type {CreateProductDto, ProductsQuery, UpdateProductDto} from "../api/product.dto.ts";
-import {type ProductFilters} from "../api/schemas/product.schema.ts";
-import {Prisma} from "../../../../prisma/generated/client.ts";
+import type {CreateProductDto, ProductsQuery, UpdateProductDto} from "../api/product.dto";
+import {type ProductFilters} from "../api/schemas/product.schema";
+import {Prisma} from "../../../../prisma/generated/client";
 
 
 

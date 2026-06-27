@@ -1,5 +1,5 @@
 import {z} from "zod";
-import {arrayPreprocess} from "../../../../../shared/utils/validation.utils.ts";
+import {arrayPreprocess} from "../../../../../shared/utils/validation.utils";
 
 
 //export const STORAGE_PRODUCERS = ["SEAGATE", "TOSHIBA", "WESTERN_DIGITAL", "SAMSUNG", "HP", "ADATA"] as const;

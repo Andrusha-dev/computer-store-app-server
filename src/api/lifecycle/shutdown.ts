@@ -1,5 +1,5 @@
-import {container} from "../../shared/infrastructure/di/container.ts";
-import type {IDatabaseService} from "../../shared/contracts/database.contract.ts";
+import {container} from "../../shared/infrastructure/di/container";
+import type {IDatabaseService} from "../../shared/contracts/database.contract";
 import type {Server} from "node:http";
 
 
