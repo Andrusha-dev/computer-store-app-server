@@ -16,6 +16,9 @@ import {type IOrderModuleCradle, orderModuleDeps} from "../../../modules/order/i
 import {type IPaymentModuleCradle, paymentModuleDeps} from "../../../modules/payment/index";
 import {deliveryModuleDeps, type IDeliveryModuleCradle} from "../../../modules/delivery/index";
 import {config, type Config} from "../config/index";
+import type {ILoggerService} from "../../contracts/logger.contract";
+import {PinoLoggerService} from "../logger/pino-logger.service";
+import {ErrorHandler} from "../../../api/middlewares/error.middleware";
 
 
 
@@ -34,8 +37,10 @@ export interface ICradle extends
         dbService: PrismaService;
         hashProvider: IHashProvider;
         jwtProvider: IJwtProvider;
+        logger: ILoggerService
 
         authMiddleware: IAuthMiddleware;
+        errorHandler: ErrorHandler;
         appRouter: AppRouter;
     }
 
@@ -51,8 +56,10 @@ container.register({
     dbService: asClass(PrismaService).singleton(),
     hashProvider: asClass(BcryptProvider).singleton(),
     jwtProvider: asClass(JwtProvider).singleton(),
+    logger: asClass(PinoLoggerService).singleton(),
 
     authMiddleware: asClass(AuthMiddleware).singleton(),
+    errorHandler: asClass(ErrorHandler).singleton(),
     appRouter: asFunction(createAppRouter).singleton(),
 
     //modules

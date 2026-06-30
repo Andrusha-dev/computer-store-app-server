@@ -1,22 +1,26 @@
 import type { Express } from "express";
 import {databaseLoader} from "./database.loader";
 import {expressLoader} from "./express.loader";
+import {container} from "../../shared/infrastructure/di/container";
+import type {ILoggerService} from "../../shared/contracts/logger.contract";
 
 
 
 //Головний loader
 export const initLoaders = async (): Promise<Express> => {
-    console.log("🛠️  Initializing layers...");
+    const logger = container.resolve<ILoggerService>("logger");
+
+    logger.info("🛠️  Initializing layers...");
 
     //Спочатку база (якщо вона впаде, далі йти немає сенсу)
     await databaseLoader();
-    console.log("✅ Database connected");
+    logger.info("✅ Database connected");
 
     //Потім Express
     const app = await expressLoader();
-    console.log("✅ Express configured");
+    logger.info("✅ Express configured");
 
-    console.log("🚀 All systems GO!");
+    logger.info("🚀 All systems GO!");
 
     return app;
 };

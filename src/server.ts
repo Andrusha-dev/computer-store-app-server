@@ -1,6 +1,8 @@
 import {config} from "./shared/infrastructure/config/index";
 import {initLoaders} from "./api/loaders/index";
 import {setupGracefulShutdown} from "./api/lifecycle/shutdown";
+import type {ILoggerService} from "./shared/contracts/logger.contract";
+import {container} from "./shared/infrastructure/di/container";
 
 
 
@@ -9,14 +11,16 @@ import {setupGracefulShutdown} from "./api/lifecycle/shutdown";
 
 
 async function bootstrap() {
+        const logger = container.resolve<ILoggerService>('logger');
+
         try {
-                console.log("🚀 Starting bootstrap process...");
+                logger.info("🚀 Starting bootstrap process...");
 
                 const app = await initLoaders();
 
                 //Тільки після успішних перевірок запускаємо Express
                 const server = app.listen(config.port, () => {
-                        console.log(`
+                        logger.info(`
                                 ################################################
                                 🛡️  Server listening on port: ${config.port} 🛡️
                                 🏢  Environment: ${config.nodeEnv}
@@ -29,7 +33,7 @@ async function bootstrap() {
                 setupGracefulShutdown(server);
 
         } catch (error) {
-                console.error("💥 Bootstrap failed:", error);
+                logger.error("💥 Bootstrap failed:", error);
                 process.exit(1);
         }
 }

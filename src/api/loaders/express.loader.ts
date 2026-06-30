@@ -1,13 +1,21 @@
-import express, {type Router} from "express";
+import express from "express";
 import type { Express} from "express";
 import {cors} from "../middlewares/cors.middleware";
 import {container} from "../../shared/infrastructure/di/container";
-import {errorHandler} from "../middlewares/error.middleware";
+import type {ErrorHandler} from "../middlewares/error.middleware";
+import type {AppRouter} from "../routers/app.router";
+import {pinoHttp} from "pino-http";
+import type {Config} from "../../shared/infrastructure/config";
 
 
 
 
 export const expressLoader = async ():Promise<Express> => {
+    const config = container.resolve<Config>("config");
+    const appRouter = container.resolve<AppRouter>("appRouter");
+    const errorHandler = container.resolve<ErrorHandler>("errorHandler");
+
+
     const app = express();
 
     app.use(express.json({
@@ -21,12 +29,22 @@ export const expressLoader = async ():Promise<Express> => {
         }
     }));
 
+
+    app.use(pinoHttp({
+        transport: !config.isProduction
+            ? {target: "pino-pretty", options: {colorize: true}}
+            : undefined,
+        level: config.isProduction ? "warn" : "debug"
+    }))
+
+    //Додаємо мідлвару для cors
     app.use(cors);
 
-    const appRouter = container.resolve<Router>("appRouter");
+    //Додаємо основний маршрут
     app.use("/api", appRouter);
 
-    app.use(errorHandler);
+    //Додаємо мідлвару для обробки помилок
+    app.use(errorHandler.handle);
 
     return app;
 }

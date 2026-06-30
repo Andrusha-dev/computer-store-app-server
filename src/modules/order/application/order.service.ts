@@ -9,7 +9,6 @@ import type {
 } from "../api/order.dto";
 import type {OrderFullEntity} from "../domain/order.entity";
 import {
-    BadGatewayError,
     BadRequestError,
     ForbiddenError,
     NotFoundError
@@ -26,6 +25,7 @@ import type {IPaymentService} from "../../payment/domain/payment.service.contrac
 import type {IDeliveryService} from "../../delivery/application/delivery.service.contract";
 import type {CreateInvoiceResponse} from "../../payment/api/payment.dto";
 import {Prisma} from "../../../../prisma/generated/client";
+import type {ILoggerService} from "../../../shared/contracts/logger.contract";
 
 
 
@@ -37,7 +37,8 @@ interface Dependencies {
     cartService: ICartService,
     productService: IProductService,
     paymentService: IPaymentService,
-    deliveryService: IDeliveryService
+    deliveryService: IDeliveryService,
+    logger: ILoggerService,
 }
 
 export class OrderService implements IOrderService {
@@ -131,16 +132,11 @@ export class OrderService implements IOrderService {
 
             let paymentUrl: string | null = null;
 
-            try {
-                paymentUrl = await this.initiateOrderPayment(orderFullResponse);
-            } catch (error) {
-                //Гасимо помилку, щоб повернути клієнту успішно створене замовлення з paymentUrl: null
-                if (error instanceof BadGatewayError) {
-                    //Якщо це помилка банку
-                    console.error(`[BANK_DOWN] Монобанк не відповів для замовлення ${orderFullResponse.id}`);
-                } else if (!(error instanceof BadRequestError)) {
-                    //Помилку BadRequestError ми не логуємо, бо це зайве. Методом виключення логуємо помилку бд
-                    console.error(`[CRITICAL_DATABASE_ERROR] Інвойс в банку створено, але не вдалося оновити externalId для платежу замовлення ${orderFullResponse.id}. Помилка:`, error);
+            if (orderFullResponse.payment.method === "CARD") {
+                try {
+                    paymentUrl = await this.initiateOrderPayment(orderFullResponse);
+                } catch (error) {
+                    //Гасимо помилку, щоб повернути клієнту успішно створене замовлення з paymentUrl: null
                 }
             }
 
@@ -159,25 +155,13 @@ export class OrderService implements IOrderService {
         async (orderId: number, userId: number): Promise<RetryPaymentResponse> => {
             const order: OrderFullResponse = await this.findMyFullById(userId, orderId);
 
-            try {
-                const paymentUrl: string = await this.initiateOrderPayment(order);
-                const retryPaymentResponse: RetryPaymentResponse = {
-                    paymentUrl: paymentUrl
-                }
+            const paymentUrl: string = await this.initiateOrderPayment(order);
 
-                return  retryPaymentResponse;
-            } catch (error) {
-                if (error instanceof BadGatewayError) {
-                    //Якщо це помилка банку BadGatewayError — логуємо.
-                    console.error(`[BANK_DOWN] Монобанк не відповів під час повторної оплати замовлення ${order.id}`);
-                } else if (!(error instanceof BadRequestError)) {
-                    //Помилку BadRequestError ми не логуємо, бо це зайве. Методом виключення логуємо помилку бд
-                    console.error(`[CRITICAL_DATABASE_ERROR] Під час повторної оплати інвойс створено, але не оновлено externalId для замовлення ${order.id}. Помилка:`, error);
-                }
-
-                // Прокидуємо далі, щоб клієнт отримав чесний статус (502 або 500)
-                throw error;
+            const retryPaymentResponse: RetryPaymentResponse = {
+                paymentUrl: paymentUrl
             }
+
+            return  retryPaymentResponse;
         }
 
     // Додавання номеру декларації для payment та відповідна зміна статусу замовлення на DELIVERING (метод для адмінів)
