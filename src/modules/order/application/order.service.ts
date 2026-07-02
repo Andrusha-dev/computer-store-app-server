@@ -128,6 +128,9 @@ export class OrderService implements IOrderService {
             const data: Prisma.OrderCreateInput = toOrderCreateInput(userId, totalAmount, orderItems, dto);
 
             const orderFullEntity: OrderFullEntity = await this.executeOrderCreationTransaction(userId, cart.items, data);
+            this.deps.logger.info(
+                `[ORDER_SERVICE] Замовлення успішно створено. ID ${orderFullEntity.id}. Статус ${orderFullEntity.status}`,
+                {orderId: orderFullEntity.id, status: orderFullEntity.status})
             const orderFullResponse: OrderFullResponse = toOrderFullResponse(orderFullEntity);
 
             let paymentUrl: string | null = null;
@@ -180,6 +183,10 @@ export class OrderService implements IOrderService {
             const data: Prisma.OrderUpdateInput = {status: "DELIVERING"}
             // Також змінюємо статус самого замовлення, бо його вже відправлено!
             const updatedOrder: OrderFullEntity = await this.deps.orderRepository.update(id, data, tx);
+            this.deps.logger.info(
+                `[ORDER_SERVICE] Статус замовлення успішно оновлено до ${updatedOrder.status}`,
+                {orderId: updatedOrder.id, status: updatedOrder.status}
+            );
 
             const response: OrderFullResponse = toOrderFullResponse(updatedOrder);
 
@@ -202,6 +209,10 @@ export class OrderService implements IOrderService {
 
             const data: Prisma.OrderUpdateInput = {status: "PAID"}
             const order: OrderFullEntity = await this.deps.orderRepository.update(id, data);
+            this.deps.logger.info(
+                `[ORDER_SERVICE] Статус замовлення успішно оновлено до ${order.status}`,
+                {orderId: order.id, status: order.status}
+            );
             const response: OrderFullResponse = toOrderFullResponse(order);
 
             return response;
@@ -218,6 +229,10 @@ export class OrderService implements IOrderService {
 
             const data: Prisma.OrderUpdateInput = {status: "COMPLETED"}
             const orderFullEntity: OrderFullEntity = await this.deps.orderRepository.update(id, data);
+            this.deps.logger.info(
+                `[ORDER_SERVICE] Статус замовлення успішно оновлено до ${orderFullEntity.status}`,
+                {orderId: orderFullEntity.id, status: orderFullEntity.status}
+            )
 
             const response: OrderFullResponse = toOrderFullResponse(orderFullEntity);
 
@@ -252,6 +267,10 @@ export class OrderService implements IOrderService {
                 //Змінюємо статус замовлення на CANCELLED
                 const data: Prisma.OrderUpdateInput = {status: "CANCELLED"}
                 const orderFullEntity: OrderFullEntity = await this.deps.orderRepository.update(id, data, tx);
+                this.deps.logger.info(
+                    `[ORDER_SERVICE] Статус замовлення успішно змінене на ${orderFullEntity.status}`,
+                    {orderId: orderFullEntity.id, status: orderFullEntity.status}
+                );
 
                 const response: OrderFullResponse = toOrderFullResponse(orderFullEntity);
 

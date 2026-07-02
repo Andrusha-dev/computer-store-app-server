@@ -76,6 +76,6 @@ export class CartController {
 
             await this.cartService.clearCart(id);
 
-            res.status(200);
+            res.status(200).send("OK");
         }
 }

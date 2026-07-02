@@ -18,18 +18,23 @@ import {
 import type {PaginationMeta} from "../../../shared/schemas/pagination.schema";
 import {createPaginationMeta} from "../../../shared/utils/pagination.utils";
 import {Prisma} from "../../../../prisma/generated/client";
+import type {ILoggerService} from "../../../shared/contracts/logger.contract";
+
 
 
 
 interface Dependencies {
-    productRepository: IProductRepository
+    productRepository: IProductRepository;
+    logger: ILoggerService,
 }
 
 export class ProductService implements IProductService {
     private readonly productRepository: IProductRepository;
+    private readonly logger: ILoggerService;
 
-    constructor({productRepository}: Dependencies) {
+    constructor({productRepository, logger}: Dependencies) {
         this.productRepository = productRepository;
+        this.logger = logger;
     }
 
     findById =
@@ -124,6 +129,7 @@ export class ProductService implements IProductService {
     decreaseQuantity =
         async (id: number, count: number, tx?: Prisma.TransactionClient): Promise<void> => {
             const isUpdated: boolean = await this.productRepository.decreaseQuantityWithCheck(id, count, tx);
+            this.logger.info(`[PRODUCT_SERVICE] Кількість товару з ID ${id} зменшено на ${count} шт.`, {productId: id});
 
             if(!isUpdated) {
                 throw new BadRequestError(`Неможливо списати товар з ID ${id}: недостатньо на складі`);
@@ -135,6 +141,7 @@ export class ProductService implements IProductService {
     increaseQuantity =
         async (id: number, count: number, tx?: Prisma.TransactionClient): Promise<ProductFullResponse> => {
             const product: ProductFullEntity = await this.productRepository.increaseQuantity(id, count, tx);
+            this.logger.info(`[PRODUCT_SERVICE] Кількість товару з ID ${id} збільшено на ${count} шт.`, {productId: id})
 
             const response: ProductFullResponse = toProductFullResponse(product);
 
