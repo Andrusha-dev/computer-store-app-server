@@ -11,5 +11,6 @@ export interface CreateInvoiceOutput {
 }
 
 export interface IPaymentProvider {
-    createInvoice: (input: CreateInvoiceInput) => Promise<CreateInvoiceOutput>
+    createInvoice: (input: CreateInvoiceInput) => Promise<CreateInvoiceOutput>;
+    verifyWebhookSignature: (rawBody: Buffer, xSign: string) => boolean;
 }

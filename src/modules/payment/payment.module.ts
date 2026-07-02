@@ -7,7 +7,7 @@ import {MonobankProvider} from "./infrastructure/providers/monobank/monobank.pro
 import {PaymentService} from "./application/payment.service";
 import {PaymentWebhookController} from "./api/payment.controller";
 import {createPaymentRouter, type PaymentRouter} from "./api/payment.router";
-import {type IMonobankMiddleware, MonobankMiddleware} from "./api/verify-monobank-signature.middleware";
+import {type IMonobankMiddleware, MonobankMiddleware} from "./api/monobank.middleware";
 
 
 

@@ -7,6 +7,7 @@ import {type Config} from "../../../../../shared/infrastructure/config/index";
 import {BadGatewayError} from "../../../../../shared/error/custom.errors";
 import {z} from "zod";
 import {AppError} from "../../../../../shared/error/app.error";
+import crypto from "crypto";
 
 
 
@@ -24,6 +25,7 @@ export class MonobankProvider implements IPaymentProvider {
     private readonly baseUrl: string;
     private readonly isSandbox: boolean;
     private readonly allowedOriginUrl: string;
+    private readonly monoApiPubKey: string;
 
     constructor({config}: Dependencies) {
         this.token = config.monoApi.token;
@@ -32,6 +34,7 @@ export class MonobankProvider implements IPaymentProvider {
         //Якщо хоча б одна умова не виконується - здійснюється повноцінна взаємодія з api монобанку, в тому числі, якщо token згенерований в тестовому режимі монобанку
         this.isSandbox = !config.isProduction && this.token === "mock-token";
         this.allowedOriginUrl = config.allowedOrigin.url;
+        this.monoApiPubKey = config.monoApi.pubKey;
 
     }
 
@@ -104,5 +107,23 @@ export class MonobankProvider implements IPaymentProvider {
                 console.error("[Monobank Provider Error]:", error);
                 throw new BadGatewayError("Не вдалося зв'язатися з сервісом Monobank");
             }
+        }
+
+    verifyWebhookSignature =
+        (rawBody: Buffer, xSign: string): boolean => {
+            //Якщо в режимі пісочниці, то відразу повертаєм true, без фактичної верифікації вхідних даних (необхідно для розробки та тестування)
+            if (this.isSandbox) {
+                return true;
+            }
+
+            //Якщо ми в продакшені то верифікуємо запит як слід
+
+            const verifier = crypto.createVerify("sha256");
+            verifier.update(rawBody);
+
+            // Перевіряємо через публічний ключ з імпортованого конфігу
+            const isValid = verifier.verify(this.monoApiPubKey, xSign, "base64");
+
+            return isValid;
         }
 }
